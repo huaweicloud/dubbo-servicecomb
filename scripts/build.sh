@@ -20,7 +20,8 @@
 ## whenever commit to the repository, do Compilation and Installation
 
 if [ "$1" == "install" ]; then
-    mvn clean install -Pit -Pdocker
+    # TODO: mvn clean install -Pit -Pdocker
+    mvn clean install -Pit
     if [ $? == 0 ]; then
         echo "${green}Installation Success..${reset}"
     else

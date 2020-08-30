@@ -35,6 +35,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.huaweicloud</groupId>
+      <artifactId>dubbo-servicecomb-service-center</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.dubbo</groupId>
       <artifactId>dubbo-registry-multicast</artifactId>
     </dependency>
