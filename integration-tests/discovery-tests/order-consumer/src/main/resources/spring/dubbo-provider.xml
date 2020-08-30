@@ -25,6 +25,7 @@
 
 
   <dubbo:registry address="nacos://127.0.0.1:8848"/>
+  <!--  <dubbo:registry address="sc://127.0.0.1:30100"/>-->
 
 
 

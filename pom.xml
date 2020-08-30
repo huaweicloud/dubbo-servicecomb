@@ -34,10 +34,10 @@
   <packaging>pom</packaging>
   <name>Dubbo ServiceComb</name>
 
-
   <modules>
     <module>dependencies</module>
     <module>parents</module>
+    <module>discovery</module>
   </modules>
 
   <licenses>
