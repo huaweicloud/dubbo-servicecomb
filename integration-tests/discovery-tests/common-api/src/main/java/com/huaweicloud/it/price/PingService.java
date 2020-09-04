@@ -17,12 +17,6 @@
 
 package com.huaweicloud.it.price;
 
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-public class PriceApplication {
-  public static void main(String[] args) throws Exception {
-    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath*:spring/dubbo-provider.xml");
-    context.start();
-    System.in.read();
-  }
+public interface PingService {
+  boolean ping();
 }

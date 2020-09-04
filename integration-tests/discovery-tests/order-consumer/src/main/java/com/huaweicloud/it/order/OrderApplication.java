@@ -23,7 +23,7 @@ import com.huaweicloud.it.price.PriceService;
 
 public class OrderApplication {
   public static void main(String[] args) throws Exception {
-    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("spring/dubbo-provider.xml");
+    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath*:spring/dubbo-provider.xml");
     context.start();
 
     PriceService priceService = context.getBean("priceService", PriceService.class);

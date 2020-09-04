@@ -8,6 +8,8 @@ dubbo://192.168.0.204:8081/com.huaweicloud.it.price.PriceService?anyhost=true&ap
 2. ServiceCenterRegistry: doSubscribe
 provider://192.168.0.204:8081/com.huaweicloud.it.price.PriceService?anyhost=true&application=price-provider&bind.ip=192.168.0.204&bind.port=8081&category=configurators&check=false&deprecated=false&dubbo=2.0.2&dynamic=true&generic=false&interface=com.huaweicloud.it.price.PriceService&metadata-type=remote&methods=sayHello,sayHelloAsync&pid=7504&qos.port=22222&release=2.7.7&side=provider&timestamp=1598795055146
 
+注册完毕发送 : ServiceBeanExportedEvent 事件
+
 Consumer:
 
 1. ServiceCenterRegistry: doRegister
@@ -20,6 +22,9 @@ consumer://192.168.0.204/com.huaweicloud.it.price.PriceService?application=order
 
 3. ServiceCenterRegistry: doSubscribe: NotifyListener
 dubbo://192.168.0.204:8081/com.huaweicloud.it.price.PriceService?anyhost=true&application=price-provider&category=providers&deprecated=false&dubbo=2.0.2&dynamic=true&generic=false&interface=com.huaweicloud.it.price.PriceService&metadata-type=remote&methods=sayHello,sayHelloAsync&path=com.huaweicloud.it.price.PriceService&pid=7800&protocol=dubbo&release=2.7.7&side=provider&timestamp=1598797007624
+
+4. ServiceCenterRegistry: lookup
+consumer://192.168.0.204/com.huaweicloud.it.price.PriceService?application=order-consumer&category=providers,configurators,routers&check=false&dubbo=2.0.2&interface=com.huaweicloud.it.price.PriceService&methods=sayHello,sayHelloAsync&pid=10100&qos.port=33333&side=consumer&timestamp=1599116467792
 
 
 dubbo://192.168.0.204:8081/com.huaweicloud.it.price.PriceService?anyhost=true&application=price-provider&deprecated=false&dubbo=2.0.2&dynamic=true&generic=false&interface=com.huaweicloud.it.price.PriceService&metadata-type=remote&methods=sayHello,sayHelloAsync&pid=8172&release=2.7.7&side=provider&timestamp=1598794693130
