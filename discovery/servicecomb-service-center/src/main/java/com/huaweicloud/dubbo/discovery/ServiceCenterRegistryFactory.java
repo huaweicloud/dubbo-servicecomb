@@ -17,13 +17,35 @@
 
 package com.huaweicloud.dubbo.discovery;
 
-import org.apache.dubbo.common.URL;
-import org.apache.dubbo.registry.Registry;
-import org.apache.dubbo.registry.RegistryFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 
-public class ServiceCenterRegistryFactory implements RegistryFactory {
+import com.alibaba.dubbo.common.URL;
+import com.alibaba.dubbo.registry.Registry;
+import com.alibaba.dubbo.registry.support.AbstractRegistryFactory;
+
+public class ServiceCenterRegistryFactory extends AbstractRegistryFactory {
+  private RegistrationListener registrationListener;
+
+  public void setRegistrationListener(RegistrationListener registrationListener) {
+    this.registrationListener = registrationListener;
+  }
+
   @Override
-  public Registry getRegistry(URL url) {
-    return new ServiceCenterRegistry(url);
+  protected Registry createRegistry(URL url) {
+    return new ServiceCenterRegistry(url, registrationListener);
+  }
+
+  private String buildUrl(URL url) {
+    StringBuilder stringBuilder = new StringBuilder();
+    if (url.getParameter("enableSSL", false)) {
+      stringBuilder.append("https://");
+    } else {
+      stringBuilder.append("http://");
+    }
+    stringBuilder.append(url.getHost());
+    stringBuilder.append(":");
+    stringBuilder.append(url.getPort());
+    return stringBuilder.toString();
   }
 }
