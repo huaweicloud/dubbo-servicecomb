@@ -23,14 +23,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.servicecomb.service.center.client.DiscoveryEvents.InstanceChangedEvent;
 import org.apache.servicecomb.service.center.client.RegistrationEvents.HeartBeatEvent;
 import org.apache.servicecomb.service.center.client.RegistrationEvents.MicroserviceInstanceRegistrationEvent;
 import org.apache.servicecomb.service.center.client.RegistrationEvents.MicroserviceRegistrationEvent;
 import org.apache.servicecomb.service.center.client.ServiceCenterClient;
+import org.apache.servicecomb.service.center.client.ServiceCenterDiscovery;
 import org.apache.servicecomb.service.center.client.ServiceCenterRegistration;
 import org.apache.servicecomb.service.center.client.model.Microservice;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
@@ -47,6 +50,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
 import com.alibaba.dubbo.common.URL;
+import com.alibaba.dubbo.registry.NotifyListener;
 import com.google.common.base.Charsets;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -54,6 +58,35 @@ import com.google.common.hash.Hashing;
 
 @Component
 public class RegistrationListener implements ApplicationListener<ApplicationEvent>, ApplicationEventPublisherAware {
+  class SubscriptionKey {
+    final String appId;
+
+    final String serviceName;
+
+    SubscriptionKey(String appId, String serviceName) {
+      this.appId = appId;
+      this.serviceName = serviceName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      SubscriptionKey that = (SubscriptionKey) o;
+      return appId.equals(that.appId) &&
+          serviceName.equals(that.serviceName);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(appId, serviceName);
+    }
+  }
+
   private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationListener.class);
 
   private ServiceCenterClient client;
@@ -64,11 +97,15 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private ApplicationEventPublisher applicationEventPublisher;
 
-  private Map<String, String> interfaceMap = new HashMap<>();
+  private Map<String, Microservice> interfaceMap = new HashMap<>();
+
+  private Map<SubscriptionKey, NotifyListener> subscriptions = new HashMap<>();
 
   private ServiceCenterRegistry registry;
 
   private ServiceCenterRegistration serviceCenterRegistration;
+
+  private ServiceCenterDiscovery serviceCenterDiscovery;
 
   private EventBus eventBus;
 
@@ -141,24 +178,27 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
           return;
         }
 
-        String serviceID = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
-        if (serviceID == null) {
+        Microservice microservice = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
+        if (microservice == null) {
           // provider 后于 consumer 启动的场景， 再查询一次。
           updateInterfaceMap();
-          serviceID = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
+          microservice = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
         }
-        if (serviceID == null) {
+        if (microservice == null) {
           LOGGER.error("the subscribe url [{}] is not registered.", newSubscriberEvent.getUrl().getPath());
           return;
         }
-        MicroserviceInstancesResponse instancesResponse = client.getMicroserviceInstanceList(serviceID);
+        MicroserviceInstancesResponse instancesResponse = client
+            .getMicroserviceInstanceList(microservice.getServiceId());
         List<URL> notifyUrls = new ArrayList<>();
         instancesResponse.getInstances().forEach(instance -> {
           instance.getEndpoints().forEach(e -> notifyUrls.add(URL.valueOf(e)));
         });
         newSubscriberEvent.getNotifyListener().notify(notifyUrls);
 
-        // TODO: 实例变更逻辑处理
+        serviceCenterDiscovery.register(microservice);
+        subscriptions.put(new SubscriptionKey(microservice.getAppId(), microservice.getServiceName()),
+            newSubscriberEvent.getNotifyListener());
       }
     }
   }
@@ -178,10 +218,10 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private void updateInterfaceMap() {
     try {
-      Map<String, String> result = new HashMap<>();
+      Map<String, Microservice> result = new HashMap<>();
       MicroservicesResponse microservicesResponse = client.getMicroserviceList();
       microservicesResponse.getServices().forEach(service -> {
-        service.getSchemas().forEach(schema -> result.put(schema, service.getServiceId()));
+        service.getSchemas().forEach(schema -> result.put(schema, service));
       });
       interfaceMap.clear();
       interfaceMap.putAll(result);
@@ -201,6 +241,13 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   @Subscribe
   public void onMicroserviceRegistrationEvent(MicroserviceRegistrationEvent event) {
     registrationInProgress = true;
+    if (event.isSuccess()) {
+      if (serviceCenterDiscovery == null) {
+        serviceCenterDiscovery = new ServiceCenterDiscovery(client, eventBus);
+        serviceCenterDiscovery.startDiscovery();
+      }
+      serviceCenterDiscovery.updateMySelf(microservice);
+    }
   }
 
   @Subscribe
@@ -210,6 +257,19 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       updateInterfaceMap();
       firstRegistrationWaiter.countDown();
     }
+  }
+  // --- END ---- //
+
+  // --- 实例发现事件处理 ---- //
+  @Subscribe
+  public void onInstanceChangedEvent(InstanceChangedEvent event) {
+    SubscriptionKey subscriptionKey = new SubscriptionKey(event.getAppName(), event.getServiceName());
+    List<URL> notifyUrls = new ArrayList<>();
+    event.getInstances().forEach(instance -> {
+      instance.getEndpoints().forEach(e -> notifyUrls.add(URL.valueOf(e)));
+    });
+
+    this.subscriptions.get(subscriptionKey).notify(notifyUrls);
   }
   // --- END ---- //
 }

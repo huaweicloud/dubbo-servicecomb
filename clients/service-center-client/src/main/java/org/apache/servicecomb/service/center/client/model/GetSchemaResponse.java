@@ -15,22 +15,16 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.it.price;
+package org.apache.servicecomb.service.center.client.model;
 
-import java.io.IOException;
+public class GetSchemaResponse {
+  private String schema;
 
-import org.springframework.beans.BeansException;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+  public String getSchema() {
+    return schema;
+  }
 
-public class PriceApplication {
-  public static void main(String[] args) throws Exception {
-    try {
-      ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-          "classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml");
-      context.start();
-      System.in.read();
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
+  public void setSchema(String schema) {
+    this.schema = schema;
   }
 }

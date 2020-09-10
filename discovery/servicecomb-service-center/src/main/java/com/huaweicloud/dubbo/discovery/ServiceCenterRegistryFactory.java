@@ -17,9 +17,6 @@
 
 package com.huaweicloud.dubbo.discovery;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationEventPublisher;
-
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.registry.Registry;
 import com.alibaba.dubbo.registry.support.AbstractRegistryFactory;
@@ -27,6 +24,7 @@ import com.alibaba.dubbo.registry.support.AbstractRegistryFactory;
 public class ServiceCenterRegistryFactory extends AbstractRegistryFactory {
   private RegistrationListener registrationListener;
 
+  // Dubbo SPI 中注入 spring bean
   public void setRegistrationListener(RegistrationListener registrationListener) {
     this.registrationListener = registrationListener;
   }
@@ -34,18 +32,5 @@ public class ServiceCenterRegistryFactory extends AbstractRegistryFactory {
   @Override
   protected Registry createRegistry(URL url) {
     return new ServiceCenterRegistry(url, registrationListener);
-  }
-
-  private String buildUrl(URL url) {
-    StringBuilder stringBuilder = new StringBuilder();
-    if (url.getParameter("enableSSL", false)) {
-      stringBuilder.append("https://");
-    } else {
-      stringBuilder.append("http://");
-    }
-    stringBuilder.append(url.getHost());
-    stringBuilder.append(":");
-    stringBuilder.append(url.getPort());
-    return stringBuilder.toString();
   }
 }
