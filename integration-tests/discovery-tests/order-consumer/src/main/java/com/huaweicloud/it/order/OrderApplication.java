@@ -23,22 +23,21 @@ import com.huaweicloud.it.price.PriceService;
 
 public class OrderApplication {
   public static void main(String[] args) throws Exception {
-    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("classpath*:spring/dubbo-provider.xml");
+    ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+        "classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml");
     context.start();
 
     PriceService priceService = context.getBean("priceService", PriceService.class);
 
-    boolean success = false;
-    while (!success) {
+    while (true) {
       try {
         Thread.sleep(3000);
         System.out.println(priceService.sayHello("===========================hello"));
-        success = true;
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }
     }
 
-    System.in.read();
+//    System.in.read();
   }
 }

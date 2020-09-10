@@ -17,38 +17,34 @@
 
 package org.apache.servicecomb.service.center.client;
 
-public abstract class RegistrationEvents {
-  protected boolean success;
+import java.util.List;
 
-  protected RegistrationEvents(boolean success) {
-    this.success = success;
-  }
+import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
 
-  public boolean isSuccess() {
-    return this.success;
-  }
+public abstract class DiscoveryEvents {
+  public static class InstanceChangedEvent extends DiscoveryEvents {
+    private String appName;
 
-  public static class MicroserviceRegistrationEvent extends RegistrationEvents {
-    public MicroserviceRegistrationEvent(boolean success) {
-      super(success);
+    private String serviceName;
+
+    private List<MicroserviceInstance> instances;
+
+    public InstanceChangedEvent(String appName, String serviceName, List<MicroserviceInstance> instances) {
+      this.appName = appName;
+      this.serviceName = serviceName;
+      this.instances = instances;
     }
-  }
 
-  public static class SchemaRegistrationEvent extends RegistrationEvents {
-    public SchemaRegistrationEvent(boolean success) {
-      super(success);
+    public String getAppName() {
+      return appName;
     }
-  }
 
-  public static class MicroserviceInstanceRegistrationEvent extends RegistrationEvents {
-    public MicroserviceInstanceRegistrationEvent(boolean success) {
-      super(success);
+    public String getServiceName() {
+      return serviceName;
     }
-  }
 
-  public static class HeartBeatEvent extends RegistrationEvents {
-    public HeartBeatEvent(boolean success) {
-      super(success);
+    public List<MicroserviceInstance> getInstances() {
+      return instances;
     }
   }
 }
