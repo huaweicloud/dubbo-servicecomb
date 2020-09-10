@@ -15,31 +15,26 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.discovery;
+package org.apache.servicecomb.service.center.client.model;
 
-import org.springframework.context.ApplicationEvent;
+public class Framework {
+  private String name;
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.NotifyListener;
+  private String version;
 
-public class NewSubscriberEvent extends ApplicationEvent {
-  private static final long serialVersionUID = 1L;
-
-  private final URL url;
-
-  private final NotifyListener notifyListener;
-
-  public NewSubscriberEvent(URL url, NotifyListener notifyListener) {
-    super(url);
-    this.url = url;
-    this.notifyListener = notifyListener;
+  public String getName() {
+    return name;
   }
 
-  public URL getUrl() {
-    return url;
+  public void setName(String name) {
+    this.name = name;
   }
 
-  public NotifyListener getNotifyListener() {
-    return notifyListener;
+  public String getVersion() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
   }
 }

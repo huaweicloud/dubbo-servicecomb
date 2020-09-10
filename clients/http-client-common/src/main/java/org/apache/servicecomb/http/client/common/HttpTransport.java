@@ -15,31 +15,25 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.discovery;
+package org.apache.servicecomb.http.client.common;
 
-import org.springframework.context.ApplicationEvent;
+import java.io.IOException;
+import java.util.Map;
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.NotifyListener;
+/**
+ * Created by   on 2019/10/16.
+ */
+public interface HttpTransport {
 
-public class NewSubscriberEvent extends ApplicationEvent {
-  private static final long serialVersionUID = 1L;
+  HttpResponse get(HttpRequest request) throws IOException;
 
-  private final URL url;
+  HttpResponse post(HttpRequest request) throws IOException;
 
-  private final NotifyListener notifyListener;
+  HttpResponse put(HttpRequest request) throws IOException;
 
-  public NewSubscriberEvent(URL url, NotifyListener notifyListener) {
-    super(url);
-    this.url = url;
-    this.notifyListener = notifyListener;
-  }
+  HttpResponse delete(HttpRequest request) throws IOException;
 
-  public URL getUrl() {
-    return url;
-  }
+  HttpResponse doRequest(HttpRequest request) throws IOException;
 
-  public NotifyListener getNotifyListener() {
-    return notifyListener;
-  }
+  void addHeaders(Map<String, String> headers);
 }

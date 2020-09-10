@@ -18,13 +18,13 @@
 
   <dependencyManagement>
     <dependencies>
-<!--      <dependency>-->
-<!--        <groupId>com.huaweicloud</groupId>-->
-<!--        <artifactId>spring-cloud-huawei-dependencies</artifactId>-->
-<!--        <version>${spring-cloud-huawei.version}</version>-->
-<!--        <type>pom</type>-->
-<!--        <scope>import</scope>-->
-<!--      </dependency>-->
+      <dependency>
+        <groupId>com.fasterxml.jackson</groupId>
+        <artifactId>jackson-bom</artifactId>
+        <version>${jackson.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
       <dependency>
         <groupId>com.alibaba</groupId>
         <artifactId>dubbo-bom</artifactId>
@@ -44,7 +44,6 @@
         <scope>test</scope>
         <version>3.11.1</version>
       </dependency>
-
     </dependencies>
   </dependencyManagement>
 </project>

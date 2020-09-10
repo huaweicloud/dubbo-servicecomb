@@ -15,31 +15,33 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.discovery;
+package org.apache.servicecomb.http.client.common;
 
-import org.springframework.context.ApplicationEvent;
+import org.junit.Assert;
+import org.junit.Test;
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.NotifyListener;
+/**
+ * Created by   on 2019/10/31.
+ */
+public class TLSHttpsTransportTest {
 
-public class NewSubscriberEvent extends ApplicationEvent {
-  private static final long serialVersionUID = 1L;
+  /**
+   * test TLS HttpTransport
+   */
+  @Test
+  public void TestTLSConfig() {
 
-  private final URL url;
+    TLSConfig tlsConfig = new TLSConfig();
 
-  private final NotifyListener notifyListener;
+    tlsConfig.setKeyStoreType(TLSConfig.KeyStoreInstanceType.PKCS12);
+    tlsConfig.setKeyStore(this.getClass().getResource("/tls/client.p12").getFile().toString());
+    tlsConfig.setKeyStoreValue("123456");
 
-  public NewSubscriberEvent(URL url, NotifyListener notifyListener) {
-    super(url);
-    this.url = url;
-    this.notifyListener = notifyListener;
-  }
+    tlsConfig.setTrustStore(this.getClass().getResource("/tls/server.jks").getFile().toString());
+    tlsConfig.setTrustStoreValue("123456");
 
-  public URL getUrl() {
-    return url;
-  }
+    HttpTransport tlsHttpTransport = new TLSHttpsTransport(tlsConfig);
 
-  public NotifyListener getNotifyListener() {
-    return notifyListener;
+    Assert.assertNotNull(tlsHttpTransport);
   }
 }

@@ -15,31 +15,47 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.discovery;
+package org.apache.servicecomb.service.center.client.model;
 
-import org.springframework.context.ApplicationEvent;
+public class HealthCheck {
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.NotifyListener;
+  private HealthCheckMode mode;
 
-public class NewSubscriberEvent extends ApplicationEvent {
-  private static final long serialVersionUID = 1L;
+  private int port;
 
-  private final URL url;
+  private int interval;
 
-  private final NotifyListener notifyListener;
+  private int times;
 
-  public NewSubscriberEvent(URL url, NotifyListener notifyListener) {
-    super(url);
-    this.url = url;
-    this.notifyListener = notifyListener;
+  public HealthCheckMode getMode() {
+    return mode;
   }
 
-  public URL getUrl() {
-    return url;
+  public void setMode(HealthCheckMode mode) {
+    this.mode = mode;
   }
 
-  public NotifyListener getNotifyListener() {
-    return notifyListener;
+  public int getPort() {
+    return port;
+  }
+
+  public void setPort(int port) {
+    this.port = port;
+  }
+
+  public int getInterval() {
+    return interval;
+  }
+
+  public void setInterval(int interval) {
+    this.interval = interval;
+  }
+
+  public int getTimes() {
+    return times;
+  }
+
+  public void setTimes(int times) {
+    this.times = times;
   }
 }
