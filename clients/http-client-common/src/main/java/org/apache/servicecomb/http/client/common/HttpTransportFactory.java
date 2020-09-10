@@ -15,31 +15,16 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.discovery;
+package org.apache.servicecomb.http.client.common;
 
-import org.springframework.context.ApplicationEvent;
+public class HttpTransportFactory {
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.NotifyListener;
+  private static final HttpTransport httpTransport = new HttpTransportImpl();
 
-public class NewSubscriberEvent extends ApplicationEvent {
-  private static final long serialVersionUID = 1L;
-
-  private final URL url;
-
-  private final NotifyListener notifyListener;
-
-  public NewSubscriberEvent(URL url, NotifyListener notifyListener) {
-    super(url);
-    this.url = url;
-    this.notifyListener = notifyListener;
+  private HttpTransportFactory() {
   }
 
-  public URL getUrl() {
-    return url;
-  }
-
-  public NotifyListener getNotifyListener() {
-    return notifyListener;
+  public static HttpTransport getDefaultHttpTransport() {
+    return httpTransport;
   }
 }

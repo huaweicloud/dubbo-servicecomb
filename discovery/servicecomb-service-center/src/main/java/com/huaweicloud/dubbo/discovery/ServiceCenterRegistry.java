@@ -18,41 +18,27 @@
 package com.huaweicloud.dubbo.discovery;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.registry.NotifyListener;
 import com.alibaba.dubbo.registry.support.FailbackRegistry;
 
 public class ServiceCenterRegistry extends FailbackRegistry {
-  private static ServiceCenterRegistry instance;
-
-
   private List<URL> registers;
 
-  private Map<URL, NotifyListener> subscribers;
-
   private RegistrationListener registrationListener;
-
-  // 方便被 spring 相关的类使用
-  static ServiceCenterRegistry getInstance() {
-    return instance;
-  }
 
   public ServiceCenterRegistry(URL url, RegistrationListener registrationListener) {
     super(url);
 
-    instance = this;
     this.registrationListener = registrationListener;
+    this.registrationListener.setServiceCenterRegistry(this);
     this.registers = new ArrayList<>();
-    this.subscribers = new HashMap<>();
   }
 
   @Override
   protected void doRegister(URL url) {
-
     this.registers.add(url);
   }
 
@@ -63,8 +49,7 @@ public class ServiceCenterRegistry extends FailbackRegistry {
 
   @Override
   protected void doSubscribe(URL url, NotifyListener notifyListener) {
-    this.subscribers.put(url, notifyListener);
-    this.registrationListener.applicationEventPublisher().publishEvent(new NewSubscriberEvent(""));
+    this.registrationListener.applicationEventPublisher().publishEvent(new NewSubscriberEvent(url, notifyListener));
   }
 
   @Override
@@ -80,9 +65,5 @@ public class ServiceCenterRegistry extends FailbackRegistry {
 
   public List<URL> getRegisters() {
     return registers;
-  }
-
-  public Map<URL, NotifyListener> getSubscribers() {
-    return subscribers;
   }
 }

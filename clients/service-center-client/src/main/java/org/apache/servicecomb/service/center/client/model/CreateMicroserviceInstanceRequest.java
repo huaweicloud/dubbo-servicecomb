@@ -15,31 +15,16 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.discovery;
+package org.apache.servicecomb.service.center.client.model;
 
-import org.springframework.context.ApplicationEvent;
+public class CreateMicroserviceInstanceRequest {
+  private MicroserviceInstance instance;
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.NotifyListener;
-
-public class NewSubscriberEvent extends ApplicationEvent {
-  private static final long serialVersionUID = 1L;
-
-  private final URL url;
-
-  private final NotifyListener notifyListener;
-
-  public NewSubscriberEvent(URL url, NotifyListener notifyListener) {
-    super(url);
-    this.url = url;
-    this.notifyListener = notifyListener;
+  public MicroserviceInstance getInstance() {
+    return instance;
   }
 
-  public URL getUrl() {
-    return url;
-  }
-
-  public NotifyListener getNotifyListener() {
-    return notifyListener;
+  public void setInstance(MicroserviceInstance instance) {
+    this.instance = instance;
   }
 }

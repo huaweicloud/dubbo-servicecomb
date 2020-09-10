@@ -15,31 +15,28 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.discovery;
+package org.apache.servicecomb.service.center.client.model;
 
-import org.springframework.context.ApplicationEvent;
+import java.util.Map;
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.NotifyListener;
+public class BasePath {
+  private String path;
 
-public class NewSubscriberEvent extends ApplicationEvent {
-  private static final long serialVersionUID = 1L;
+  private Map<String, String> property;
 
-  private final URL url;
-
-  private final NotifyListener notifyListener;
-
-  public NewSubscriberEvent(URL url, NotifyListener notifyListener) {
-    super(url);
-    this.url = url;
-    this.notifyListener = notifyListener;
+  public Map<String, String> getProperty() {
+    return property;
   }
 
-  public URL getUrl() {
-    return url;
+  public void setProperty(Map<String, String> property) {
+    this.property = property;
   }
 
-  public NotifyListener getNotifyListener() {
-    return notifyListener;
+  public String getPath() {
+    return path;
+  }
+
+  public void setPath(String path) {
+    this.path = path;
   }
 }

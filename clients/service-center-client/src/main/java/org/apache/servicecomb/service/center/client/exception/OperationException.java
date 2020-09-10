@@ -15,31 +15,28 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.discovery;
+package org.apache.servicecomb.service.center.client.exception;
 
-import org.springframework.context.ApplicationEvent;
+public class OperationException extends RuntimeException {
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.NotifyListener;
-
-public class NewSubscriberEvent extends ApplicationEvent {
   private static final long serialVersionUID = 1L;
 
-  private final URL url;
-
-  private final NotifyListener notifyListener;
-
-  public NewSubscriberEvent(URL url, NotifyListener notifyListener) {
-    super(url);
-    this.url = url;
-    this.notifyListener = notifyListener;
+  public OperationException() {
   }
 
-  public URL getUrl() {
-    return url;
+  public OperationException(String message) {
+    super(message);
   }
 
-  public NotifyListener getNotifyListener() {
-    return notifyListener;
+  public OperationException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public OperationException(Throwable cause) {
+    super(cause);
+  }
+
+  public OperationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    super(message, cause, enableSuppression, writableStackTrace);
   }
 }
