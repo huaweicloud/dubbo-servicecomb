@@ -44,7 +44,7 @@ public class ServiceCenterRegistry extends FailbackRegistry {
 
   @Override
   protected void doUnregister(URL url) {
-    throw new IllegalStateException("not implemented");
+    this.registrationListener.shutdown();
   }
 
   @Override
@@ -54,7 +54,7 @@ public class ServiceCenterRegistry extends FailbackRegistry {
 
   @Override
   protected void doUnsubscribe(URL url, NotifyListener notifyListener) {
-    throw new IllegalStateException("not implemented");
+    this.registrationListener.shutdown();
   }
 
   @Override

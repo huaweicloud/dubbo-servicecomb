@@ -19,6 +19,7 @@ package com.huaweicloud.it.order;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import com.huaweicloud.it.price.PingService;
 import com.huaweicloud.it.price.PriceService;
 
 public class OrderApplication {
@@ -28,11 +29,13 @@ public class OrderApplication {
     context.start();
 
     PriceService priceService = context.getBean("priceService", PriceService.class);
+    PingService pingService = context.getBean("pingService", PingService.class);
 
     while (true) {
       try {
         Thread.sleep(3000);
         System.out.println(priceService.sayHello("===========================hello"));
+        System.out.println(pingService.ping());
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }

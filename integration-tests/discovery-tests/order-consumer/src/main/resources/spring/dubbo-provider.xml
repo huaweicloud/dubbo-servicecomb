@@ -28,5 +28,5 @@
   <dubbo:registry address="sc://127.0.0.1:30100"/>
 
   <dubbo:reference id="priceService" check="false" interface="com.huaweicloud.it.price.PriceService"/>
-
+  <dubbo:reference id="pingService" check="false" interface="com.huaweicloud.it.price.PingService"/>
 </beans>

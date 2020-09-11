@@ -18,6 +18,8 @@
 package com.huaweicloud.dubbo.discovery;
 
 import org.apache.servicecomb.service.center.client.model.Microservice;
+import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
+import org.apache.servicecomb.service.center.client.model.MicroserviceInstanceStatus;
 
 import com.alibaba.dubbo.common.utils.ConfigUtils;
 
@@ -34,11 +36,24 @@ public class Configuration {
 
   public static final String KEY_SERVICE_VERSION = "dubbo.servicecomb.service.version";
 
+  public static final String KEY_SERVICE_ENVIRONMENT = "dubbo.servicecomb.service.environment";
+
+  public static final String KEY_INSTANCE_ENVIRONMENT = "dubbo.servicecomb.instance.initialStatus";
+
+  public static final String KEY_REGISTRY_ADDRESS = "dubbo.servicecomb.registry.address";
+
   public static Microservice createMicroservice() {
     Microservice microservice = new Microservice();
-    microservice.setAppId(ConfigUtils.getProperty(KEY_SERVICE_APPLICATION, "defaultApplication"));
+    microservice.setAppId(ConfigUtils.getProperty(KEY_SERVICE_APPLICATION, "default"));
     microservice.setServiceName(ConfigUtils.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
-    microservice.setVersion(ConfigUtils.getProperty(KEY_SERVICE_VERSION, "0.0.1"));
+    microservice.setVersion(ConfigUtils.getProperty(KEY_SERVICE_VERSION, "1.0.0.0"));
+    microservice.setEnvironment(ConfigUtils.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
     return microservice;
+  }
+
+  public static MicroserviceInstance createMicroserviceInstance() {
+    MicroserviceInstance instance = new MicroserviceInstance();
+    instance.setStatus(MicroserviceInstanceStatus.valueOf(ConfigUtils.getProperty(KEY_INSTANCE_ENVIRONMENT, "UP")));
+    return instance;
   }
 }

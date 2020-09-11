@@ -58,6 +58,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.apache.servicecomb</groupId>
+      <artifactId>foundation-ssl</artifactId>
+      <version>${servicecomb.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
