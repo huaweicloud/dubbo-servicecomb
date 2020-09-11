@@ -32,6 +32,13 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+<!--      <dependency>-->
+<!--        <groupId>org.apache.servicecomb</groupId>-->
+<!--        <artifactId>java-chassis-bom</artifactId>-->
+<!--        <version>${servicecomb.version}</version>-->
+<!--        <type>pom</type>-->
+<!--        <scope>import</scope>-->
+<!--      </dependency>-->
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
