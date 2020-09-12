@@ -20,7 +20,6 @@ package com.huaweicloud.dubbo.discovery;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.servicecomb.http.client.common.HttpConfiguration.AKSKProperties;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
 import org.apache.servicecomb.service.center.client.AddressManager;
 import org.apache.servicecomb.service.center.client.DiscoveryEvents.InstanceChangedEvent;
@@ -148,10 +148,10 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   public void onApplicationEvent(ApplicationEvent applicationEvent) {
     if (applicationEvent instanceof ContextRefreshedEvent) {
       try {
-        AddressManager addressManager = new AddressManager("default", Arrays.asList("http://127.0.0.1:30100"));
-        SSLProperties sslProperties = new SSLProperties();
-        sslProperties.setEnabled(false);
-        client = new ServiceCenterClient(addressManager, sslProperties, "default", null);
+        AddressManager addressManager = Configuration.createAddressManager();
+        SSLProperties sslProperties = Configuration.createSSLProperties();
+        AKSKProperties akskProperties = Configuration.createAKSKProperties();
+        client = new ServiceCenterClient(addressManager, sslProperties, akskProperties, "default", null);
         microservice = Configuration.createMicroservice();
         if (registry != null) {
           // consumer: 如果没有 provider 接口， dubbo 启动的时候， 不会初始化 Registry。 调用接口的时候，才会初始化。
@@ -173,7 +173,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 //          });
 //        }
 
-        instance = new MicroserviceInstance();
+        instance = Configuration.createMicroserviceInstance();
         List<String> endpoints = new ArrayList<>();
         if (registry != null) {
           endpoints.addAll(registry.getRegisters().stream().map(url -> url.toString()).collect(Collectors.toList()));
