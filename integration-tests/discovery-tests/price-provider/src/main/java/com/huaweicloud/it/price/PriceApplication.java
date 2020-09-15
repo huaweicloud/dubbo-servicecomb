@@ -17,9 +17,6 @@
 
 package com.huaweicloud.it.price;
 
-import java.io.IOException;
-
-import org.springframework.beans.BeansException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class PriceApplication {

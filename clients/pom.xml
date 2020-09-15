@@ -27,9 +27,7 @@
     <relativePath>../parents</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <version>2.1.2-SNAPSHOT</version>
-  <artifactId>clients</artifactId>
-  <groupId>org.apache.servicecomb</groupId>
+  <artifactId>dubbo-servicecomb-clients</artifactId>
   <name>ServiceComb::Client</name>
   <packaging>pom</packaging>
   <modules>
