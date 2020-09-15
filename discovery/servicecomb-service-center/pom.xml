@@ -14,9 +14,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.servicecomb</groupId>
-      <artifactId>service-center-client</artifactId>
-      <version>2.1.2-SNAPSHOT</version>
+      <groupId>com.huaweicloud</groupId>
+      <artifactId>dubbo-servicecomb-service-center-client</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.alibaba</groupId>

@@ -1,5 +1,13 @@
 # dubbo-servicecomb 项目介绍
 
+## 版本配套关系 
+
+阅读下面的内容前，请切换对应代码分支，查看需要的版本内容。
+
+| 分支 | 项目版本 | dubbo 基线版本 | 支持的dubbo版本建议|
+| ---  | ------- | ------------ | ----------- |
+| master | 1.0.0-SNAPSHOT | 2.6.9 | 2.6.x，建议使用前先升级到 2.6.9 以上的版本|
+
 ## dubbo 微服务概念 vs dubbo-servicecomb
 
 * Dubbo微服务概念：
@@ -48,3 +56,72 @@ MicroserviceInstance:
 
   * 原生dubbo允许一个服务在不同的应用中提供实现。这个给服务拆分和合并带来了很大的方便，将一个微服务拆分两个微服务，consumer不用感知这个拆分。使用 dubbo servicecomb，服务拆分涉及接口变更，需要调用端配套修改（或者只能够通过应用网关屏蔽差异，前提条件是URL不发生变化）。
   * 原生dubbo可以通过注册中心控制台或者REST接口，调整注册参数，从而实现对微服务的治理。使用 dubbo servicecomb，无法满足这方面的使用要求。
+
+## 快速开始
+
+1. POM 中引入依赖
+
+        ```yaml
+            <dependency>
+              <groupId>com.huaweicloud</groupId>
+              <artifactId>dubbo-servicecomb-service-center</artifactId>
+            </dependency>
+        ```
+
+2. 采用 Spring 启动（目前只支持 Spring 启动方式）。
+  Spring 扫描路径中，需要增加 `classpath*:spring/dubbo-servicecomb.xml`， 举例如下：
+
+        ```java
+            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                "classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml");
+        ```
+
+3. 使用 service center 作为注册发现。
+   在 Spring 配置文件中增加如下配置。 如果配置文件已经配置了 zookeeper， 哪里需要使用下面的配置项进行替换。 
+
+        ```xml
+        <dubbo:registry address="sc://127.0.0.1:30100"/>
+        ```
+4. 配置文件增加配置项。
+  基本配置项包括微服务信息、微服务实例信息和服务中心地址信息。 提供了使用 SSL、 AK/SK 进行认证的配置。 
+  
+        ```properties
+        # 版本。默认为 1.0.0.0
+        dubbo.servicecomb.service.version=1.0.0
+        # 环境。默认为空。可选值：development, testing, acceptance, production
+        # dubbo.servicecomb.service.environment=production
+        #### END
+        
+        #### 实例配置信息 ####
+        # 实例初始状态。可选值： UP, DOWN, STARTING, OUTOFSERVICE
+        # dubbo.servicecomb.instance.initialStatus=UP
+        #### END
+        
+        #### 服务中心配置信息 ####
+        dubbo.servicecomb.registry.address=http://127.0.0.1:30100
+        # project。 默认为 default
+        # dubbo.servicecomb.registry.project=
+        #dubbo.servicecomb.registry.ssl.enabled=true
+        # ssl engine. 默认为 JDK， 可选 OPENSSL
+        #dubbo.servicecomb.registry.ssl.engine=
+        # ssl protocols。 默认 TLSv1.2
+        #dubbo.servicecomb.registry.ssl.protocols=
+        # ssl ciphers。默认 TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        #dubbo.servicecomb.registry.ssl.ciphers=
+        #dubbo.servicecomb.registry.ssl.authPeer=false
+        #dubbo.servicecomb.registry.ssl.trustStore=
+        #dubbo.servicecomb.registry.ssl.trustStoreType=
+        #dubbo.servicecomb.registry.ssl.trustStoreValue=
+        #dubbo.servicecomb.registry.ssl.keyStore=
+        #dubbo.servicecomb.registry.ssl.keyStoreType=
+        #dubbo.servicecomb.registry.ssl.keyStoreValue=
+        #dubbo.servicecomb.registry.ssl.crl=
+        #dubbo.servicecomb.registry.ssl.sslCustomClass=
+        
+        # AK/SK 认证配置
+        #dubbo.servicecomb.registry.credentials.enabled=true
+        #dubbo.servicecomb.registry.credentials.accessKey=
+        #dubbo.servicecomb.registry.credentials.secretKey=
+        #dubbo.servicecomb.registry.credentials.cipher=
+        #dubbo.servicecomb.registry.credentials.project=cn-south-1
+        ```
