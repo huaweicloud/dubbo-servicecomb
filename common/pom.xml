@@ -10,17 +10,12 @@
 
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>dubbo-servicecomb-service-center</artifactId>
+  <artifactId>dubbo-servicecomb-common</artifactId>
 
   <dependencies>
     <dependency>
       <groupId>com.huaweicloud</groupId>
-      <artifactId>dubbo-servicecomb-service-center-client</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.huaweicloud</groupId>
-      <artifactId>dubbo-servicecomb-common</artifactId>
+      <artifactId>http-client-common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

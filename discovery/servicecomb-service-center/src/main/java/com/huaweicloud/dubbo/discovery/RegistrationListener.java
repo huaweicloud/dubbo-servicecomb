@@ -53,8 +53,9 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.registry.NotifyListener;
-import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
+import com.huaweicloud.dubbo.common.CommonConfiguration;
+import com.huaweicloud.dubbo.common.EventManager;
 
 @Component
 public class RegistrationListener implements ApplicationListener<ApplicationEvent>, ApplicationEventPublisherAware {
@@ -111,8 +112,6 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private ServiceCenterDiscovery serviceCenterDiscovery;
 
-  private EventBus eventBus;
-
   private CountDownLatch firstRegistrationWaiter = new CountDownLatch(1);
 
   private boolean registrationInProgress = true;
@@ -148,11 +147,11 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   public void onApplicationEvent(ApplicationEvent applicationEvent) {
     if (applicationEvent instanceof ContextRefreshedEvent) {
       try {
-        AddressManager addressManager = Configuration.createAddressManager();
-        SSLProperties sslProperties = Configuration.createSSLProperties();
-        AKSKProperties akskProperties = Configuration.createAKSKProperties();
+        AddressManager addressManager = ServiceCenterConfiguration.createAddressManager();
+        SSLProperties sslProperties = CommonConfiguration.createSSLProperties();
+        AKSKProperties akskProperties = CommonConfiguration.createAKSKProperties();
         client = new ServiceCenterClient(addressManager, sslProperties, akskProperties, "default", null);
-        microservice = Configuration.createMicroservice();
+        microservice = ServiceCenterConfiguration.createMicroservice();
         if (registry != null) {
           // consumer: 如果没有 provider 接口， dubbo 启动的时候， 不会初始化 Registry。 调用接口的时候，才会初始化。
           microservice
@@ -173,7 +172,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 //          });
 //        }
 
-        instance = Configuration.createMicroserviceInstance();
+        instance = ServiceCenterConfiguration.createMicroserviceInstance();
         List<String> endpoints = new ArrayList<>();
         if (registry != null) {
           endpoints.addAll(registry.getRegisters().stream().map(url -> url.toString()).collect(Collectors.toList()));
@@ -181,9 +180,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         instance.setEndpoints(endpoints);
         instance.setHostName(InetAddress.getLocalHost().getHostName());
 
-        eventBus = new EventBus();
-        eventBus.register(this);
-        serviceCenterRegistration = new ServiceCenterRegistration(client, eventBus);
+        EventManager.register(this);
+        serviceCenterRegistration = new ServiceCenterRegistration(client, EventManager.getEventBus());
         serviceCenterRegistration.setMicroservice(microservice);
         serviceCenterRegistration.setMicroserviceInstance(instance);
 //        serviceCenterRegistration.setSchemaInfos(schemaInfos);
@@ -262,7 +260,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     registrationInProgress = true;
     if (event.isSuccess()) {
       if (serviceCenterDiscovery == null) {
-        serviceCenterDiscovery = new ServiceCenterDiscovery(client, eventBus);
+        serviceCenterDiscovery = new ServiceCenterDiscovery(client, EventManager.getEventBus());
         serviceCenterDiscovery.startDiscovery();
       }
       serviceCenterDiscovery.updateMySelf(microservice);

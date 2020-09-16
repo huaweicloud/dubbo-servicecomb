@@ -4,18 +4,18 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>com.huaweicloud</groupId>
-    <artifactId>dubbo-servicecomb-discovery-parent</artifactId>
+    <artifactId>dubbo-servicecomb-config-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>dubbo-servicecomb-service-center</artifactId>
+  <artifactId>dubbo-servicecomb-config-center</artifactId>
 
   <dependencies>
     <dependency>
       <groupId>com.huaweicloud</groupId>
-      <artifactId>dubbo-servicecomb-service-center-client</artifactId>
+      <artifactId>dubbo-servicecomb-config-center-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -23,11 +23,6 @@
       <artifactId>dubbo-servicecomb-common</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>com.alibaba</groupId>
-      <artifactId>dubbo-registry-api</artifactId>
-    </dependency>
-
     <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>dubbo-common</artifactId>
