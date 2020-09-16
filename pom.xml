@@ -40,7 +40,10 @@
     <module>dependencies</module>
     <module>parents</module>
     <module>clients</module>
+
+    <module>common</module>
     <module>discovery</module>
+    <module>config</module>
   </modules>
 
   <licenses>
