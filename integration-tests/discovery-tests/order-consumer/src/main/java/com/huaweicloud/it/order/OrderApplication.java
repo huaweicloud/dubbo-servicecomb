@@ -36,6 +36,7 @@ public class OrderApplication {
         Thread.sleep(3000);
         System.out.println(priceService.sayHello("===========================hello"));
         System.out.println(pingService.ping());
+        System.out.println(priceService.sayHello("timeout"));
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }

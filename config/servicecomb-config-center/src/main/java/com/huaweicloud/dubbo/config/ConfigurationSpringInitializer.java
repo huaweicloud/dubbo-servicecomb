@@ -17,6 +17,7 @@
 
 package com.huaweicloud.dubbo.config;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +29,7 @@ import org.apache.servicecomb.config.center.client.model.QueryConfigurationsRequ
 import org.apache.servicecomb.config.center.client.model.QueryConfigurationsResponse;
 import org.apache.servicecomb.http.client.common.HttpTransport;
 import org.apache.servicecomb.http.client.common.HttpTransportFactory;
+import org.apache.servicecomb.http.client.common.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
@@ -40,6 +42,9 @@ import org.springframework.core.env.MapPropertySource;
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
+import com.huaweicloud.dubbo.common.GovernanceData;
+import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
+import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
 
 public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigurer implements EnvironmentAware {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationSpringInitializer.class);
@@ -53,6 +58,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
   QueryConfigurationsRequest queryConfigurationsRequest;
 
   final Map<String, Object> sources = new HashMap<>();
+
+  String governanceData = null;
 
   public ConfigurationSpringInitializer() {
     setOrder(Ordered.LOWEST_PRECEDENCE / 2);
@@ -76,6 +83,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
           sources.putAll(response.getConfigurations());
           ce.getPropertySources().addFirst(
               new MapPropertySource(CONFIG_NAME, sources));
+          notifyGovernanceDataChange(response.getConfigurations());
         } catch (Exception e) {
           LOGGER.warn("set up {} failed at startup.", CONFIG_NAME, e);
         }
@@ -97,5 +105,43 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     LOGGER.info("receive new configurations [{}]", event.getConfigurations().keySet());
     sources.clear();
     sources.putAll(event.getConfigurations());
+
+    notifyGovernanceDataChange(event.getConfigurations());
+  }
+
+  @Subscribe
+  public void onRegistrationReadyEvent(RegistrationReadyEvent event) {
+    // 注册完成发送一次配置变更， 保证订阅者能够读取到配置
+    try {
+      if (this.governanceData == null) {
+        EventManager.post(new GovernanceDataChangeEvent(null));
+      } else {
+        EventManager
+            .post(new GovernanceDataChangeEvent(HttpUtils.deserialize(this.governanceData, GovernanceData.class)));
+      }
+    } catch (IOException e) {
+      LOGGER.error("wrong governance data [{}] received.", this.governanceData);
+    }
+  }
+
+  private void notifyGovernanceDataChange(Map<String, Object> configurations) {
+    String governanceData = (String) configurations.get(GovernanceDataChangeEvent.GOVERNANCE_KEY);
+    if (isGovernanceDataChanged(governanceData)) {
+      try {
+        if (governanceData == null) {
+          EventManager.post(new GovernanceDataChangeEvent(null));
+        } else {
+          EventManager.post(new GovernanceDataChangeEvent(HttpUtils.deserialize(governanceData, GovernanceData.class)));
+        }
+        this.governanceData = governanceData;
+      } catch (IOException e) {
+        LOGGER.error("wrong governance data [{}] received.", governanceData);
+      }
+    }
+  }
+
+  private boolean isGovernanceDataChanged(String governanceData) {
+    return (this.governanceData == null && governanceData != null)
+        || (this.governanceData != null && !this.governanceData.equals(governanceData));
   }
 }

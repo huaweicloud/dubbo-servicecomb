@@ -15,25 +15,30 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.it.price;
+package com.huaweicloud.dubbo.common;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.Map;
 
-public class PriceServiceImpl implements PriceService {
-  @Override
-  public String sayHello(String name) {
-    if ("timeout".equals(name)) {
-      try {
-        Thread.sleep(3000);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    }
-    return name;
+public class SchemaInfo {
+  private String schemaId;
+
+  private Map<String, String> parameters;
+
+  public String getSchemaId() {
+    return schemaId;
   }
 
-  @Override
-  public CompletableFuture<String> sayHelloAsync(String name) {
-    return CompletableFuture.completedFuture(sayHello(name));
+  public SchemaInfo setSchemaId(String schemaId) {
+    this.schemaId = schemaId;
+    return this;
+  }
+
+  public Map<String, String> getParameters() {
+    return parameters;
+  }
+
+  public SchemaInfo setParameters(Map<String, String> parameters) {
+    this.parameters = parameters;
+    return this;
   }
 }

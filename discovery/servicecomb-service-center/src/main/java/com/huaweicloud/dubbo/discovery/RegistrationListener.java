@@ -49,17 +49,20 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.stereotype.Component;
 
 import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.registry.NotifyListener;
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
+import com.huaweicloud.dubbo.common.GovernanceData;
+import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
+import com.huaweicloud.dubbo.common.ProviderInfo;
+import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
+import com.huaweicloud.dubbo.common.SchemaInfo;
 
-@Component
 public class RegistrationListener implements ApplicationListener<ApplicationEvent>, ApplicationEventPublisherAware {
-  class SubscriptionKey {
+  static class SubscriptionKey {
     final String appId;
 
     final String serviceName;
@@ -92,6 +95,17 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     }
   }
 
+  static class SubscriptionData {
+    final NotifyListener notifyListener;
+
+    final List<URL> urls;
+
+    SubscriptionData(NotifyListener notifyListener, List<URL> urls) {
+      this.notifyListener = notifyListener;
+      this.urls = urls;
+    }
+  }
+
   private static final Logger LOGGER = LoggerFactory.getLogger(RegistrationListener.class);
 
   private ServiceCenterClient client;
@@ -102,9 +116,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private ApplicationEventPublisher applicationEventPublisher;
 
-  private Map<String, Microservice> interfaceMap = new HashMap<>();
+  private final Map<String, Microservice> interfaceMap = new HashMap<>();
 
-  private Map<SubscriptionKey, NotifyListener> subscriptions = new HashMap<>();
+  private final Map<SubscriptionKey, SubscriptionData> subscriptions = new HashMap<>();
 
   private ServiceCenterRegistry registry;
 
@@ -112,11 +126,13 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private ServiceCenterDiscovery serviceCenterDiscovery;
 
-  private CountDownLatch firstRegistrationWaiter = new CountDownLatch(1);
+  private final CountDownLatch firstRegistrationWaiter = new CountDownLatch(1);
 
   private boolean registrationInProgress = true;
 
   private boolean shutdown = false;
+
+  private GovernanceData governanceData;
 
   public RegistrationListener() {
   }
@@ -143,7 +159,6 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public void onApplicationEvent(ApplicationEvent applicationEvent) {
     if (applicationEvent instanceof ContextRefreshedEvent) {
       try {
@@ -155,27 +170,13 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         if (registry != null) {
           // consumer: 如果没有 provider 接口， dubbo 启动的时候， 不会初始化 Registry。 调用接口的时候，才会初始化。
           microservice
-              .setSchemas(registry.getRegisters().stream().map(url -> url.getPath()).collect(Collectors.toList()));
+              .setSchemas(registry.getRegisters().stream().map(URL::getPath).collect(Collectors.toList()));
         }
-
-        // 不需要注册 schema, 放到实例里面
-//        List<SchemaInfo> schemaInfos = new ArrayList<>();
-//
-//        if (registry != null) {
-//          registry.getRegisters().forEach(url -> {
-//            SchemaInfo schemaInfo = new SchemaInfo();
-//            schemaInfo.setSchemaId(url.getPath());
-//            schemaInfo.setSchema(url.toString());
-//            schemaInfo
-//                .setSummary(Hashing.sha256().newHasher().putString(url.toString(), Charsets.UTF_8).hash().toString());
-//            schemaInfos.add(schemaInfo);
-//          });
-//        }
 
         instance = ServiceCenterConfiguration.createMicroserviceInstance();
         List<String> endpoints = new ArrayList<>();
         if (registry != null) {
-          endpoints.addAll(registry.getRegisters().stream().map(url -> url.toString()).collect(Collectors.toList()));
+          endpoints.addAll(registry.getRegisters().stream().map(URL::toString).collect(Collectors.toList()));
         }
         instance.setEndpoints(endpoints);
         instance.setHostName(InetAddress.getLocalHost().getHostName());
@@ -184,8 +185,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         serviceCenterRegistration = new ServiceCenterRegistration(client, EventManager.getEventBus());
         serviceCenterRegistration.setMicroservice(microservice);
         serviceCenterRegistration.setMicroserviceInstance(instance);
-//        serviceCenterRegistration.setSchemaInfos(schemaInfos);
         serviceCenterRegistration.startRegistration();
+
+        EventManager.post(new RegistrationReadyEvent());
       } catch (IOException e) {
         throw new IllegalStateException(e);
       }
@@ -213,7 +215,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
             .getMicroserviceInstanceList(microservice.getServiceId());
         subscriptions.put(new SubscriptionKey(microservice.getAppId(), microservice.getServiceName(),
                 newSubscriberEvent.getUrl().getPath()),
-            newSubscriberEvent.getNotifyListener());
+            new SubscriptionData(newSubscriberEvent.getNotifyListener(), new ArrayList<>()));
         notify(microservice.getAppId(), microservice.getServiceName(), instancesResponse.getInstances());
         serviceCenterDiscovery.register(microservice);
       }
@@ -283,25 +285,68 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     notify(event.getAppName(), event.getServiceName(), event.getInstances());
   }
 
-  private void notify(String appId, String serviceName, List<MicroserviceInstance> instances) {
-    Map<String, List<URL>> notifyUrls = new HashMap<>();
+  // --- END ---- //
 
-    instances.forEach(instance -> {
-      instance.getEndpoints().forEach(e -> {
-        URL url = URL.valueOf(e);
-        notifyUrls.putIfAbsent(url.getPath(), new ArrayList<>());
-        notifyUrls.get(url.getPath()).add(url);
-      });
-    });
+  // --- 治理配置变更事件 ---- //
+  @Subscribe
+  public void onGovernanceDataChangeEvent(GovernanceDataChangeEvent event) {
+    this.governanceData = event.getGovernanceData();
+    this.subscriptions.forEach((k, v) -> v.notifyListener.notify(wrapGovernanceData(k, v.urls)));
+  }
+
+  private void notify(String appId, String serviceName, List<MicroserviceInstance> instances) {
+    Map<String, List<URL>> notifyUrls = instancesToURLs(instances);
 
     notifyUrls.forEach((k, v) -> {
       SubscriptionKey subscriptionKey = new SubscriptionKey(appId, serviceName, k);
-      NotifyListener listener = this.subscriptions.get(subscriptionKey);
-      if (listener != null) {
-        // consumer 没有订阅所有接口的场景
-        listener.notify(v);
+      SubscriptionData subscriptionData = this.subscriptions.get(subscriptionKey);
+      // consumer 没有订阅所有接口的场景， subscriptionData 可能为 null
+      if (subscriptionData != null) {
+        subscriptionData.urls.clear();
+        subscriptionData.urls.addAll(v);
+        subscriptionData.notifyListener.notify(wrapGovernanceData(subscriptionKey, v));
       }
     });
   }
-  // --- END ---- //
+
+  private Map<String, List<URL>> instancesToURLs(List<MicroserviceInstance> instances) {
+    Map<String, List<URL>> notifyUrls = new HashMap<>();
+
+    instances.forEach(instance -> instance.getEndpoints().forEach(e -> {
+      URL url = URL.valueOf(e);
+      notifyUrls.putIfAbsent(url.getPath(), new ArrayList<>());
+      notifyUrls.get(url.getPath()).add(url);
+    }));
+
+    return notifyUrls;
+  }
+
+  private List<URL> wrapGovernanceData(SubscriptionKey subscriptionKey, List<URL> urls) {
+    if (governanceData == null || governanceData.getProviderInfos() == null) {
+      return urls;
+    }
+
+    for (ProviderInfo providerInfo : governanceData.getProviderInfos()) {
+      for (SchemaInfo schemaInfo : providerInfo.getSchemaInfos()) {
+        SubscriptionKey tempSubscriptionKey = new SubscriptionKey(microservice.getAppId(),
+            providerInfo.getServiceName(), schemaInfo.getSchemaId());
+        if (tempSubscriptionKey.equals(subscriptionKey)) {
+          SubscriptionData subscriptionData = this.subscriptions.get(subscriptionKey);
+          if (subscriptionData != null) {
+            List<URL> result = new ArrayList<>(urls.size());
+            for (URL url : urls) {
+              Map<String, String> parameters = new HashMap<>();
+              parameters.putAll(url.getParameters());
+              parameters.putAll(schemaInfo.getParameters());
+              URL newUrl = new URL(url.getProtocol(), url.getUsername(), url.getPassword(), url.getHost(), url.getPort()
+                  , url.getPath(), parameters);
+              result.add(newUrl);
+            }
+            return result;
+          }
+        }
+      }
+    }
+    return urls;
+  }
 }
