@@ -66,7 +66,7 @@ MicroserviceInstance:
 
         ```yaml
             <dependency>
-              <groupId>com.huaweicloud</groupId>
+              <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
               <artifactId>dubbo-servicecomb-service-center</artifactId>
             </dependency>
         ```
