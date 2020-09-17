@@ -19,6 +19,7 @@ package com.huaweicloud.dubbo.config;
 
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_CONFIG_ADDRESS;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_APPLICATION;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_ENVIRONMENT;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_NAME;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_PROJECT;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_VERSION;
@@ -43,7 +44,7 @@ public class ConfigCenterConfiguration {
     request.setApplication(ConfigUtils.getProperty(KEY_SERVICE_APPLICATION, "default"));
     request.setServiceName(ConfigUtils.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
     request.setVersion(ConfigUtils.getProperty(KEY_SERVICE_VERSION, "1.0.0.0"));
-    request.setProject(ConfigUtils.getProperty(KEY_SERVICE_PROJECT, "default"));
+    request.setEnvironment(ConfigUtils.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
     // 需要设置为 null， 并且 query 参数为 revision=null 才会返回 revision 信息。 revision = 是不行的。
     request.setRevision(null);
     return request;
