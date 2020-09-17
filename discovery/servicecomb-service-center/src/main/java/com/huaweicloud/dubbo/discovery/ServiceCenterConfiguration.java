@@ -44,8 +44,14 @@ public class ServiceCenterConfiguration {
     microservice.setVersion(ConfigUtils.getProperty(KEY_SERVICE_VERSION, "1.0.0.0"));
     microservice.setEnvironment(ConfigUtils.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
     Framework framework = new Framework();
-    framework.setName("DUBBO");
-    framework.setVersion(AbstractRegistryFactory.class.getPackage().getImplementationVersion());
+    framework.setName("DUBBO-SERVICECOMB");
+    StringBuilder version = new StringBuilder();
+    version.append("dubbo-servicecomb:");
+    version.append(ServiceCenterConfiguration.class.getPackage().getImplementationVersion());
+    version.append(";");
+    version.append("dubbo=");
+    version.append(AbstractRegistryFactory.class.getPackage().getImplementationVersion());
+    framework.setVersion(version.toString());
     microservice.setFramework(framework);
     return microservice;
   }

@@ -295,6 +295,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   }
 
   private void notify(String appId, String serviceName, List<MicroserviceInstance> instances) {
+    if (instances == null) {
+      return;
+    }
     Map<String, List<URL>> notifyUrls = instancesToURLs(instances);
 
     notifyUrls.forEach((k, v) -> {
