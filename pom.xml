@@ -62,6 +62,15 @@
     <tag>HEAD</tag>
   </scm>
 
+  <developers>
+    <developer>
+      <name>liubao68</name>
+      <email>bismy@qq.com</email>
+      <organization>https://github.com/huaweicloud</organization>
+      <timezone>+8</timezone>
+    </developer>
+  </developers>
+
   <profiles>
     <profile>
       <id>release</id>
@@ -75,6 +84,7 @@
             <configuration>
               <serverId>sonatype-release</serverId>
               <nexusUrl>https://oss.sonatype.org</nexusUrl>
+              <skipStagingRepositoryClose>false</skipStagingRepositoryClose>
               <autoReleaseAfterClose>true</autoReleaseAfterClose>
             </configuration>
           </plugin>
