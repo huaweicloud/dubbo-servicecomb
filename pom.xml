@@ -35,7 +35,7 @@
 
   <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
   <artifactId>dubbo-servicecomb</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Dubbo ServiceComb</name>
 
