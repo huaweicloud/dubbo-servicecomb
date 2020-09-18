@@ -20,6 +20,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <description>an apache dubbo extension to use servicecomb patterns of microservices registration and dynamic configuration</description>
+  <url>https://github.com/huaweicloud/dubbo-servicecomb</url>
+
   <properties>
     <java.version>1.8</java.version>
     <spring-cloud-huawei.version>1.3.4</spring-cloud-huawei.version>
