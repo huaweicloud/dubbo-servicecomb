@@ -21,7 +21,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>dubbo-servicecomb-clients</artifactId>
-    <groupId>com.huaweicloud</groupId>
+    <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
@@ -34,7 +34,7 @@
     <!-- Make this client simple and portable to many frameworks.
        Do not import other dependencies if really need. -->
     <dependency>
-      <groupId>com.huaweicloud</groupId>
+      <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
       <artifactId>http-client-common</artifactId>
       <version>${project.version}</version>
     </dependency>

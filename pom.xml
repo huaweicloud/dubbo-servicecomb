@@ -30,7 +30,7 @@
     <argLine>-Dfile.encoding=UTF-8</argLine>
   </properties>
 
-  <groupId>com.huaweicloud</groupId>
+  <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
   <artifactId>dubbo-servicecomb</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
@@ -62,14 +62,31 @@
     <tag>HEAD</tag>
   </scm>
 
+  <developers>
+    <developer>
+      <name>liubao68</name>
+      <email>bismy@qq.com</email>
+      <organization>https://github.com/huaweicloud</organization>
+      <timezone>+8</timezone>
+    </developer>
+  </developers>
+
   <profiles>
     <profile>
       <id>release</id>
       <build>
         <plugins>
           <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-deploy-plugin</artifactId>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>1.6.8</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>sonatype-release</serverId>
+              <nexusUrl>https://oss.sonatype.org</nexusUrl>
+              <skipStagingRepositoryClose>false</skipStagingRepositoryClose>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            </configuration>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>

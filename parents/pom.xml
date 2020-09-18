@@ -3,7 +3,7 @@
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
-    <groupId>com.huaweicloud</groupId>
+    <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
     <artifactId>dubbo-servicecomb-dependencies</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../dependencies</relativePath>
@@ -111,6 +111,9 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <failIfNoTests>false</failIfNoTests>
+          </configuration>
           <version>2.19.1</version>
         </plugin>
         <plugin>
