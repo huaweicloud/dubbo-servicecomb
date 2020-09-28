@@ -17,9 +17,9 @@
 
 package com.huaweicloud.dubbo.discovery;
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.Registry;
-import com.alibaba.dubbo.registry.support.AbstractRegistryFactory;
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.registry.Registry;
+import org.apache.dubbo.registry.support.AbstractRegistryFactory;
 
 public class ServiceCenterRegistryFactory extends AbstractRegistryFactory {
   private RegistrationListener registrationListener;

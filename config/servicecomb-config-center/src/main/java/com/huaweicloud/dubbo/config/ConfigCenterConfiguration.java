@@ -29,7 +29,8 @@ import java.util.Arrays;
 import org.apache.servicecomb.config.center.client.AddressManager;
 import org.apache.servicecomb.config.center.client.model.QueryConfigurationsRequest;
 
-import com.alibaba.dubbo.common.utils.ConfigUtils;
+import org.apache.dubbo.common.utils.ConfigUtils;
+
 
 public class ConfigCenterConfiguration {
 

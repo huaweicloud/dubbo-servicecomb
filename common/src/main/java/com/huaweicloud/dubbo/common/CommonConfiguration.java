@@ -22,7 +22,7 @@ import org.apache.servicecomb.foundation.ssl.SSLOption;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.AKSKProperties;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
 
-import com.alibaba.dubbo.common.utils.ConfigUtils;
+import org.apache.dubbo.common.utils.ConfigUtils;
 
 public class CommonConfiguration {
   public static final String DEFAULT_CIPHERS = "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,"

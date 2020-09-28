@@ -26,7 +26,7 @@
         <type>pom</type>
       </dependency>
       <dependency>
-        <groupId>com.alibaba</groupId>
+        <groupId>org.apache.dubbo</groupId>
         <artifactId>dubbo-bom</artifactId>
         <version>${dubbo.version}</version>
         <type>pom</type>

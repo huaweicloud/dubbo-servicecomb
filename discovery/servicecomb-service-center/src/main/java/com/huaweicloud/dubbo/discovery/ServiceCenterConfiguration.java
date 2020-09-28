@@ -27,14 +27,14 @@ import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_VERSI
 
 import java.util.Arrays;
 
+
+import org.apache.dubbo.common.utils.ConfigUtils;
+import org.apache.dubbo.registry.support.AbstractRegistryFactory;
 import org.apache.servicecomb.service.center.client.AddressManager;
 import org.apache.servicecomb.service.center.client.model.Framework;
 import org.apache.servicecomb.service.center.client.model.Microservice;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstanceStatus;
-
-import com.alibaba.dubbo.common.utils.ConfigUtils;
-import com.alibaba.dubbo.registry.support.AbstractRegistryFactory;
 
 public class ServiceCenterConfiguration {
   public static Microservice createMicroservice() {

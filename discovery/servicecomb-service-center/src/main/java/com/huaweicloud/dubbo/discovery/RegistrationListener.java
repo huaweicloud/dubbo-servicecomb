@@ -28,6 +28,18 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
+
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.config.spring.context.*;
+import org.apache.dubbo.registry.NotifyListener;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.AKSKProperties;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
 import org.apache.servicecomb.service.center.client.AddressManager;
@@ -42,16 +54,7 @@ import org.apache.servicecomb.service.center.client.model.Microservice;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstancesResponse;
 import org.apache.servicecomb.service.center.client.model.MicroservicesResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.NotifyListener;
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;

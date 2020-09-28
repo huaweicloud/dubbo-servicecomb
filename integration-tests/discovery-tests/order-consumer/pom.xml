@@ -45,27 +45,27 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.alibaba</groupId>
+      <groupId>org.apache.dubbo</groupId>
       <artifactId>dubbo-config-spring</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.alibaba</groupId>
+      <groupId>org.apache.dubbo</groupId>
       <artifactId>dubbo-registry-zookeeper</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.alibaba</groupId>
+      <groupId>org.apache.dubbo</groupId>
       <artifactId>dubbo-registry-multicast</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.alibaba</groupId>
+      <groupId>org.apache.dubbo</groupId>
       <artifactId>dubbo-rpc-dubbo</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.alibaba</groupId>
+      <groupId>org.apache.dubbo</groupId>
       <artifactId>dubbo-remoting-netty4</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.alibaba</groupId>
+      <groupId>org.apache.dubbo</groupId>
       <artifactId>dubbo-serialization-hessian2</artifactId>
     </dependency>
 

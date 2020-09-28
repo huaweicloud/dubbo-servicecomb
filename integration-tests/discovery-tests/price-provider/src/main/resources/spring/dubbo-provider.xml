@@ -26,13 +26,12 @@
 <!--  <dubbo:registry address="multicast://224.5.6.7:1234"/>-->
   <dubbo:registry address="sc://127.0.0.1:30100"/>
 
+  
   <dubbo:protocol name="dubbo" port="8082"/>
-
-  <bean id="priceService" class="com.huaweicloud.it.price.PriceServiceImpl"/>
-
-  <dubbo:service interface="com.huaweicloud.it.price.PriceService" ref="priceService"/>
-
-  <bean id="pingService" class="com.huaweicloud.it.price.PingServiceImpl"/>
-
+  
+  <dubbo:service interface="com.huaweicloud.it.price.PriceService" ref="priceService"/>  
+  <bean id="priceService" class="com.huaweicloud.it.price.PriceServiceImpl"/>  
+  
   <dubbo:service interface="com.huaweicloud.it.price.PingService" ref="pingService"/>
+  <bean id="pingService" class="com.huaweicloud.it.price.PingServiceImpl"/>
 </beans>
