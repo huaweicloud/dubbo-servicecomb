@@ -19,8 +19,8 @@ package com.huaweicloud.dubbo.discovery;
 
 import org.springframework.context.ApplicationEvent;
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.NotifyListener;
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.registry.NotifyListener;
 
 public class NewSubscriberEvent extends ApplicationEvent {
   private static final long serialVersionUID = 1L;

@@ -20,9 +20,12 @@ package com.huaweicloud.dubbo.discovery;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alibaba.dubbo.common.URL;
-import com.alibaba.dubbo.registry.NotifyListener;
-import com.alibaba.dubbo.registry.support.FailbackRegistry;
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.registry.NotifyListener;
+import org.apache.dubbo.registry.support.FailbackRegistry;
+import org.springframework.beans.BeanUtils;
+
+import com.fasterxml.jackson.databind.util.BeanUtil;
 
 public class ServiceCenterRegistry extends FailbackRegistry {
   private List<URL> registers;
@@ -31,29 +34,28 @@ public class ServiceCenterRegistry extends FailbackRegistry {
 
   public ServiceCenterRegistry(URL url, RegistrationListener registrationListener) {
     super(url);
-
     this.registrationListener = registrationListener;
     this.registrationListener.setServiceCenterRegistry(this);
     this.registers = new ArrayList<>();
   }
 
   @Override
-  protected void doRegister(URL url) {
+  public void doRegister(URL url) {
     this.registers.add(url);
   }
 
   @Override
-  protected void doUnregister(URL url) {
+  public void doUnregister(URL url) {
     this.registrationListener.shutdown();
   }
 
   @Override
-  protected void doSubscribe(URL url, NotifyListener notifyListener) {
+  public void doSubscribe(URL url, NotifyListener notifyListener) {
     this.registrationListener.applicationEventPublisher().publishEvent(new NewSubscriberEvent(url, notifyListener));
   }
 
   @Override
-  protected void doUnsubscribe(URL url, NotifyListener notifyListener) {
+  public void doUnsubscribe(URL url, NotifyListener notifyListener) {
     this.registrationListener.shutdown();
   }
 
