@@ -263,9 +263,11 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     if (event.isSuccess()) {
       if (serviceCenterDiscovery == null) {
         serviceCenterDiscovery = new ServiceCenterDiscovery(client, EventManager.getEventBus());
+        serviceCenterDiscovery.updateMySelf(microservice);
         serviceCenterDiscovery.startDiscovery();
+      } else {
+        serviceCenterDiscovery.updateMySelf(microservice);
       }
-      serviceCenterDiscovery.updateMySelf(microservice);
     }
   }
 
@@ -275,6 +277,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     if (event.isSuccess()) {
       updateInterfaceMap();
       firstRegistrationWaiter.countDown();
+      LOGGER.info("register microservice successfully, serviceId={}, instanceId={}.", microservice.getServiceId(),
+          instance.getInstanceId());
     }
   }
   // --- END ---- //

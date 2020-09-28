@@ -20,7 +20,14 @@
 ## whenever commit to the repository, do Compilation and Installation
 
 if [ "$1" == "install" ]; then
-    # TODO: mvn clean install -Pit -Pdocker
+    mvn apache-rat:check -Pit
+    if [ $? == 0 ]; then
+        echo "${green}Rat Check success..${reset}"
+    else
+        echo "${red}Rat Check failed, please check the above logs for more details.${reset}"
+        exit 1
+    fi
+
     mvn clean install -Pit
     if [ $? == 0 ]; then
         echo "${green}Installation Success..${reset}"

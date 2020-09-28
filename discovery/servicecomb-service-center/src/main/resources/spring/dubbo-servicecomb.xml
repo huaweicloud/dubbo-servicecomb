@@ -19,6 +19,6 @@
   xmlns="http://www.springframework.org/schema/beans"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
 
-  <bean class="com.huaweicloud.dubbo.discovery.RegistrationListener"/>
+  <bean id="registrationListener" class="com.huaweicloud.dubbo.discovery.RegistrationListener"/>
 
 </beans>
