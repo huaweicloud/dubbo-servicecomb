@@ -27,6 +27,10 @@
 
 6. 生成 release notes 。 在 github 页面打上 tag， 书写 release notes。
 
+7. 发布完成，更新 SNAPSHOT 版本，并提交 PR
+
+        mvn versions:set -DgenerateBackupPoms=false -DnewVersion=1.3.1-SNAPSHOT
+
 ## 版本验证
 
 发布到中央仓库后，需要几个小时可以完成同步。仓库同步后，使用 [servicecomb-dubbo-sample][servicecomb-dubbo-sample]
