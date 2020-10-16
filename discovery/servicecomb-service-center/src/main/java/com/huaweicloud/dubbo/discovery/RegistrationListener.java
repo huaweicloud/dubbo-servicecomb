@@ -28,17 +28,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.ApplicationEventPublisherAware;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
-
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.config.spring.context.*;
 import org.apache.dubbo.registry.NotifyListener;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.AKSKProperties;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
@@ -54,6 +44,13 @@ import org.apache.servicecomb.service.center.client.model.Microservice;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstancesResponse;
 import org.apache.servicecomb.service.center.client.model.MicroservicesResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
@@ -137,6 +134,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private GovernanceData governanceData;
 
+  private List<NewSubscriberEvent> pendingSubscribeEvent = new ArrayList<>();
+
   public RegistrationListener() {
   }
 
@@ -200,29 +199,34 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       // 第一次订阅， 按照 dubbo 的要求， 需要查询实例列表
       if (newSubscriberEvent.getUrl().getProtocol().equals("consumer")) {
         if (registrationInProgress) {
-          LOGGER.warn("registration is in progress, can not subscribe new consumers. ");
+          pendingSubscribeEvent.add(newSubscriberEvent);
           return;
         }
 
-        Microservice microservice = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
-        if (microservice == null) {
-          // provider 后于 consumer 启动的场景， 再查询一次。
-          updateInterfaceMap();
-          microservice = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
-        }
-        if (microservice == null) {
-          LOGGER.error("the subscribe url [{}] is not registered.", newSubscriberEvent.getUrl().getPath());
-          return;
-        }
-        MicroserviceInstancesResponse instancesResponse = client
-            .getMicroserviceInstanceList(microservice.getServiceId());
-        subscriptions.put(new SubscriptionKey(microservice.getAppId(), microservice.getServiceName(),
-                newSubscriberEvent.getUrl().getPath()),
-            new SubscriptionData(newSubscriberEvent.getNotifyListener(), new ArrayList<>()));
-        notify(microservice.getAppId(), microservice.getServiceName(), instancesResponse.getInstances());
-        serviceCenterDiscovery.register(microservice);
+        processNewSubscriberEvent(newSubscriberEvent);
       }
     }
+  }
+
+  private void processNewSubscriberEvent(NewSubscriberEvent newSubscriberEvent) {
+    Microservice microservice = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
+    if (microservice == null) {
+      // provider 后于 consumer 启动的场景， 再查询一次。
+      updateInterfaceMap();
+      microservice = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
+    }
+    if (microservice == null) {
+      LOGGER.error("the subscribe url [{}] is not registered.", newSubscriberEvent.getUrl().getPath());
+      return;
+    }
+    MicroserviceInstancesResponse instancesResponse = client
+        .getMicroserviceInstanceList(microservice.getServiceId());
+    subscriptions.put(new SubscriptionKey(microservice.getAppId(), microservice.getServiceName(),
+            newSubscriberEvent.getUrl().getPath()),
+        new SubscriptionData(newSubscriberEvent.getNotifyListener(), new ArrayList<>()));
+    // 第一次订阅， 按照 dubbo 的要求， 需要查询实例列表
+    notify(microservice.getAppId(), microservice.getServiceName(), instancesResponse.getInstances());
+    serviceCenterDiscovery.register(microservice);
   }
 
   @Override
@@ -257,7 +261,15 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   public void onHeartBeatEvent(HeartBeatEvent event) {
     if (event.isSuccess()) {
       registrationInProgress = false;
+      processPendingEvent();
     }
+  }
+
+  private void processPendingEvent() {
+    List<NewSubscriberEvent> events = new ArrayList<>(pendingSubscribeEvent.size());
+    events.addAll(pendingSubscribeEvent);
+    pendingSubscribeEvent.clear();
+    events.forEach(item -> processNewSubscriberEvent(item));
   }
 
   @Subscribe
