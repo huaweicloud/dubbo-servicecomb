@@ -1,7 +1,12 @@
 # 版本发布指南
 
-版本发布是将项目的 jar 包发布到 maven 中央库。 开始之前， 需要首先申请 maven 中央库的权限，
-并准备好个人 gpg 秘钥。 具体操作可以参考[说明][osstype guide] 。
+版本发布是将项目的 jar 包发布到 maven 中央库。
+
+## 准备
+1. 需要首先申请 maven 中央库的权限，并准备好个人 gpg 秘钥。 具体操作可以参考[说明][osstype guide] 。
+2. 每一个版本都对应一个 milestone。 发布版本前，关闭相应的 milestone，将不处理的 issue 
+  移动到下一个 milestone。 参考 [github issue][issues]。 
+3. 配置好编译环境， maven, gpg等。
 
 ## 发布版本
 
@@ -51,3 +56,4 @@
 
 [osstype guide]: https://www.cnblogs.com/softidea/p/6743108.html
 [servicecomb-dubbo-sample]: https://github.com/huaweicse/dubbo-servicecomb-samples
+[issues]: https://github.com/huaweicloud/dubbo-servicecomb/issues
