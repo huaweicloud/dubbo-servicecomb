@@ -20,6 +20,7 @@ package com.huaweicloud.dubbo.config;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.servicecomb.config.center.client.AddressManager;
 import org.apache.servicecomb.config.center.client.ConfigCenterClient;
@@ -107,6 +108,22 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     sources.putAll(event.getConfigurations());
 
     notifyGovernanceDataChange(event.getConfigurations());
+  }
+
+  @Override
+  protected Properties mergeProperties() throws IOException {
+    Properties properties = super.mergeProperties();
+    properties.putAll(this.sources);
+    return properties;
+  }
+
+  @Override
+  protected String resolvePlaceholder(String placeholder, Properties props) {
+    String propertyValue = super.resolvePlaceholder(placeholder, props);
+    if (propertyValue == null) {
+      return this.sources.get(placeholder) == null ? null : this.sources.get(placeholder).toString();
+    }
+    return propertyValue;
   }
 
   @Subscribe

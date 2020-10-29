@@ -23,10 +23,17 @@
 
   <dubbo:application name="order-consumer"/>
 
+  <dubbo:protocol name="rest" port="8083"/>
 
   <!--  <dubbo:registry address="multicast://224.5.6.7:1234"/>-->
   <dubbo:registry address="sc://127.0.0.1:30100"/>
 
-  <dubbo:reference id="priceService" check="false" interface="com.huaweicloud.it.price.PriceService"/>
-  <dubbo:reference id="pingService" check="false" interface="com.huaweicloud.it.price.PingService"/>
+  <bean id="priceServiceRest" class="com.huaweicloud.it.order.PriceServiceRestImpl">
+    <property name="priceService" ref = "priceService"/>
+  </bean>
+
+  <dubbo:service interface="com.huaweicloud.it.price.PriceService" ref="priceServiceRest"/>
+
+  <dubbo:reference id="priceService" check="false" interface="com.huaweicloud.it.price.PriceService" scope="remote"/>
+  <dubbo:reference id="pingService" check="false" interface="com.huaweicloud.it.price.PingService" scope="remote"/>
 </beans>
