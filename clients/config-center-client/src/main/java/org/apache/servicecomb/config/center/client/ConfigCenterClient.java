@@ -53,7 +53,7 @@ public class ConfigCenterClient implements ConfigCenterOperation {
 
   @Override
   public QueryConfigurationsResponse queryConfigurations(QueryConfigurationsRequest request) {
-    String dimensionsInfo = buildDimensionsInfo(request);
+    String dimensionsInfo = buildDimensionsInfo(request, true);
     QueryConfigurationsResponse queryConfigurationsResponse = new QueryConfigurationsResponse();
 
     Map<String, Object> configurations = new HashMap<>();
@@ -79,7 +79,7 @@ public class ConfigCenterClient implements ConfigCenterOperation {
           configurations.putAll(allConfigMap.get(APPLICATION_CONFIG));
         }
 
-        if (allConfigMap.get(request.getServiceName()) != null) {
+        if (allConfigMap.get(buildDimensionsInfo(request, false)) != null) {
           configurations.putAll(allConfigMap.get(request.getServiceName()));
         }
 
@@ -109,11 +109,11 @@ public class ConfigCenterClient implements ConfigCenterOperation {
     }
   }
 
-  private String buildDimensionsInfo(QueryConfigurationsRequest request) {
+  private String buildDimensionsInfo(QueryConfigurationsRequest request, boolean withVersion) {
     String result =
         request.getServiceName() + DEFAULT_APP_SEPARATOR
             + request.getApplication();
-    if (!StringUtils.isEmpty(request.getVersion())) {
+    if (withVersion && !StringUtils.isEmpty(request.getVersion())) {
       result = result + DEFAULT_SERVICE_SEPARATOR + request
           .getVersion();
     }
