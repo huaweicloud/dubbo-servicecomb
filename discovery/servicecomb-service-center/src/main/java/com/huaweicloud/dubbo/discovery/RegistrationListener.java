@@ -50,7 +50,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.ContextStartedEvent;
 
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
@@ -164,7 +164,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   @Override
   public void onApplicationEvent(ApplicationEvent applicationEvent) {
-    if (applicationEvent instanceof ContextRefreshedEvent) {
+    if (applicationEvent instanceof ContextStartedEvent) {
       try {
         AddressManager addressManager = ServiceCenterConfiguration.createAddressManager();
         SSLProperties sslProperties = CommonConfiguration.createSSLProperties();

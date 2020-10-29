@@ -23,9 +23,6 @@ import java.util.List;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.registry.NotifyListener;
 import org.apache.dubbo.registry.support.FailbackRegistry;
-import org.springframework.beans.BeanUtils;
-
-import com.fasterxml.jackson.databind.util.BeanUtil;
 
 public class ServiceCenterRegistry extends FailbackRegistry {
   private List<URL> registers;
