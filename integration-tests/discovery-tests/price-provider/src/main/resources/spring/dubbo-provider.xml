@@ -28,7 +28,10 @@
 
   <dubbo:protocol name="dubbo" port="8082"/>
 
-  <bean id="priceService" class="com.huaweicloud.it.price.PriceServiceImpl"/>
+  <bean id="priceService" class="com.huaweicloud.it.price.PriceServiceImpl">
+    <property name="configuration" value="${dubbo.servicecomb.test.configuration:hello}"/>
+    <property name="configurationService" value="${dubbo.servicecomb.test.configurationService:hello}"/>
+  </bean>
 
   <dubbo:service interface="com.huaweicloud.it.price.PriceService" ref="priceService"/>
 

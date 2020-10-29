@@ -19,7 +19,23 @@ package com.huaweicloud.it.price;
 
 import java.util.concurrent.CompletableFuture;
 
+import org.springframework.beans.factory.annotation.Value;
+
 public class PriceServiceImpl implements PriceService {
+  @Value("${dubbo.servicecomb.test.configuration:hello}")
+  private String configuration;
+
+  @Value("${dubbo.servicecomb.test.configurationService:hello}")
+  private String configurationService;
+
+  public void setConfiguration(String configuration) {
+    this.configuration = configuration;
+  }
+
+  public void setConfigurationService(String configurationService) {
+    this.configurationService = configurationService;
+  }
+
   @Override
   public String sayHello(String name) {
     if ("timeout".equals(name)) {
@@ -35,5 +51,15 @@ public class PriceServiceImpl implements PriceService {
   @Override
   public CompletableFuture<String> sayHelloAsync(String name) {
     return CompletableFuture.completedFuture(sayHello(name));
+  }
+
+  @Override
+  public String testConfiguration(String value) {
+    return configuration;
+  }
+
+  @Override
+  public String testConfigurationService(String value) {
+    return configurationService;
   }
 }
