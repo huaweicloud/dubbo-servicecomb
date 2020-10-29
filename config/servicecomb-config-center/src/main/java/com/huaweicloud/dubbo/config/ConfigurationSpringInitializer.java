@@ -20,13 +20,8 @@ package com.huaweicloud.dubbo.config;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.Properties;
 
-import org.apache.dubbo.common.config.configcenter.ConfigChangeType;
-import org.apache.dubbo.common.config.configcenter.ConfigChangedEvent;
-import org.apache.dubbo.common.config.configcenter.ConfigurationListener;
-import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.servicecomb.config.center.client.AddressManager;
 import org.apache.servicecomb.config.center.client.ConfigCenterClient;
 import org.apache.servicecomb.config.center.client.ConfigCenterManager;
@@ -113,6 +108,22 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     sources.putAll(event.getConfigurations());
 
     notifyGovernanceDataChange(event.getConfigurations());
+  }
+
+  @Override
+  protected Properties mergeProperties() throws IOException {
+    Properties properties = super.mergeProperties();
+    properties.putAll(this.sources);
+    return properties;
+  }
+
+  @Override
+  protected String resolvePlaceholder(String placeholder, Properties props) {
+    String propertyValue = super.resolvePlaceholder(placeholder, props);
+    if (propertyValue == null) {
+      return this.sources.get(placeholder) == null ? null : this.sources.get(placeholder).toString();
+    }
+    return propertyValue;
   }
 
   @Subscribe
