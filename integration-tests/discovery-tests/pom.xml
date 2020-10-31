@@ -28,6 +28,16 @@
   <artifactId>discovery-tests</artifactId>
   <packaging>pom</packaging>
 
+  <dependencyManagement>
+    <dependencies>
+      <!-- dubbo rest用了老版本, 升级一下 -->
+      <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.5.7</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   <modules>
     <module>common-api</module>
     <module>price-provider</module>

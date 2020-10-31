@@ -80,7 +80,7 @@ public class ConfigCenterClient implements ConfigCenterOperation {
         }
 
         if (allConfigMap.get(buildDimensionsInfo(request, false)) != null) {
-          configurations.putAll(allConfigMap.get(request.getServiceName()));
+          configurations.putAll(allConfigMap.get(buildDimensionsInfo(request, false)));
         }
 
         if (allConfigMap.get(dimensionsInfo) != null) {
