@@ -32,7 +32,7 @@
     <property name="priceService" ref = "priceService"/>
   </bean>
 
-  <dubbo:service interface="com.huaweicloud.it.price.PriceService" ref="priceServiceRest"/>
+  <dubbo:service interface="com.huaweicloud.it.price.PriceServiceRest" ref="priceServiceRest"/>
 
   <dubbo:reference id="priceService" check="false" interface="com.huaweicloud.it.price.PriceService" scope="remote"/>
   <dubbo:reference id="pingService" check="false" interface="com.huaweicloud.it.price.PingService" scope="remote"/>

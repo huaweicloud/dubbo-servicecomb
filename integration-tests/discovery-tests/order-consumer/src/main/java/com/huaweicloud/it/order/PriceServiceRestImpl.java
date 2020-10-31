@@ -29,9 +29,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.huaweicloud.it.price.PriceService;
+import com.huaweicloud.it.price.PriceServiceRest;
 
 @Path("/price")
-public class PriceServiceRestImpl implements PriceService {
+public class PriceServiceRestImpl implements PriceServiceRest {
   @Autowired
   @Qualifier("priceService")
   private PriceService priceService;

@@ -62,8 +62,6 @@ import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
 import com.huaweicloud.dubbo.common.SchemaInfo;
 
 public class RegistrationListener implements ApplicationListener<ApplicationEvent>, ApplicationEventPublisherAware {
-  private static final String PROTOCOL_CONSUMER = "consumer";
-
   static class SubscriptionKey {
     final String appId;
 
@@ -181,7 +179,6 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         List<String> endpoints = new ArrayList<>();
         if (registry != null) {
           endpoints.addAll(registry.getRegisters().stream()
-              .filter(item -> !item.getProtocol().equals(PROTOCOL_CONSUMER))
               .map(URL::toString)
               .collect(Collectors.toList()));
         }
@@ -201,13 +198,11 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       waitRegistrationDone();
     } else if (applicationEvent instanceof NewSubscriberEvent) {
       NewSubscriberEvent newSubscriberEvent = (NewSubscriberEvent) applicationEvent;
-      if (newSubscriberEvent.getUrl().getProtocol().equals(PROTOCOL_CONSUMER)) {
-        if (registrationInProgress) {
-          pendingSubscribeEvent.add(newSubscriberEvent);
-          return;
-        }
-        processNewSubscriberEvent(newSubscriberEvent);
+      if (registrationInProgress) {
+        pendingSubscribeEvent.add(newSubscriberEvent);
+        return;
       }
+      processNewSubscriberEvent(newSubscriberEvent);
     }
   }
 
