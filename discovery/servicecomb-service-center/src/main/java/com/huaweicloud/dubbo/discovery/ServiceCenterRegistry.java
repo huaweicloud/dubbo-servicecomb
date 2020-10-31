@@ -25,6 +25,8 @@ import org.apache.dubbo.registry.NotifyListener;
 import org.apache.dubbo.registry.support.FailbackRegistry;
 
 public class ServiceCenterRegistry extends FailbackRegistry {
+  private static final String PROTOCOL_CONSUMER = "consumer";
+
   private List<URL> registers;
 
   private RegistrationListener registrationListener;
@@ -38,7 +40,9 @@ public class ServiceCenterRegistry extends FailbackRegistry {
 
   @Override
   public void doRegister(URL url) {
-    this.registers.add(url);
+    if (!url.getProtocol().equals(PROTOCOL_CONSUMER)) {
+      this.registers.add(url);
+    }
   }
 
   @Override
@@ -48,7 +52,9 @@ public class ServiceCenterRegistry extends FailbackRegistry {
 
   @Override
   public void doSubscribe(URL url, NotifyListener notifyListener) {
-    this.registrationListener.applicationEventPublisher().publishEvent(new NewSubscriberEvent(url, notifyListener));
+    if (url.getProtocol().equals(PROTOCOL_CONSUMER)) {
+      this.registrationListener.applicationEventPublisher().publishEvent(new NewSubscriberEvent(url, notifyListener));
+    }
   }
 
   @Override
