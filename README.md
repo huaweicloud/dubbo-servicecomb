@@ -100,27 +100,62 @@ dubbo.servicecomb.governance: {"providerInfos":[{"serviceName":"price-provider",
 
 * POM 中引入依赖
 
-        ```yaml
-            <dependency>
-              <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-              <artifactId>dubbo-servicecomb-service-center</artifactId>
-            </dependency>
-            <dependency>
-              <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-              <artifactId>dubbo-servicecomb-config-center</artifactId>
-            </dependency>
         ```
+        <dependency>
+          <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+          <artifactId>dubbo-servicecomb-service-center</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+          <artifactId>dubbo-servicecomb-config-center</artifactId>
+        </dependency>
+        ```
+        
   上面两个部件，实现 dubbo 应用的注册和动态配置、服务治理配置项检测等功能。 
 
-* 采用 Spring 启动（目前只支持 Spring 启动方式）。
+* 采用 Spring 启动
   Spring 扫描路径中，需要增加 `classpath*:spring/dubbo-servicecomb.xml`， 举例如下：
 
-        ```java
-            ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-                "classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml");
         ```
+        public class PriceApplication {
+          public static void main(String[] args) throws Exception {
+            try {
+              ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+                  "classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml");
+              context.start();
+              System.in.read();
+            } catch (Throwable e) {
+              e.printStackTrace();
+            }
+          }
+        }
+        ```
+ 
+ * 采用 Spring Boot 启动
+  Spring 扫描路径中，需要增加 `classpath*:spring/dubbo-servicecomb.xml`， 举例如下：
+  
+        ```
+        @SpringBootApplication
+        @ImportResource({"classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml"})
+        public class PriceApplication {
+          public static void main(String[] args) throws Exception {
+            try {
+              SpringApplication.run(PriceApplication.class);
+            } catch (Throwable e) {
+              e.printStackTrace();
+            }
+          }
+        }
+        ``` 
    
-   如果使用 Spring Boot， 也可以采用 @ImportResource 等标签引入 dubbo-servicecomb 相关 bean。 
+   Spring Boot 启动，需要额外依赖如下 jar 包：
+
+        ```
+        <dependency>
+          <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+          <artifactId>dubbo-servicecomb-spring-boot</artifactId>
+        </dependency>
+        ```
 
 * 使用 service center 作为注册发现。
    在 Spring 配置文件中增加如下配置。 如果配置文件已经配置了 zookeeper， 那么需要使用下面的配置项进行替换。 
