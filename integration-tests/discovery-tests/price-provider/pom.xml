@@ -21,7 +21,7 @@
   <parent>
     <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
     <artifactId>discovery-tests</artifactId>
-    <version>1.3.2-SNAPSHOT</version>
+    <version>1.3.3-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
