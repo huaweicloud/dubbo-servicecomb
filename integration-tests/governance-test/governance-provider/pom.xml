@@ -79,11 +79,6 @@
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-            <artifactId>dubbo-servicecomb-governance-center</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
     </dependencies>
 
