@@ -25,20 +25,5 @@ public class OrderApplication {
         "classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml");
     context.start();
 
-    PriceService priceService = context.getBean("priceService", PriceService.class);
-    PingService pingService = context.getBean("pingService", PingService.class);
-
-//    while (true) {
-//      try {
-//        Thread.sleep(1000);
-//        System.out.println(priceService.sayHello("===========================hello"));
-//        System.out.println(pingService.ping());
-//        System.out.println(priceService.sayHello("timeout"));
-//      } catch (Exception e) {
-//        System.out.println(e.getMessage());
-//      }
-//    }
-
-//    System.in.read();
   }
 }

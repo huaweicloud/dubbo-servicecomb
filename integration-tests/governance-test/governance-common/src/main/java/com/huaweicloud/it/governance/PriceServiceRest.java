@@ -17,8 +17,6 @@
 
 package com.huaweicloud.it.governance;
 
-import java.util.concurrent.CompletableFuture;
-
 public interface PriceServiceRest {
   String sayHello(String name);
 
