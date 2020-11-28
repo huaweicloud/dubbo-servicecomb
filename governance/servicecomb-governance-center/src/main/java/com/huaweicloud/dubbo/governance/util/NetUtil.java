@@ -24,10 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URISyntaxException;
 
-/**
- * @Author wangqijun
- * @Date 10:50 2019-07-09
- **/
 public class NetUtil {
   private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 

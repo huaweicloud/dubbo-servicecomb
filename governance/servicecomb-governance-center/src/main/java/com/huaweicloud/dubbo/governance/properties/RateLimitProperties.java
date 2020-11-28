@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance.properties;
 
 
@@ -42,7 +43,6 @@ public class RateLimitProperties implements GovProperties<RateLimitingPolicy> {
   }
 
   public Map<String, RateLimitingPolicy> covert() {
-//    rateLimiting.put("xxxx","match:demo-rateLimiting\\n rate:1");
     return cache.get(rateLimiting, RateLimitingPolicy.class);
   }
 }

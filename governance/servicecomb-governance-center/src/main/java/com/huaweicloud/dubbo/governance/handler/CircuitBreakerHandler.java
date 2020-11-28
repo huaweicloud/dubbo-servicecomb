@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance.handler;
 
 import com.huaweicloud.dubbo.governance.policy.CircuitBreakerPolicy;
@@ -25,10 +26,6 @@ import io.github.resilience4j.decorators.Decorators.DecorateCheckedSupplier;
 
 import java.time.Duration;
 
-/**
- * @Author GuoYl123
- * @Date 2020/5/11
- **/
 public class CircuitBreakerHandler extends AbstractGovHandler<CircuitBreaker> {
 
   @Override

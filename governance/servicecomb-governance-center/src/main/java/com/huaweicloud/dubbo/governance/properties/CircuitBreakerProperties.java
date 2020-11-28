@@ -14,17 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance.properties;
 
 import com.huaweicloud.dubbo.governance.policy.CircuitBreakerPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Component
-//@ConfigurationProperties("servicecomb")
 public class CircuitBreakerProperties implements GovProperties<CircuitBreakerPolicy> {
 
   Map<String, String> circuitBreaker;

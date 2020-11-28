@@ -14,10 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance.marker;
 
 import com.huaweicloud.dubbo.governance.marker.operator.*;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;

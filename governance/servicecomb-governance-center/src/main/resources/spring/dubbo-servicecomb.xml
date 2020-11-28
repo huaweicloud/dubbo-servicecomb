@@ -48,6 +48,4 @@
 
 <!--  <bean id="" class="com.huaweicloud.dubbo.governance.ribbon.ServiceCombLoadBalanceRule"/>-->
 
-  <bean autowire="byName" id="" class="com.huaweicloud.dubbo.governance.client.GovRibbonServerFilter"/>
-
 </beans>

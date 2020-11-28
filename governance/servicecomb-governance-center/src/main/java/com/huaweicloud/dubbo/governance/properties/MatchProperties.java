@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance.properties;
 
 import com.huaweicloud.dubbo.governance.marker.TrafficMarker;
@@ -30,16 +31,17 @@ public class MatchProperties {
   public MatchProperties () {
     match = new HashMap<>();
     match.put("demo-rateLimiting", "matches:\n - apiPath:\n     exact: \"/price/sayHello\"\n   name: xx\n");
+    match.put("demo-retry", "matches:\n - apiPath:\n     exact: \"/price/sayHello\"\n   name: xx\n");
+
   }
 
-//  public Map<String, String> getMatch() {
-//    return match;
-//  }
+  public Map<String, String> getMatch() {
+    return match;
+  }
 
-//  public void setMatch(Map<String, String> match) {
-//    match.put("demo-rateLimiting", "matches:\\n - apiPath:\\n exect:\"/hello\"");
-//    this.match = match;
-//  }
+  public void setMatch(Map<String, String> match) {
+    this.match = match;
+  }
 
   public Map<String, TrafficMarker> covert() {
     return cache.get(match, TrafficMarker.class);

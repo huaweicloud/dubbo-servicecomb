@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance.properties;
 
 import com.huaweicloud.dubbo.governance.util.MD5Util;
@@ -42,7 +43,7 @@ public class SerializeCache<T> {
     }
     String classKey = entityClass.getName();
     for (Entry<String, String> entry : t.entrySet()) {
-      String realkey = entry.getValue();
+      String realkey = entry.getKey();
       if (!check(classKey + realkey, entry.getValue())) {
         continue;
       }
@@ -51,9 +52,7 @@ public class SerializeCache<T> {
         T marker = yaml.loadAs(entry.getValue(), entityClass);
         cacheMap.computeIfAbsent(classKey, k -> new HashMap<>()).put(realkey, marker);
       } catch (YAMLException e) {
-        //todo: 避免每次打印
         LOGGER.error("governance config yaml is illegal : {}", e.getMessage());
-        return Collections.emptyMap();
       }
     }
     Map<String, T> resultMap = new HashMap<>();

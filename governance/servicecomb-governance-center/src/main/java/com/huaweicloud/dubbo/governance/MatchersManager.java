@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance;
 
 import com.huaweicloud.dubbo.governance.marker.GovHttpRequest;
@@ -27,10 +28,6 @@ import sun.misc.Contended;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @Author GuoYl123
- * @Date 2020/5/11
- **/
 public class MatchersManager {
 
   private MatchersService matchersService = new MatchersServiceImpl();

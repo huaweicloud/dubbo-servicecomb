@@ -15,17 +15,19 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.cache;
+package com.huaweicloud.it.governance;
 
-public class TokenCache {
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-  private static String token;
-
-  public static String getToken() {
-    return token;
-  }
-
-  public static void setToken(String token) {
-    TokenCache.token = token;
+public class PriceApplication {
+  public static void main(String[] args) throws Exception {
+    try {
+      ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
+          "classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml");
+      context.start();
+      System.in.read();
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
   }
 }

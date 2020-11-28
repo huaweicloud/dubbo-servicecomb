@@ -12,6 +12,49 @@
     <artifactId>governance-consumer</artifactId>
     <dependencies>
         <dependency>
+            <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+            <artifactId>discovery-common-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+            <artifactId>dubbo-servicecomb-service-center</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+            <artifactId>dubbo-servicecomb-config-center</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-config-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-registry-zookeeper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-registry-multicast</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-rpc-dubbo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-rpc-rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-remoting-netty4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-serialization-hessian2</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
         </dependency>
@@ -26,6 +69,11 @@
             <artifactId>jsr311-api</artifactId>
             <version>1.1.1</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+            <artifactId>dubbo-servicecomb-governance-center</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

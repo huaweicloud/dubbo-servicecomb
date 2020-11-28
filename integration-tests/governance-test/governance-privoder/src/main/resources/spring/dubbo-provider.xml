@@ -20,6 +20,7 @@
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
        http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
+    <import resource="spring-*"/>
 
     <dubbo:application name="governance-provider"/>
 
@@ -27,10 +28,12 @@
     <dubbo:registry address="sc://127.0.0.1:30100"/>
 
 
-    <dubbo:protocol name="dubbo" port="8080"/>
+    <dubbo:protocol name="dubbo" port="8084"/>
 
+    <dubbo:service interface="com.huaweicloud.it.governance.PriceService" ref="priceService"/>
+    <bean id="priceService" class="com.huaweicloud.it.governance.PriceServiceImpl"/>
 
-    <bean id="pingService" class="com.huaweicloud.it.PingServiceImpl"/>
-
-    <bean id="ProviderServiceRest" class="com.huaweicloud.it.ProviderRest"/>
+    <dubbo:service interface="com.huaweicloud.it.governance.PingService" ref="pingService"/>
+    <bean id="pingService" class="com.huaweicloud.it.governance.PingServiceImpl"/>
+    <dubbo:provider timeout="1000"></dubbo:provider>
 </beans>

@@ -14,15 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance.policy;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig.SlidingWindowType;
 import org.springframework.util.StringUtils;
 
-/**
- * @Author GuoYl123
- * @Date 2020/5/11
- **/
 public class CircuitBreakerPolicy extends AbstractPolicy {
 
   public static final int DEFAULT_FAILURE_RATE_THRESHOLD = 50;

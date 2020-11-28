@@ -25,10 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * @Author wangqijun
- * @Date 15:05 2019-11-06
- **/
 public class MD5Util {
   private static final Logger LOGGER = LoggerFactory.getLogger(NetUtil.class);
 

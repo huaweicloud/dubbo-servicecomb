@@ -12,6 +12,7 @@
     <artifactId>governance-test</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>governance-client</module>
         <module>governance-common</module>
         <module>governance-consumer</module>
         <module>governance-privoder</module>

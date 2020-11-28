@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance.policy;
 
 import org.springframework.util.StringUtils;
@@ -61,8 +62,8 @@ public class RetryPolicy extends AbstractPolicy {
   }
 
   public Integer getMaxAttempts() {
-    if (maxAttempts == null) {
-      maxAttempts = DEFAULT_MAX_ATTEMPTS;
+    if (maxAttempts == null || maxAttempts<3) {
+      maxAttempts = DEFAULT_WAIT_DURATION;
     }
     return maxAttempts;
   }

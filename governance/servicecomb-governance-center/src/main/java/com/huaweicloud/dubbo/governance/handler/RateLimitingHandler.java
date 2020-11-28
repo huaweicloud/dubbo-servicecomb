@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance.handler;
 
 import com.huaweicloud.dubbo.governance.policy.Policy;
@@ -25,11 +26,6 @@ import io.github.resilience4j.ratelimiter.RateLimiterRegistry;
 
 import java.time.Duration;
 
-/**
- *
- * @Author GuoYl123
- * @Date 2020/5/11
- **/
 public class RateLimitingHandler extends AbstractGovHandler<RateLimiter> {
 
   @Override

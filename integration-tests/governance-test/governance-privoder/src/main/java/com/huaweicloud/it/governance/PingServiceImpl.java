@@ -14,35 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.huaweicloud.dubbo.governance.client;
 
-import com.huaweicloud.dubbo.governance.ribbon.RibbonServerFilter;
-import com.huaweicloud.dubbo.governance.client.track.RequestTrackContext;
-import com.netflix.loadbalancer.Server;
+package com.huaweicloud.it.governance;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class GovRibbonServerFilter implements RibbonServerFilter {
-
-  /**
-   * @param list
-   * @return
-   */
+public class PingServiceImpl implements PingService {
   @Override
-  public List<Server> filter(List<Server> list) {
-    List<Server> copyList = new ArrayList<>(list);
-    if (RequestTrackContext.getServerExcluder().isEnabled()) {
-      copyList.removeAll(RequestTrackContext.getServerExcluder().getIgnoreServers());
-      if (!copyList.isEmpty()) {
-        return copyList;
-      }
-    }
-    return list;
-  }
-
-  @Override
-  public int order() {
-    return 0;
+  public boolean ping() {
+    return true;
   }
 }

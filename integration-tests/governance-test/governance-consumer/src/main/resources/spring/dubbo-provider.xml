@@ -21,18 +21,18 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
        http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
 
-    <dubbo:application name="governance-consumer"/>
+    <dubbo:application name="order-consumer"/>
+
+    <dubbo:protocol name="rest" port="8083"/>
 
     <!--  <dubbo:registry address="multicast://224.5.6.7:1234"/>-->
     <dubbo:registry address="sc://127.0.0.1:30100"/>
 
+    <bean id="priceServiceRest" class="com.huaweicloud.it.governance.PriceServiceRestImpl"/>
 
-    <dubbo:protocol name="dubbo" port="8083"/>
+    <dubbo:service interface="com.huaweicloud.it.governance.PriceServiceRest" ref="priceServiceRest"/>
 
-    <bean id="ProviderServiceRest" class="com.huaweicloud.it.order.ProviderServiceRestImpl"/>
-
-    <dubbo:service interface="com.huaweicloud.it.ProviderServiceRest" ref="ProviderServiceRest"/>
-
-    <dubbo:reference id="ProviderService" check="false" interface="com.huaweicloud.it.ProviderService"/>
-    <dubbo:reference id="PingService" check="false" interface="com.huaweicloud.it.PingService"/>
+    <dubbo:reference id="priceService" check="false" retries="3" interface="com.huaweicloud.it.governance.PriceService"/>
+    <dubbo:reference id="pingService" check="false" retries="3" interface="com.huaweicloud.it.governance.PingService"/>
+    <dubbo:consumer timeout="1000"></dubbo:consumer>
 </beans>

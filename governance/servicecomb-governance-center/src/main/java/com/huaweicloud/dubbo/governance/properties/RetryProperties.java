@@ -14,24 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance.properties;
 
 import com.huaweicloud.dubbo.governance.policy.RetryPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
-//@ConfigurationProperties("servicecomb")
 public class RetryProperties implements GovProperties<RetryPolicy> {
 
   Map<String, String> retry;
 
   @Autowired
   SerializeCache<RetryPolicy> cache = new SerializeCache<>();
-
+  public RetryProperties () {
+    retry = new HashMap<>();
+    retry.put("xxx","rules:\n match: demo-retry.xx\nmaxAttempts: 3\nonSame: false\nretryOnResponseStatus: 502");
+  }
   public Map<String, String> getRetry() {
     return retry;
   }

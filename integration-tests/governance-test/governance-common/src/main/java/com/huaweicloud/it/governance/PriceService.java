@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.huaweicloud.dubbo.governance.ribbon;
 
-import com.netflix.loadbalancer.Server;
+package com.huaweicloud.it.governance;
 
-import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
-public interface RibbonServerFilter {
-  List<Server> filter(List<Server> list);
+public interface PriceService {
+  String sayHello(String name);
 
-  int order();
+  String sayRetry(String name);
+
 }

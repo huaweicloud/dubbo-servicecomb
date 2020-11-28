@@ -15,31 +15,35 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.cache;
+package com.huaweicloud.it.governance;
 
-/**
- * @Author GuoYl123
- * @Date 2019/11/25
- **/
-public class RegisterCache {
 
-  private static String serviceID = null;
+import org.springframework.beans.factory.annotation.Value;
 
-  private static String instanceID = null;
+import javax.ws.rs.QueryParam;
 
-  public static String getServiceID() {
-    return serviceID;
+public class PriceServiceImpl implements PriceService {
+
+  private  int count = 0;
+
+  @Override
+  public String sayHello(String name) {
+    return name + ": rate Limiting!";
   }
 
-  public static void setServiceID(String serviceID) {
-    RegisterCache.serviceID = serviceID;
+  @Override
+  public String sayRetry(@QueryParam("name") String name) {
+    count++;
+    if (count%3 ==0) {
+      return name + ": Retry!";
+    } else {
+      try {
+        Thread.sleep(3000);
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }
+    return null;
   }
 
-  public static String getInstanceID() {
-    return instanceID;
-  }
-
-  public static void setInstanceID(String instanceID) {
-    RegisterCache.instanceID = instanceID;
-  }
 }

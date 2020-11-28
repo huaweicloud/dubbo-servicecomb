@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.huaweicloud.dubbo.governance;
 
 import com.huaweicloud.dubbo.governance.handler.*;
@@ -42,10 +43,9 @@ public class GovManager {
     handlers.put("GovBulkhead", new BulkheadHandler());
   }
 
-//  @Autowired(required = false)
-  ServerRecoverPolicy serverRecoverPolicy;
+   ServerRecoverPolicy serverRecoverPolicy;
 
-//  @Autowired(required = false)
+
   ClientRecoverPolicy clientRecoverPolicy;
 
   public Object processServer(List<Policy> policies, CheckedFunction0 supplier) {

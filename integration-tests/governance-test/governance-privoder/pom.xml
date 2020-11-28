@@ -13,7 +13,7 @@
     <dependencies>
         <dependency>
             <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-            <artifactId>discovery-common-api</artifactId>
+            <artifactId>governance-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -63,6 +63,11 @@
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+            <artifactId>dubbo-servicecomb-governance-center</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
@@ -78,7 +83,7 @@
         <profile>
             <id>docker</id>
             <properties>
-                <server.port>8080</server.port>
+                <server.port>8084</server.port>
             </properties>
             <build>
                 <plugins>
