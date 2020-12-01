@@ -50,7 +50,7 @@
     <module>common</module>
     <module>discovery</module>
     <module>config</module>
-
+    <module>dtm</module>
     <module>spring-boot</module>
   </modules>
 
