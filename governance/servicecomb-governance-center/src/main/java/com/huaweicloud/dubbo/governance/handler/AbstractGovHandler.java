@@ -17,11 +17,16 @@
 
 package com.huaweicloud.dubbo.governance.handler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
 public abstract class AbstractGovHandler<T> implements GovHandler {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(AbstractGovHandler.class);
 
   protected Map<String, T> map = new HashMap<>();
 
