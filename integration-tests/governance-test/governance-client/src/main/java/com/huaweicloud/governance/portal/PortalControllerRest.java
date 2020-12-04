@@ -33,10 +33,10 @@ public class PortalControllerRest {
   @GetMapping(path = "testAll")
   public void testAll() {
 
-    String result = restTemplate.getForObject("http://order-consumer/price/sayHello?name={name}", String.class, "test");
+    String result = restTemplate.getForObject("http://governance-consumer/price/sayHello?name={name}", String.class, "test");
     Assert.assertEquals(result, "test: rate Limiting!");
 
-    result = restTemplate.getForObject("http://order-consumer/price/sayRetry?name={name}", String.class, "test");
+    result = restTemplate.getForObject("http://governance-consumer/price/sayRetry?name={name}", String.class, "test");
     Assert.assertEquals(result, "test: Retry!");
 
   }

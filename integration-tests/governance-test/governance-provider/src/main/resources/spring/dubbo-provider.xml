@@ -35,5 +35,5 @@
 
     <dubbo:service interface="com.huaweicloud.it.governance.PingService" ref="pingService"/>
     <bean id="pingService" class="com.huaweicloud.it.governance.PingServiceImpl"/>
-    <dubbo:provider timeout="1000"></dubbo:provider>
+    <dubbo:provider timeout="3000"></dubbo:provider>
 </beans>

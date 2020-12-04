@@ -33,7 +33,6 @@ public class MatchersServiceImpl implements MatchersService {
 
   private RequestProcessor requestProcessor = new RequestProcessor();
 
-
   private MatchProperties matchProperties = new MatchProperties();
 
   /**

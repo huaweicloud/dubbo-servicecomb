@@ -24,6 +24,5 @@ public class OrderApplication {
     ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
         "classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml");
     context.start();
-
   }
 }

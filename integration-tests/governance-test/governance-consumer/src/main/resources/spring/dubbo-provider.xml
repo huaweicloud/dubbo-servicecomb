@@ -21,7 +21,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
        http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
 
-    <dubbo:application name="order-consumer"/>
+    <dubbo:application name="governance-consumer"/>
 
     <dubbo:protocol name="rest" port="8083"/>
 
@@ -32,7 +32,7 @@
 
     <dubbo:service interface="com.huaweicloud.it.governance.PriceServiceRest" ref="priceServiceRest"/>
 
-    <dubbo:reference id="priceService" check="false" retries="3" interface="com.huaweicloud.it.governance.PriceService"/>
-    <dubbo:reference id="pingService" check="false" retries="3" interface="com.huaweicloud.it.governance.PingService"/>
-    <dubbo:consumer timeout="1000"></dubbo:consumer>
+    <dubbo:reference id="priceService" check="false" retries="0" interface="com.huaweicloud.it.governance.PriceService"/>
+    <dubbo:reference id="pingService" check="false" retries="0" interface="com.huaweicloud.it.governance.PingService"/>
+    <dubbo:consumer cluster="faildefault"></dubbo:consumer>
 </beans>

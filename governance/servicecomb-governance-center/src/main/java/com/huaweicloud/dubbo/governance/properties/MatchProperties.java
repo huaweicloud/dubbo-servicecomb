@@ -30,8 +30,8 @@ public class MatchProperties {
 
   public MatchProperties () {
     match = new HashMap<>();
-    match.put("demo-rateLimiting", "matches:\n - apiPath:\n     exact: \"/price/sayHello\"\n   name: xx\n");
-    match.put("demo-retry", "matches:\n - apiPath:\n     exact: \"/price/sayHello\"\n   name: xx\n");
+    match.put("demo-rateLimiting", "matches:\n - apiPath:\n     contains: \"sayHello\"\n   name: xx\n");
+    match.put("demo-retry", "matches:\n - apiPath:\n     contains: \"sayHello\"\n   name: xx\n");
 
   }
 

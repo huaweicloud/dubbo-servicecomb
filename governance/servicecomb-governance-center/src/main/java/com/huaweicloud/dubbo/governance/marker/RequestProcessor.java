@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
 public class RequestProcessor {
 
   private static final String OPERATOR_SUFFIX = "Operator";

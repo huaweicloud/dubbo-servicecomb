@@ -37,7 +37,6 @@ public class PolicyServiceImpl implements PolicyService {
   public PolicyServiceImpl() {
     propertiesList = new LinkedList<>();
     propertiesList.add(new RateLimitProperties());
-    propertiesList.add(new RetryProperties());
     propertiesList.add(new BulkheadProperties());
     propertiesList.add(new CircuitBreakerProperties());
   }
@@ -61,12 +60,13 @@ public class PolicyServiceImpl implements PolicyService {
 
   @Override
   public Policy getCustomPolicy(String kind, List<String> mark) {
-    for (GovProperties properties : propertiesList) {
-      if (properties.getClass().getName().startsWith(kind)) {
-        return match(properties.covert(), mark);
-      }
+    RetryProperties retryProperties = new RetryProperties();
+    switch (kind) {
+      case "Retry":
+        return match(retryProperties.covert(), mark);
+      default:
+        return null;
     }
-    return null;
   }
 
   private <T extends AbstractPolicy> Policy match(Map<String, T> policies, List<String> mark) {

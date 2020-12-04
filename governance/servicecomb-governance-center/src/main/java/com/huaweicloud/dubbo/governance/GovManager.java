@@ -43,7 +43,7 @@ public class GovManager {
     handlers.put("GovBulkhead", new BulkheadHandler());
   }
 
-   ServerRecoverPolicy serverRecoverPolicy;
+  ServerRecoverPolicy serverRecoverPolicy;
 
 
   ClientRecoverPolicy clientRecoverPolicy;

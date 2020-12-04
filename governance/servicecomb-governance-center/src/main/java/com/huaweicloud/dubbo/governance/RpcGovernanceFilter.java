@@ -17,10 +17,10 @@
 
 package com.huaweicloud.dubbo.governance;
 
-import com.huaweicloud.dubbo.governance.util.HeaderUtil;
-import com.huaweicloud.dubbo.governance.client.track.RequestTrackContext;
+import com.huaweicloud.dubbo.governance.track.RequestTrackContext;
 import com.huaweicloud.dubbo.governance.marker.GovHttpRequest;
 import com.huaweicloud.dubbo.governance.policy.Policy;
+import com.huaweicloud.dubbo.governance.util.HeaderUtil;
 import io.github.resilience4j.bulkhead.BulkheadFullException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
@@ -33,9 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -52,65 +49,37 @@ public class RpcGovernanceFilter implements Filter {
 
   private static final String BULKHEAD_POLICY_NAME = "BulkheadPolicy";
 
+  private static final String RATE_LIMITING_MSG = " because the request is rate limit!";
+
+  private static final String CIRCUIT_BREAKER_MSG = " because circuitBreaker is open!";
+
+  private static final String BULKHEAD_MSG = " because bulkhead is full and does not permit further calls!";
 
   private MatchersManager matchersManager = new MatchersManager();
 
-  private GovManager govManager =new GovManager();
+  private GovManager govManager = new GovManager();
 
-  private GovHttpRequest govHttpRequest ;
+  private GovHttpRequest govHttpRequest;
+
+  private Object result = null;
 
   @Override
   public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
     HttpServletRequest request = ResteasyProviderFactory.getContextData(HttpServletRequest.class);
-    HttpServletResponse response = ResteasyProviderFactory.getContextData(HttpServletResponse.class);
-    if (request == null) {
-      govHttpRequest = covertInvocation(invocation);
-    } else {
-      govHttpRequest = convert(request);
-    }
+    govHttpRequest = (request == null)? covertInvocation(invocation) : convert(request);
     Map<String, Policy> policies = matchersManager.match(govHttpRequest);
     if (CollectionUtils.isEmpty(policies)) {
       return invoker.invoke(invocation);
     }
     RequestTrackContext.setPolicies(new ArrayList(policies.values()));
     try {
-      Object resultTemp = govManager.processServer(RequestTrackContext.getPolicies(), ()-> invocation);
+      result = govManager.processServer(RequestTrackContext.getPolicies(), ()-> invoker.invoke(invocation));
     } catch (Throwable th) {
-      LOGGER.debug("request error, detail info print : {}", request);
-      if (th instanceof RequestNotPermitted) {
-        SendError(response,502,"rate limit!");
-        LOGGER.warn("the request is rate limit by policy : {}",
-            policies.get(RATE_LIMITING_POLICY_NAME));
-      } else if (th instanceof CallNotPermittedException) {
-        SendError(response,502,"circuitBreaker is open!");
-        LOGGER.warn("circuitBreaker is open by policy : {}",
-            policies.get(CIRCUIT_BREAKER_POLICY_NAME));
-      } else if (th instanceof BulkheadFullException) {
-        SendError(response,502,"bulkhead is full and does not permit further calls!");
-        LOGGER.warn("bulkhead is full and does not permit further calls by policy : {}",
-            policies.get(BULKHEAD_POLICY_NAME));
-      } else {
-        try {
-          throw th;
-        } catch (Throwable throwable) {
-          throwable.printStackTrace();
-        }
-      }
+      ProcessException(th, policies, invoker, invocation);
     } finally {
-      Result result = invoker.invoke(invocation);
-      if (result.hasException()) {
-        try {
-          Throwable exception = result.getException();
-          if (exception instanceof RpcException) {
-            Object resultTemp = govManager.processClient(RequestTrackContext.getPolicies(), ()-> invocation);
-          }
-        } catch (Throwable e) {
-          e.printStackTrace();
-        }
-      }
       RequestTrackContext.remove();
-      return result;
     }
+    return (Result) result;
   }
 
   private GovHttpRequest convert(HttpServletRequest request) {
@@ -121,19 +90,46 @@ public class RpcGovernanceFilter implements Filter {
     return govHttpRequest;
   }
 
+  // Extract the relevant parameters of the RPC call
   private GovHttpRequest covertInvocation(Invocation invocation) {
     GovHttpRequest govHttpRequest = new GovHttpRequest();
     govHttpRequest.setHeaders(invocation.getAttachments());
-    govHttpRequest.setMethod(invocation.getMethodName());
-    govHttpRequest.setUri(RpcContext.getContext().getUrl().getAddress());
+    govHttpRequest.setMethod("POST");
+    govHttpRequest.setUri(invocation.getAttachments().get("path") + "." + invocation.getMethodName());
     return govHttpRequest;
   }
 
-  private void SendError(HttpServletResponse response, int StatusNum, String msg) {
-    try {
-      response.sendError(StatusNum,msg);
-    } catch (IOException e) {
-      e.printStackTrace();
+  //Unified processing exceptions
+  private void ProcessException(Throwable th, Map<String, Policy> policies, Invoker<?> invoker, Invocation invocation) {
+    if (th instanceof RequestNotPermitted) {
+      LOGGER.warn("the request is rate limit by policy : {}",
+          policies.get(RATE_LIMITING_POLICY_NAME));
+      this.ThrowError(invoker, invocation, RATE_LIMITING_MSG, 429);
+    } else if (th instanceof CallNotPermittedException) {
+      LOGGER.warn("circuitBreaker is open by policy : {}",
+          policies.get(CIRCUIT_BREAKER_POLICY_NAME));
+      this.ThrowError(invoker, invocation, CIRCUIT_BREAKER_MSG, 502);
+    } else if (th instanceof BulkheadFullException) {
+      LOGGER.warn("bulkhead is full and does not permit further calls by policy : {}",
+          policies.get(BULKHEAD_POLICY_NAME));
+      this.ThrowError(invoker, invocation, BULKHEAD_MSG, 423);
+    } else {
+      try {
+        throw th;
+      } catch (Throwable throwable) {
+        throwable.printStackTrace();
+      }
     }
+  }
+
+  //crate new RpcException, in order to make next service can catch this type error
+  private void ThrowError(Invoker<?> invoker, Invocation invocation, String msg, int code) {
+    RpcException rpcException = new RpcException(code,
+        "Failed to invoke service " +
+            invoker.getInterface().getName() +
+            "." + invocation.getMethodName() +
+            ":"+msg
+    );
+    throw rpcException;
   }
 }

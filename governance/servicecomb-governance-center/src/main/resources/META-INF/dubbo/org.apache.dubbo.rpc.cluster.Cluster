@@ -15,4 +15,4 @@
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
 
-RpcGovernanceFilter=com.huaweicloud.dubbo.governance.RpcGovernanceFilter
+faildefault=com.huaweicloud.dubbo.governance.retries.FaildefaultCluster

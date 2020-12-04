@@ -15,33 +15,16 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.properties;
+package com.huaweicloud.dubbo.governance.exception;
 
-import com.huaweicloud.dubbo.governance.policy.RetryPolicy;
-import org.springframework.stereotype.Component;
+import org.apache.dubbo.rpc.RpcException;
 
-import java.util.HashMap;
-import java.util.Map;
+//in order for extend RpcException
+public class RpcExtendException extends RpcException {
 
-@Component
-public class RetryProperties implements GovProperties<RetryPolicy> {
+  private static final long serialVersionUID = 7915459842583636844L;
 
-  Map<String, String> retry;
-
-  SerializeCache<RetryPolicy> cache = new SerializeCache<>();
-  public RetryProperties () {
-    retry = new HashMap<>();
-    retry.put("xxx","rules:\n match: demo-retry.xx\nmaxAttempts: 3\nonSame: false\nretryOnResponseStatus: 502");
-  }
-  public Map<String, String> getRetry() {
-    return retry;
-  }
-
-  public void setRetry(Map<String, String> retry) {
-    this.retry = retry;
-  }
-
-  public Map<String, RetryPolicy> covert() {
-    return cache.get(retry, RetryPolicy.class);
+  public RpcExtendException() {
+    super();
   }
 }

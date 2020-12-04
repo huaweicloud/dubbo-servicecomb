@@ -44,7 +44,7 @@
 <!--  <bean autowire="byName" id="ContainsOperator" class="com.huaweicloud.dubbo.governance.marker.operator.ContainsOperator"/>-->
 <!--  <bean autowire="byName" id="CompareOperator" class="com.huaweicloud.dubbo.governance.marker.operator.CompareOperator"/>-->
 
-<!--  <bean autowire="byName" id="RequestProcessor" class="com.huaweicloud.dubbo.governance.marker.RequestProcessor"/>-->
+  <bean id="requestProcessor" class="com.huaweicloud.dubbo.governance.marker.RequestProcessor"/>
 
 <!--  <bean id="" class="com.huaweicloud.dubbo.governance.ribbon.ServiceCombLoadBalanceRule"/>-->
 

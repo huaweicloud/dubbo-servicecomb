@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.client.track;
+package com.huaweicloud.dubbo.governance.track;
 
 import com.huaweicloud.dubbo.governance.policy.Policy;
 
