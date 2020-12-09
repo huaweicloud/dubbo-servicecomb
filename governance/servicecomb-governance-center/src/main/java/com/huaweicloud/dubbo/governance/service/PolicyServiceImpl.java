@@ -19,7 +19,12 @@ package com.huaweicloud.dubbo.governance.service;
 
 import com.huaweicloud.dubbo.governance.policy.AbstractPolicy;
 import com.huaweicloud.dubbo.governance.policy.Policy;
-import com.huaweicloud.dubbo.governance.properties.*;
+import com.huaweicloud.dubbo.governance.policy.RateLimitingPolicy;
+import com.huaweicloud.dubbo.governance.properties.BulkheadProperties;
+import com.huaweicloud.dubbo.governance.properties.CircuitBreakerProperties;
+import com.huaweicloud.dubbo.governance.properties.GovProperties;
+import com.huaweicloud.dubbo.governance.properties.RateLimitProperties;
+import com.huaweicloud.dubbo.governance.properties.RetryProperties;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
@@ -32,7 +37,7 @@ public class PolicyServiceImpl implements PolicyService {
 
   private static final String MATCH_NONE = "none";
 
-  private List<GovProperties> propertiesList;
+  private List<GovProperties<? extends AbstractPolicy>> propertiesList;
 
   public PolicyServiceImpl() {
     propertiesList = new LinkedList<>();
@@ -47,7 +52,7 @@ public class PolicyServiceImpl implements PolicyService {
       return null;
     }
     Map<String, Policy> policies = new HashMap<>();
-    for (GovProperties properties : propertiesList) {
+    for (GovProperties<? extends AbstractPolicy> properties : propertiesList) {
       Policy policy = match(properties.covert(), mark);
       if (policy != null) {
         String name = policy.name();

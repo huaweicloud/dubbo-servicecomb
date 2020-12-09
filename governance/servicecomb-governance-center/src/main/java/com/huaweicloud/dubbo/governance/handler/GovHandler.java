@@ -23,7 +23,7 @@ import io.github.resilience4j.decorators.Decorators.DecorateCheckedSupplier;
 
 public interface GovHandler {
 
-  DecorateCheckedSupplier process(DecorateCheckedSupplier supplier, Policy policy);
+  DecorateCheckedSupplier<?> process(DecorateCheckedSupplier<?> supplier, Policy policy);
 
   HandlerType type();
 }

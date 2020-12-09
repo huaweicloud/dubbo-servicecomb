@@ -18,9 +18,9 @@
 package com.huaweicloud.dubbo.governance.properties;
 
 
+import com.huaweicloud.dubbo.governance.event.DynamicConfigListener;
 import com.huaweicloud.dubbo.governance.policy.RateLimitingPolicy;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class RateLimitProperties implements GovProperties<RateLimitingPolicy> {
@@ -30,8 +30,6 @@ public class RateLimitProperties implements GovProperties<RateLimitingPolicy> {
   SerializeCache<RateLimitingPolicy> cache = new SerializeCache<>();
 
   public RateLimitProperties () {
-    rateLimiting = new HashMap<>();
-    rateLimiting.put("xxxx","rules:\n match: demo-rateLimiting.xx\nrate: 1\n");
   }
 
   public Map<String, String> getRateLimiting() {
@@ -43,6 +41,7 @@ public class RateLimitProperties implements GovProperties<RateLimitingPolicy> {
   }
 
   public Map<String, RateLimitingPolicy> covert() {
+    rateLimiting = DynamicConfigListener.loadData(DynamicConfigListener.getRateLimitingData());
     return cache.get(rateLimiting, RateLimitingPolicy.class);
   }
 }

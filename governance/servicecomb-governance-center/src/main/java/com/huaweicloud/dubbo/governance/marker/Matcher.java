@@ -29,14 +29,6 @@ public class Matcher {
 
   private List<String> method;
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
   private String name;
 
   public Map<String, RawOperator> getHeaders() {
@@ -61,5 +53,13 @@ public class Matcher {
 
   public void setMethod(List<String> method) {
     this.method = method;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
   }
 }

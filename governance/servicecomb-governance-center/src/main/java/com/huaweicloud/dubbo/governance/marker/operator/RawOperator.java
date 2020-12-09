@@ -20,4 +20,5 @@ package com.huaweicloud.dubbo.governance.marker.operator;
 import java.util.HashMap;
 
 public class RawOperator extends HashMap<String, String> {
+  private static final long serialVersionUID = 659728839992490564L;
 }

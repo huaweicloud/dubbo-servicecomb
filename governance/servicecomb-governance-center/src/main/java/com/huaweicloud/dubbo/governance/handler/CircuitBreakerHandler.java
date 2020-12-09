@@ -29,7 +29,7 @@ import java.time.Duration;
 public class CircuitBreakerHandler extends AbstractGovHandler<CircuitBreaker> {
 
   @Override
-  public DecorateCheckedSupplier process(DecorateCheckedSupplier supplier, Policy policy) {
+  public DecorateCheckedSupplier<?> process(DecorateCheckedSupplier<?> supplier, Policy policy) {
     CircuitBreaker circuitBreaker = getActuator(policy.name(), (CircuitBreakerPolicy) policy, this::getCircuitBreaker);
     return supplier.withCircuitBreaker(circuitBreaker);
   }

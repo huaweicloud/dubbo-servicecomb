@@ -29,7 +29,7 @@ import java.time.Duration;
 public class BulkheadHandler extends AbstractGovHandler<Bulkhead> {
 
   @Override
-  public DecorateCheckedSupplier process(DecorateCheckedSupplier supplier, Policy policy) {
+  public DecorateCheckedSupplier<?> process(DecorateCheckedSupplier<?> supplier, Policy policy) {
     Bulkhead bulkhead = getActuator(policy.name(), (BulkheadPolicy) policy, this::getBulkhead);
     return supplier.withBulkhead(bulkhead);
   }

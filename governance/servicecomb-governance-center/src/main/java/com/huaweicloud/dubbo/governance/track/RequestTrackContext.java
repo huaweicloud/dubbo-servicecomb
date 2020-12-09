@@ -23,12 +23,9 @@ import java.util.List;
 
 public class RequestTrackContext {
 
-  private static ThreadLocal<ServerExcluder> serverThreadLocal = new ThreadLocal<>();
-
   private static ThreadLocal<List<Policy>> policyThreadLocal = new ThreadLocal<>();
 
   public static void remove() {
-    serverThreadLocal.remove();
     policyThreadLocal.remove();
   }
 
@@ -38,12 +35,5 @@ public class RequestTrackContext {
 
   public static void setPolicies(List<Policy> policies) {
     policyThreadLocal.set(policies);
-  }
-
-  public static ServerExcluder getServerExcluder() {
-    if (serverThreadLocal.get() == null) {
-      serverThreadLocal.set(new ServerExcluder());
-    }
-    return serverThreadLocal.get();
   }
 }

@@ -18,42 +18,13 @@
 package com.huaweicloud.dubbo.governance;
 
 import com.huaweicloud.dubbo.governance.marker.GovHttpRequest;
-import com.huaweicloud.dubbo.governance.service.MatchersServiceImpl;
-import com.huaweicloud.dubbo.governance.service.PolicyService;
 import com.huaweicloud.dubbo.governance.policy.Policy;
-import com.huaweicloud.dubbo.governance.service.MatchersService;
-import com.huaweicloud.dubbo.governance.service.PolicyServiceImpl;
 
-import java.util.List;
 import java.util.Map;
 
-public class MatchersManager {
+public interface MatchersManager {
 
-  private final  String RETRY = "Retry";
+  Map<String, Policy> match(GovHttpRequest request);
 
-  private MatchersService matchersService = new MatchersServiceImpl();
-
-  private PolicyService policyService = new PolicyServiceImpl();
-
-  public Map<String, Policy> match(GovHttpRequest request) {
-    /**
-     * 1.获取该请求携带的markers
-     */
-    List<String> marks = matchersService.getMatchStr(request);
-    /**
-     * 2.通过 markers获取到所有的policy
-     */
-    return policyService.getAllPolicies(marks);
-  }
-
-  public Policy matchRetry(GovHttpRequest request) {
-    /**
-     * 1.获取该请求携带的markers
-     */
-    List<String> marks = matchersService.getMatchStr(request);
-    /**
-     * 2.通过 markers获取到所有的policy
-     */
-    return policyService.getCustomPolicy(RETRY, marks);
-  }
+  Policy matchRetry(GovHttpRequest request);
 }

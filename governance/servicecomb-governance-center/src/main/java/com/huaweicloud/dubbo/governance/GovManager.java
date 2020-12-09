@@ -18,71 +18,52 @@
 package com.huaweicloud.dubbo.governance;
 
 import com.huaweicloud.dubbo.governance.handler.*;
-import com.huaweicloud.dubbo.governance.handler.ext.ClientRecoverPolicy;
 import com.huaweicloud.dubbo.governance.handler.ext.ServerRecoverPolicy;
 import com.huaweicloud.dubbo.governance.policy.Policy;
 import io.github.resilience4j.decorators.Decorators;
 import io.github.resilience4j.decorators.Decorators.DecorateCheckedSupplier;
 import io.vavr.CheckedFunction0;
 import io.vavr.control.Try;
+import org.apache.dubbo.common.extension.ExtensionLoader;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class GovManager {
 
-  Map<String, GovHandler> handlers;
+  Map<String, AbstractGovHandler<?>> handlers;
+
+  // 利用dubbo的SPI特点，进行运行时加载。也支持对 ServerRecoverPolicy进行扩展
+  ServerRecoverPolicy<?> serverRecoverPolicy = ExtensionLoader.getExtensionLoader(ServerRecoverPolicy.class).getDefaultExtension();
 
   public GovManager() {
     handlers = new HashMap<>();
     handlers.put("GovRateLimiting", new RateLimitingHandler());
     handlers.put("GovCircuitBreaker", new CircuitBreakerHandler());
-    handlers.put("GovRetry", new RetryHandler());
     handlers.put("GovBulkhead", new BulkheadHandler());
   }
 
-  ServerRecoverPolicy serverRecoverPolicy;
-
-
-  ClientRecoverPolicy clientRecoverPolicy;
-
-  public Object processServer(List<Policy> policies, CheckedFunction0 supplier) {
-    DecorateCheckedSupplier ds = Decorators.ofCheckedSupplier(supplier);
+  public Object processServer(List<Policy> policies, CheckedFunction0<?> supplier) {
+    DecorateCheckedSupplier<?> ds = Decorators.ofCheckedSupplier(supplier);
     for (Policy policy : policies) {
       if (handlers.get(policy.handler()) == null ||
           handlers.get(policy.handler()).type() == HandlerType.CLIENT) {
         continue;
       }
-      ds = handlers.get(policy.handler()).process(ds, policy);
+       ds = handlers.get(policy.handler()).process(ds, policy);
     }
-    return Try.of(ds.decorate())
-        .recover(throwable -> {
-          if (serverRecoverPolicy == null) {
-            throw (RuntimeException) throwable;
-          } else {
-            return serverRecoverPolicy.apply((Throwable) throwable);
-          }
-        }).get();
+    Try<?> of = Try.of(ds.decorate());
+    of.recover(throwable -> {
+      if (serverRecoverPolicy == null) {
+        throw (RuntimeException) throwable;
+      } else {
+        //用户自定义的降级策略
+//        return serverRecoverPolicy.apply((Throwable) throwable);
+        return null;
+      }
+    });
+    return of.get();
   }
 
-  public Object processClient(List<Policy> policies, CheckedFunction0 supplier) {
-    DecorateCheckedSupplier ds = Decorators.ofCheckedSupplier(supplier);
-    for (Policy policy : policies) {
-      if (handlers.get(policy.handler()) == null ||
-          handlers.get(policy.handler()).type() == HandlerType.SERVER) {
-        continue;
-      }
-      ds = handlers.get(policy.handler()).process(ds, policy);
-    }
-    return Try.of(ds.decorate())
-        .recover(throwable -> {
-          if (clientRecoverPolicy == null) {
-            throw (RuntimeException) throwable;
-          } else {
-            return clientRecoverPolicy.apply((Throwable) throwable);
-          }
-        }).get();
-  }
 }

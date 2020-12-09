@@ -17,9 +17,9 @@
 
 package com.huaweicloud.dubbo.governance.properties;
 
+import com.huaweicloud.dubbo.governance.event.DynamicConfigListener;
 import com.huaweicloud.dubbo.governance.marker.TrafficMarker;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class MatchProperties {
@@ -29,10 +29,6 @@ public class MatchProperties {
   SerializeCache<TrafficMarker> cache = new SerializeCache<>();
 
   public MatchProperties () {
-    match = new HashMap<>();
-    match.put("demo-rateLimiting", "matches:\n - apiPath:\n     contains: \"sayHello\"\n   name: xx\n");
-    match.put("demo-retry", "matches:\n - apiPath:\n     contains: \"sayHello\"\n   name: xx\n");
-
   }
 
   public Map<String, String> getMatch() {
@@ -44,6 +40,7 @@ public class MatchProperties {
   }
 
   public Map<String, TrafficMarker> covert() {
+    match = DynamicConfigListener.loadData(DynamicConfigListener.getPolicyData());
     return cache.get(match, TrafficMarker.class);
   }
 }

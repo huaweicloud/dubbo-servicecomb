@@ -31,7 +31,6 @@ public class RequestProcessor {
 
   public RequestProcessor() {
     operatorMap = new HashMap<>();
-    operatorMap.put("regex", new RegexOperator());
     operatorMap.put("exact", new ExactOperator());
     operatorMap.put("contains", new ContainsOperator());
     operatorMap.put("compare", new CompareOperator());

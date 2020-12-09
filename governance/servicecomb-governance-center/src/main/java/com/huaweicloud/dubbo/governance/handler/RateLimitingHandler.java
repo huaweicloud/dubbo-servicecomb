@@ -29,7 +29,7 @@ import java.time.Duration;
 public class RateLimitingHandler extends AbstractGovHandler<RateLimiter> {
 
   @Override
-  public DecorateCheckedSupplier process(DecorateCheckedSupplier supplier, Policy policy) {
+  public DecorateCheckedSupplier<?> process(DecorateCheckedSupplier<?> supplier, Policy policy) {
     RateLimiter rateLimiter = getActuator(policy.name(), (RateLimitingPolicy) policy, this::getRateLimiter);
     return supplier.withRateLimiter(rateLimiter);
   }

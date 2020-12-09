@@ -18,12 +18,10 @@
 package com.huaweicloud.dubbo.governance.marker.operator;
 
 import com.huaweicloud.dubbo.governance.exception.IllegalArgsOperatorException;
-import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Component
 public class CompareOperator implements MatchOperator {
 
   private Set<Character> charSet = new HashSet<>();

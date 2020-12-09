@@ -18,6 +18,9 @@
 package com.huaweicloud.dubbo.governance.exception;
 
 public class IllegalArgsOperatorException extends RuntimeException {
+
+  private static final long serialVersionUID = 793575987576638624L;
+
   public IllegalArgsOperatorException(String message) {
     super(message);
   }

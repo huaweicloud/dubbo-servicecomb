@@ -17,9 +17,6 @@
 
 package com.huaweicloud.dubbo.governance.marker.operator;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class ContainsOperator implements MatchOperator {
 
   @Override

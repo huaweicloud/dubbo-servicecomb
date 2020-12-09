@@ -17,21 +17,20 @@
 
 package com.huaweicloud.dubbo.governance.properties;
 
+import com.huaweicloud.dubbo.governance.event.DynamicConfigListener;
 import com.huaweicloud.dubbo.governance.policy.RetryPolicy;
-import org.springframework.stereotype.Component;
+import org.apache.dubbo.common.utils.ConfigUtils;
 
-import java.util.HashMap;
 import java.util.Map;
 
-@Component
 public class RetryProperties implements GovProperties<RetryPolicy> {
 
   Map<String, String> retry;
 
+  private ConfigUtils configUtils;
+
   SerializeCache<RetryPolicy> cache = new SerializeCache<>();
   public RetryProperties () {
-    retry = new HashMap<>();
-    retry.put("xxx","rules:\n match: demo-retry.xx\nmaxAttempts: 3\nonSame: false\nretryOnResponseStatus: 502");
   }
   public Map<String, String> getRetry() {
     return retry;
@@ -42,6 +41,7 @@ public class RetryProperties implements GovProperties<RetryPolicy> {
   }
 
   public Map<String, RetryPolicy> covert() {
+    retry = DynamicConfigListener.loadData(DynamicConfigListener.getRetryData());
     return cache.get(retry, RetryPolicy.class);
   }
 }

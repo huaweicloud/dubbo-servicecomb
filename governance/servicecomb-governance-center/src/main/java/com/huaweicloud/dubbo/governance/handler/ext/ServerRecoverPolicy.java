@@ -17,6 +17,9 @@
 
 package com.huaweicloud.dubbo.governance.handler.ext;
 
+import org.apache.dubbo.common.extension.SPI;
+
+@SPI
 public interface ServerRecoverPolicy<T> {
 
   T apply(Throwable th);

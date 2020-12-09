@@ -21,9 +21,10 @@ import com.huaweicloud.dubbo.governance.util.MD5Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
+import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
-import org.yaml.snakeyaml.representer.Representer;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,10 +39,7 @@ public class SerializeCache<T> {
 
   private Map<String, Map<String, T>> cacheMap = new HashMap<>();
 
-  private Representer representer = new Representer();
-
   public SerializeCache() {
-    representer.getPropertyUtils().setSkipMissingProperties(true);
   }
 
   public Map<String, T> get(Map<String, String> t, Class<T> entityClass) {
@@ -54,9 +52,8 @@ public class SerializeCache<T> {
       if (!check(classKey + realkey, entry.getValue())) {
         continue;
       }
-      Yaml yaml = new Yaml(representer);
       try {
-        T marker = yaml.loadAs(entry.getValue(), entityClass);
+        T marker = parserObject(entry.getValue(), entityClass);
         cacheMap.computeIfAbsent(classKey, k -> new HashMap<>()).put(realkey, marker);
       } catch (YAMLException e) {
         LOGGER.error("governance config yaml is illegal : {}", e.getMessage());
@@ -73,6 +70,11 @@ public class SerializeCache<T> {
       }
     }
     return resultMap;
+  }
+
+  private static <T> T parserObject(String yamlContent, Class<T> clazz) {
+    Yaml parser = new Yaml(new Constructor(new TypeDescription(clazz, clazz)));
+    return parser.loadAs(yamlContent, clazz);
   }
 
   private boolean check(String key, String value) {

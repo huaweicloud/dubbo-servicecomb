@@ -46,10 +46,6 @@
             <artifactId>dubbo-common</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo-rpc-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
         </dependency>
@@ -84,6 +80,11 @@
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-rpc-dubbo</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+            <artifactId>dubbo-servicecomb-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -15,4 +15,4 @@
 ## limitations under the License.
 ## ---------------------------------------------------------------------------
 
-faildefault=com.huaweicloud.dubbo.governance.retries.FaildefaultCluster
+dubbo-servicecomb=com.huaweicloud.dubbo.governance.retries.DubboServicecombCluster

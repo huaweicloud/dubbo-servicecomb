@@ -17,7 +17,7 @@
 
 package com.huaweicloud.dubbo.governance.retries;
 
-import com.huaweicloud.dubbo.governance.MatchersManager;
+import com.huaweicloud.dubbo.governance.MatchersManagerImpl;
 import com.huaweicloud.dubbo.governance.marker.GovHttpRequest;
 import com.huaweicloud.dubbo.governance.policy.Policy;
 import com.huaweicloud.dubbo.governance.policy.RetryPolicy;
@@ -26,7 +26,11 @@ import org.apache.dubbo.common.Version;
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
 import org.apache.dubbo.common.utils.NetUtils;
-import org.apache.dubbo.rpc.*;
+import org.apache.dubbo.rpc.Invocation;
+import org.apache.dubbo.rpc.Invoker;
+import org.apache.dubbo.rpc.Result;
+import org.apache.dubbo.rpc.RpcContext;
+import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.cluster.Directory;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
 import org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker;
@@ -40,13 +44,13 @@ import static org.apache.dubbo.common.constants.CommonConstants.RETRIES_KEY;
 public class FaildefaultClusterInvoker<T> extends AbstractClusterInvoker<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(FaildefaultClusterInvoker.class);
 
-  private MatchersManager matchersManager = new MatchersManager();
+  private MatchersManagerImpl matchersManagerImpl = new MatchersManagerImpl();
 
   public FaildefaultClusterInvoker(Directory<T> directory) {
     super(directory);
   }
 
-  private boolean onSame = false;
+  private boolean onSame = false;//改成int区分onNext,先same
 
   private int retryTimes = 0;
 
@@ -119,7 +123,7 @@ public class FaildefaultClusterInvoker<T> extends AbstractClusterInvoker<T> {
   private void getRetryPolicy(Invocation invocation) {
     this.methodName = RpcUtils.getMethodName(invocation);
     //if you want to make some configure changes, you can dynamic change here.
-    Policy policy = matchersManager.matchRetry(covertInvocation(invocation, getUrl()));
+    Policy policy = matchersManagerImpl.matchRetry(covertInvocation(invocation, getUrl()));
     if (policy != null) {
       RetryPolicy retryPolicy = (RetryPolicy)policy;
       this.retryTimes = retryPolicy.getMaxAttempts() + 1;

@@ -17,18 +17,15 @@
 
 package com.huaweicloud.dubbo.governance.properties;
 
+import com.huaweicloud.dubbo.governance.event.DynamicConfigListener;
 import com.huaweicloud.dubbo.governance.policy.BulkheadPolicy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
 public class BulkheadProperties implements GovProperties<BulkheadPolicy> {
 
   Map<String, String> bulkhead;
 
-  @Autowired
   SerializeCache<BulkheadPolicy> cache =new SerializeCache<>();
 
   public Map<String, String> getBulkhead() {
@@ -41,6 +38,7 @@ public class BulkheadProperties implements GovProperties<BulkheadPolicy> {
 
   @Override
   public Map<String, BulkheadPolicy> covert() {
+    bulkhead = DynamicConfigListener.loadData(DynamicConfigListener.getBulkheadData());
     return cache.get(bulkhead, BulkheadPolicy.class);
   }
 }
