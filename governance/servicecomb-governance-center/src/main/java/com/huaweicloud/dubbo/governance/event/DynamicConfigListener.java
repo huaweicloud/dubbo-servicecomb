@@ -59,7 +59,7 @@ public class DynamicConfigListener {
     retryData = (String) configurations.get(MatchDataChangeEvent.MATCH_RETRY_KEY);
     circuitBreakerData = (String) configurations.get(MatchDataChangeEvent.MATCH_CIRCUITBREAKER_KEY);
     bulkheadData = (String) configurations.get(MatchDataChangeEvent.MATCH_BULKHEAD__KEY);
-    LOGGER.error("refresh governance rules success!");
+    LOGGER.info("refresh governance rules success!");
   }
 
   //load governance rules

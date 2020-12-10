@@ -19,15 +19,12 @@ package com.huaweicloud.dubbo.governance.properties;
 
 import com.huaweicloud.dubbo.governance.event.DynamicConfigListener;
 import com.huaweicloud.dubbo.governance.policy.RetryPolicy;
-import org.apache.dubbo.common.utils.ConfigUtils;
 
 import java.util.Map;
 
 public class RetryProperties implements GovProperties<RetryPolicy> {
 
   Map<String, String> retry;
-
-  private ConfigUtils configUtils;
 
   SerializeCache<RetryPolicy> cache = new SerializeCache<>();
   public RetryProperties () {

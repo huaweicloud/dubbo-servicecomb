@@ -19,33 +19,5 @@
   xmlns="http://www.springframework.org/schema/beans"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
 
-
-
-<!--  <bean autowire="byName" id="MatchProperties" class="com.huaweicloud.dubbo.governance.properties.MatchProperties"/>-->
-<!--  <bean autowire="byName" id="RateLimitProperties" class="com.huaweicloud.dubbo.governance.properties.RateLimitProperties"/>-->
-<!--  <bean autowire="byName" id="CircuitBreakerProperties" class="com.huaweicloud.dubbo.governance.properties.CircuitBreakerProperties"/>-->
-<!--  <bean autowire="byName" id="RetryProperties" class="com.huaweicloud.dubbo.governance.properties.RetryProperties"/>-->
-<!--  <bean autowire="byName" id="BulkheadProperties" class="com.huaweicloud.dubbo.governance.properties.BulkheadProperties"/>-->
-<!--  <bean autowire="byName" id="SerializeCache" class="com.huaweicloud.dubbo.governance.properties.SerializeCache"/>-->
-
-<!--  <bean autowire="byName" id="MatchersService" class="com.huaweicloud.dubbo.governance.service.MatchersServiceImpl"/>-->
-<!--  <bean autowire="byName" id="MatchersManager" class="com.huaweicloud.dubbo.governance.MatchersManager"/>-->
-<!--  <bean autowire="byName" id="GovManager" class="com.huaweicloud.dubbo.governance.GovManager"/>-->
-
-<!--  <bean autowire="byName" id="PolicyService" class="com.huaweicloud.dubbo.governance.service.PolicyServiceImpl"/>-->
-
-<!--  <bean autowire="byName" id="RateLimitingHandler" class="com.huaweicloud.dubbo.governance.handler.RateLimitingHandler"/>-->
-<!--  <bean autowire="byName" id="CircuitBreakerHandler" class="com.huaweicloud.dubbo.governance.handler.CircuitBreakerHandler"/>-->
-<!--  <bean autowire="byName" id="RetryHandler" class="com.huaweicloud.dubbo.governance.handler.RetryHandler"/>-->
-<!--  <bean autowire="byName" id="BulkheadHandler" class="com.huaweicloud.dubbo.governance.handler.BulkheadHandler"/>-->
-
-<!--  <bean autowire="byName" id="RegexOperator" class="com.huaweicloud.dubbo.governance.marker.operator.RegexOperator"/>-->
-<!--  <bean autowire="byName" id="ExactOperator" class="com.huaweicloud.dubbo.governance.marker.operator.ExactOperator"/>-->
-<!--  <bean autowire="byName" id="ContainsOperator" class="com.huaweicloud.dubbo.governance.marker.operator.ContainsOperator"/>-->
-<!--  <bean autowire="byName" id="CompareOperator" class="com.huaweicloud.dubbo.governance.marker.operator.CompareOperator"/>-->
-
-  <bean id="requestProcessor" class="com.huaweicloud.dubbo.governance.marker.RequestProcessor"/>
-
-<!--  <bean id="" class="com.huaweicloud.dubbo.governance.ribbon.ServiceCombLoadBalanceRule"/>-->
-
+  <bean class="com.huaweicloud.dubbo.governance.event.DynamicConfigListener"/>
 </beans>
