@@ -69,4 +69,20 @@ public class PriceServiceRestImpl implements PriceServiceRest {
   public String testConfigurationService(String value) {
     return priceService.testConfigurationService(value);
   }
+
+  @Override
+  @GET
+  @Path("/sayRateLimit")
+  @Produces({MediaType.APPLICATION_JSON})
+  public String sayRateLimit(int num) {
+    return priceService.sayRateLimit(num);
+  }
+
+  @Override
+  @GET
+  @Path("/sayRetry")
+  @Produces({MediaType.APPLICATION_JSON})
+  public String sayRetry(int num) {
+    return priceService.sayRetry(num);
+  }
 }

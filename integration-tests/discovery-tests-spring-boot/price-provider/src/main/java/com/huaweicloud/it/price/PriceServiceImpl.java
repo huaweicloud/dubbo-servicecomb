@@ -54,4 +54,23 @@ public class PriceServiceImpl implements PriceService {
   public String testConfigurationService(String value) {
     return configurationService;
   }
+
+  @Override
+  public String sayRateLimit(int num) {
+    return  "test rateLimit "+ num +" times success!";
+  }
+
+  @Override
+  public String sayRetry(int num) {
+    if (num%3 ==0) {
+      return "test Retry "+ num +" times success!";
+    } else {
+      try {
+        Thread.sleep(3000);
+      } catch (Exception e) {
+        System.out.println(e.getMessage());
+      }
+    }
+    return null;
+  }
 }

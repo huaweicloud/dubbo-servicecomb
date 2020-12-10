@@ -19,8 +19,8 @@ package com.huaweicloud.dubbo.governance.event;
 
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.EventManager;
-import com.huaweicloud.dubbo.common.MatchDataChangeEvent;
 import org.apache.commons.lang.StringUtils;
+import org.apache.servicecomb.config.center.client.ConfigurationChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -43,22 +43,32 @@ public class DynamicConfigListener {
 
   public static String bulkheadData = null;
 
+  public static final String MATCH_POLICY_KEY = "servicecomb.match";
+
+  public static final String MATCH_RETRY_KEY = "servicecomb.retry";
+
+  public static final String MATCH_RAMTELING_KEY = "servicecomb.rateLimiting";
+
+  public static final String MATCH_CIRCUITBREAKER_KEY = "servicecomb.circuitBreaker";
+
+  public static final String MATCH_BULKHEAD__KEY = "servicecomb.bulkhead";
+
   public DynamicConfigListener() {
     EventManager.register(this);
   }
 
   @Subscribe
-  public void onDynamicConfigurationListener(MatchDataChangeEvent event) {
+  public void onDynamicConfigurationListener(ConfigurationChangedEvent event) {
     refreshMatchData(event.getConfigurations());
   }
 
   //refresh governance rules
   private void refreshMatchData(Map<String, Object> configurations) {
-    policyData = (String) configurations.get(MatchDataChangeEvent.MATCH_POLICY_KEY);
-    rateLimitingData = (String) configurations.get(MatchDataChangeEvent.MATCH_RAMTELING_KEY);
-    retryData = (String) configurations.get(MatchDataChangeEvent.MATCH_RETRY_KEY);
-    circuitBreakerData = (String) configurations.get(MatchDataChangeEvent.MATCH_CIRCUITBREAKER_KEY);
-    bulkheadData = (String) configurations.get(MatchDataChangeEvent.MATCH_BULKHEAD__KEY);
+    policyData = (String) configurations.get(MATCH_POLICY_KEY);
+    rateLimitingData = (String) configurations.get(MATCH_RAMTELING_KEY);
+    retryData = (String) configurations.get(MATCH_RETRY_KEY);
+    circuitBreakerData = (String) configurations.get(MATCH_CIRCUITBREAKER_KEY);
+    bulkheadData = (String) configurations.get(MATCH_BULKHEAD__KEY);
     LOGGER.info("refresh governance rules success!");
   }
 

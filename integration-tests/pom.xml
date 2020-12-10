@@ -35,7 +35,6 @@
     <module>docker-run-config</module>
     <module>discovery-tests</module>
     <module>discovery-tests-spring-boot</module>
-    <module>governance-test</module>
   </modules>
 
   <dependencies>

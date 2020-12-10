@@ -43,7 +43,6 @@ import org.springframework.core.env.MapPropertySource;
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
-import com.huaweicloud.dubbo.common.MatchDataChangeEvent;
 import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
 import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
 import com.huaweicloud.dubbo.common.GovernanceData;
@@ -109,7 +108,6 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     LOGGER.info("receive new configurations [{}]", event.getConfigurations().keySet());
     sources.clear();
     sources.putAll(event.getConfigurations());
-
     notifyGovernanceDataChange(event.getConfigurations());
   }
 
@@ -139,7 +137,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
         EventManager
             .post(new GovernanceDataChangeEvent(HttpUtils.deserialize(this.governanceData, GovernanceData.class)));
       }
-      notifyGovernanceDataChange(configurations);
+      EventManager.post(new ConfigurationChangedEvent(configurations));
     } catch (IOException e) {
       LOGGER.error("wrong governance data [{}] received.", this.governanceData);
     }
@@ -147,7 +145,6 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   private void notifyGovernanceDataChange(Map<String, Object> configurations) {
     String governanceData = (String) configurations.get(GovernanceDataChangeEvent.GOVERNANCE_KEY);
-    EventManager.post(new MatchDataChangeEvent(configurations));
     if (isGovernanceDataChanged(governanceData)) {
       try {
         if (governanceData == null) {

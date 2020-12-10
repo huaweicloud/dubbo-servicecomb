@@ -30,17 +30,20 @@ public class OrderApplication {
 
     PriceService priceService = context.getBean("priceService", PriceService.class);
     PingService pingService = context.getBean("pingService", PingService.class);
-
+    int  num = 0;
     while (true) {
       try {
         Thread.sleep(3000);
         System.out.println(priceService.sayHello("===========================hello"));
         System.out.println(pingService.ping());
+        System.out.println(priceService.sayRateLimit(++num));
+        System.out.println(priceService.sayRateLimit(++num));
         System.out.println(priceService.sayHello("timeout"));
       } catch (Exception e) {
         System.out.println(e.getMessage());
       }
     }
+
 
 //    System.in.read();
   }

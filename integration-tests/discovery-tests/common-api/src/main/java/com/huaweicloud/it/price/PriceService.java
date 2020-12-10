@@ -27,4 +27,8 @@ public interface PriceService {
   String testConfiguration(String value);
 
   String testConfigurationService(String value);
+
+  String sayRateLimit(int num);
+
+  String sayRetry(int num);
 }
