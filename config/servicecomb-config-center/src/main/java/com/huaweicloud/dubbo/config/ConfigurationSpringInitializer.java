@@ -43,9 +43,9 @@ import org.springframework.core.env.MapPropertySource;
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
-import com.huaweicloud.dubbo.common.GovernanceData;
-import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
 import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
+import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
+import com.huaweicloud.dubbo.common.GovernanceData;
 
 public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigurer implements EnvironmentAware {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationSpringInitializer.class);
@@ -57,6 +57,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
   ConfigCenterClient configCenterClient;
 
   QueryConfigurationsRequest queryConfigurationsRequest;
+
+  Map<String, Object> configurations;
 
   final Map<String, Object> sources = new HashMap<>();
 
@@ -80,11 +82,11 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
         try {
           QueryConfigurationsResponse response = configCenterClient.queryConfigurations(queryConfigurationsRequest);
+          configurations = response.getConfigurations();
           queryConfigurationsRequest.setRevision(response.getRevision());
           sources.putAll(response.getConfigurations());
           ce.getPropertySources().addFirst(
               new MapPropertySource(CONFIG_NAME, sources));
-          notifyGovernanceDataChange(response.getConfigurations());
         } catch (Exception e) {
           LOGGER.warn("set up {} failed at startup.", CONFIG_NAME, e);
         }
@@ -106,7 +108,6 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     LOGGER.info("receive new configurations [{}]", event.getConfigurations().keySet());
     sources.clear();
     sources.putAll(event.getConfigurations());
-
     notifyGovernanceDataChange(event.getConfigurations());
   }
 
@@ -136,6 +137,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
         EventManager
             .post(new GovernanceDataChangeEvent(HttpUtils.deserialize(this.governanceData, GovernanceData.class)));
       }
+      EventManager.post(new ConfigurationChangedEvent(configurations));
     } catch (IOException e) {
       LOGGER.error("wrong governance data [{}] received.", this.governanceData);
     }

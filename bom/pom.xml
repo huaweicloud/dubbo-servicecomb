@@ -56,6 +56,11 @@
       </dependency>
       <dependency>
         <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+        <artifactId>servicecomb-governance-center</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
         <artifactId>dubbo-servicecomb-dtm</artifactId>
         <version>${project.version}</version>
       </dependency>

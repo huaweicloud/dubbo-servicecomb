@@ -34,4 +34,5 @@
 
   <dubbo:reference id="priceService" check="false" interface="com.huaweicloud.it.price.PriceService"/>
   <dubbo:reference id="pingService" check="false" interface="com.huaweicloud.it.price.PingService"/>
+  <dubbo:consumer cluster="dubbo-servicecomb"></dubbo:consumer>
 </beans>

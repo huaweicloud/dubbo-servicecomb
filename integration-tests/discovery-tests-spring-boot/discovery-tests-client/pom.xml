@@ -96,7 +96,7 @@
   <dependencies>
     <dependency>
       <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-      <artifactId>discovery-common-api</artifactId>
+      <artifactId>spring-boot-discovery-common-api</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
