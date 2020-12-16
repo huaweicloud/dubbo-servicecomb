@@ -15,23 +15,39 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.properties;
+package org.apache.servicecomb.config.kie.client.model;
 
-import com.huaweicloud.dubbo.governance.policy.BulkheadPolicy;
+import java.util.List;
 
-import java.util.Map;
+public class KVResponse {
 
-public class BulkheadProperties implements GovProperties<BulkheadPolicy> {
+  private List<KVDoc> data;
 
-  private String prefixBulkhead = "servicecomb.bulkhead.";
+  private LabelDocResponse label;
 
-  SerializeCache<BulkheadPolicy> cache =new SerializeCache<>();
+  private Integer total;
 
-  public BulkheadProperties() {
+  public Integer getTotal() {
+    return total;
   }
 
-  @Override
-  public Map<String, BulkheadPolicy> covert() {
-    return cache.get(prefixBulkhead, BulkheadPolicy.class);
+  public void setTotal(Integer total) {
+    this.total = total;
+  }
+
+  public List<KVDoc> getData() {
+    return data;
+  }
+
+  public LabelDocResponse getLabel() {
+    return label;
+  }
+
+  public void setData(List<KVDoc> data) {
+    this.data = data;
+  }
+
+  public void setLabel(LabelDocResponse label) {
+    this.label = label;
   }
 }

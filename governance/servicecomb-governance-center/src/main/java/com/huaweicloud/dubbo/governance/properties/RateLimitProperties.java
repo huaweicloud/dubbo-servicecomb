@@ -18,30 +18,20 @@
 package com.huaweicloud.dubbo.governance.properties;
 
 
-import com.huaweicloud.dubbo.governance.event.DynamicConfigListener;
 import com.huaweicloud.dubbo.governance.policy.RateLimitingPolicy;
 
 import java.util.Map;
 
 public class RateLimitProperties implements GovProperties<RateLimitingPolicy> {
 
-  Map<String, String> rateLimiting;
+  private String prefixRateLimit = "servicecomb.rateLimiting.";
 
   SerializeCache<RateLimitingPolicy> cache = new SerializeCache<>();
 
   public RateLimitProperties () {
   }
 
-  public Map<String, String> getRateLimiting() {
-    return rateLimiting;
-  }
-
-  public void setRateLimiting(Map<String, String> rateLimiting) {
-    this.rateLimiting = rateLimiting;
-  }
-
   public Map<String, RateLimitingPolicy> covert() {
-    rateLimiting = DynamicConfigListener.loadData(DynamicConfigListener.getRateLimitingData());
-    return cache.get(rateLimiting, RateLimitingPolicy.class);
+    return cache.get(prefixRateLimit, RateLimitingPolicy.class);
   }
 }

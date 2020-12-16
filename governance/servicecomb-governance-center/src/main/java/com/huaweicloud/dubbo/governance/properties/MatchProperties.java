@@ -17,30 +17,20 @@
 
 package com.huaweicloud.dubbo.governance.properties;
 
-import com.huaweicloud.dubbo.governance.event.DynamicConfigListener;
 import com.huaweicloud.dubbo.governance.marker.TrafficMarker;
 
 import java.util.Map;
 
 public class MatchProperties {
 
-  Map<String, String> match;
+  private String prefixMatch = "servicecomb.match.";
 
   SerializeCache<TrafficMarker> cache = new SerializeCache<>();
 
   public MatchProperties () {
   }
 
-  public Map<String, String> getMatch() {
-    return match;
-  }
-
-  public void setMatch(Map<String, String> match) {
-    this.match = match;
-  }
-
   public Map<String, TrafficMarker> covert() {
-    match = DynamicConfigListener.loadData(DynamicConfigListener.getPolicyData());
-    return cache.get(match, TrafficMarker.class);
+    return cache.get(prefixMatch, TrafficMarker.class);
   }
 }

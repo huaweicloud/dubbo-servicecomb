@@ -34,6 +34,7 @@
     <module>http-client-common</module>
     <module>service-center-client</module>
     <module>config-center-client</module>
+    <module>config-kie-client</module>
   </modules>
   <dependencyManagement>
     <dependencies>

@@ -19,39 +19,18 @@ package com.huaweicloud.dubbo.governance.event;
 
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.EventManager;
-import org.apache.commons.lang.StringUtils;
 import org.apache.servicecomb.config.center.client.ConfigurationChangedEvent;
+import org.apache.servicecomb.config.kie.client.KieConfigChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class DynamicConfigListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(DynamicConfigListener.class);
 
-  private static final Yaml SAFE_PARSER = new Yaml(new SafeConstructor());
-
-  public static String policyData = null;
-
-  public static String retryData = null;
-
-  public static String circuitBreakerData = null;
-
-  public static String rateLimitingData = null;
-
-  public static String bulkheadData = null;
-
-  public static final String MATCH_POLICY_KEY = "servicecomb.match";
-
-  public static final String MATCH_RETRY_KEY = "servicecomb.retry";
-
-  public static final String MATCH_RAMTELING_KEY = "servicecomb.rateLimiting";
-
-  public static final String MATCH_CIRCUITBREAKER_KEY = "servicecomb.circuitBreaker";
-
-  public static final String MATCH_BULKHEAD__KEY = "servicecomb.bulkhead";
+  public static Map<String, Object> configurations = new HashMap<>();
 
   public DynamicConfigListener() {
     EventManager.register(this);
@@ -59,45 +38,13 @@ public class DynamicConfigListener {
 
   @Subscribe
   public void onDynamicConfigurationListener(ConfigurationChangedEvent event) {
-    refreshMatchData(event.getConfigurations());
-  }
-
-  //refresh governance rules
-  private void refreshMatchData(Map<String, Object> configurations) {
-    policyData = (String) configurations.get(MATCH_POLICY_KEY);
-    rateLimitingData = (String) configurations.get(MATCH_RAMTELING_KEY);
-    retryData = (String) configurations.get(MATCH_RETRY_KEY);
-    circuitBreakerData = (String) configurations.get(MATCH_CIRCUITBREAKER_KEY);
-    bulkheadData = (String) configurations.get(MATCH_BULKHEAD__KEY);
+    configurations = event.getConfigurations();
     LOGGER.info("refresh governance rules success!");
   }
 
-  //load governance rules
-  public static Map<String, String> loadData(String data) {
-    if (StringUtils.isEmpty(data)) {
-      return null;
-    }
-    Map<String, String> result = SAFE_PARSER.load(data);
-    return result;
-  }
-
-  public static String getPolicyData() {
-    return policyData;
-  }
-
-  public static String getRetryData() {
-    return retryData;
-  }
-
-  public static String getCircuitBreakerData() {
-    return circuitBreakerData;
-  }
-
-  public static String getRateLimitingData() {
-    return rateLimitingData;
-  }
-
-  public static String getBulkheadData() {
-    return bulkheadData;
+  @Subscribe
+  public void onDynamicKieConfigurationListener(KieConfigChangedEvent event) {
+    configurations = event.getConfigurations();
+    LOGGER.info("refresh governance rules success!");
   }
 }

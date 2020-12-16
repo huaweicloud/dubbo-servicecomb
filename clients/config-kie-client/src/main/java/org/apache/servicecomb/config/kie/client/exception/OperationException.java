@@ -15,23 +15,16 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.properties;
+package org.apache.servicecomb.config.kie.client.exception;
 
-import com.huaweicloud.dubbo.governance.policy.BulkheadPolicy;
+public class OperationException extends RuntimeException {
+  private static final long serialVersionUID = 1L;
 
-import java.util.Map;
-
-public class BulkheadProperties implements GovProperties<BulkheadPolicy> {
-
-  private String prefixBulkhead = "servicecomb.bulkhead.";
-
-  SerializeCache<BulkheadPolicy> cache =new SerializeCache<>();
-
-  public BulkheadProperties() {
+  public OperationException(String message) {
+    super(message);
   }
 
-  @Override
-  public Map<String, BulkheadPolicy> covert() {
-    return cache.get(prefixBulkhead, BulkheadPolicy.class);
+  public OperationException(String message, Throwable cause) {
+    super(message, cause);
   }
 }

@@ -17,28 +17,21 @@
 
 package com.huaweicloud.dubbo.governance.properties;
 
-import com.huaweicloud.dubbo.governance.event.DynamicConfigListener;
 import com.huaweicloud.dubbo.governance.policy.CircuitBreakerPolicy;
 
 import java.util.Map;
 
 public class CircuitBreakerProperties implements GovProperties<CircuitBreakerPolicy> {
 
-  Map<String, String> circuitBreaker;
+  private String prefixCircuitBreaker = "servicecomb.circuitBreaker.";
 
   SerializeCache<CircuitBreakerPolicy> cache = new SerializeCache<>();
 
-  public Map<String, String> getCircuitBreaker() {
-    return circuitBreaker;
-  }
-
-  public void setCircuitBreaker(Map<String, String> circuitBreaker) {
-    this.circuitBreaker = circuitBreaker;
+  public CircuitBreakerProperties() {
   }
 
   @Override
   public Map<String, CircuitBreakerPolicy> covert() {
-    circuitBreaker = DynamicConfigListener.loadData(DynamicConfigListener.getCircuitBreakerData());
-    return cache.get(circuitBreaker, CircuitBreakerPolicy.class);
+    return cache.get(prefixCircuitBreaker, CircuitBreakerPolicy.class);
   }
 }
