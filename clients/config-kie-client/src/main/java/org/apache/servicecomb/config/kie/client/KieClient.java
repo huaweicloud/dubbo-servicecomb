@@ -17,16 +17,20 @@
 
 package org.apache.servicecomb.config.kie.client;
 
-import com.huaweicloud.dubbo.common.CommonConfiguration;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.http.HttpStatus;
 import org.apache.servicecomb.config.kie.client.exception.OperationException;
-import org.apache.servicecomb.config.kie.client.model.*;
-import org.apache.servicecomb.foundation.common.utils.JsonUtils;
+import org.apache.servicecomb.config.kie.client.model.ConfigConstants;
+import org.apache.servicecomb.config.kie.client.model.ConfigurationsRequest;
+import org.apache.servicecomb.config.kie.client.model.ConfigurationsResponse;
+import org.apache.servicecomb.config.kie.client.model.KVDoc;
+import org.apache.servicecomb.config.kie.client.model.KVResponse;
+import org.apache.servicecomb.config.kie.client.model.KieAddressManager;
+import org.apache.servicecomb.config.kie.client.model.ValueType;
 import org.apache.servicecomb.http.client.common.HttpRequest;
 import org.apache.servicecomb.http.client.common.HttpResponse;
 import org.apache.servicecomb.http.client.common.HttpTransport;
+import org.apache.servicecomb.http.client.common.HttpUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
@@ -70,16 +74,15 @@ public class KieClient implements KieConfigOperation {
   @Override
   public ConfigurationsResponse queryConfigurations(ConfigurationsRequest request) {
     boolean isWatch = false;
-    String enableLongPolling = ConfigUtils.getProperty(CommonConfiguration.KEY_SERVICE_ENABLELONGPOLLING, "false");
-    if (enableLongPolling.equals("true")) {
+    if (Boolean.valueOf(getPropertiesValue(ConfigConstants.KEY_SERVICE_ENABLELONGPOLLING))) {
       isWatch = true;
     }
     try {
-      url = addressManager.getUrl()
+      url = addressManager.address()
           + "/"
           + DEFAULT_KIE_API_VERSION
           + "/"
-          + addressManager.getProjectName()
+          + getPropertiesValue(ConfigConstants.KEY_SERVICE_PROJECT)
           + "/kie/kv?label=app:"
           //app 名称作为筛选条件
           + request.getApplication()
@@ -88,10 +91,9 @@ public class KieClient implements KieConfigOperation {
 
       if (isWatch && !isFirst.get()) {
         url +=
-            "&wait=" + ConfigUtils.getProperty(CommonConfiguration.KEY_SERVICE_POLLINGWAITSEC, "30") + "s";
+            "&wait=" + getPropertiesValue(ConfigConstants.KEY_SERVICE_POLLINGWAITSEC) + "s";
       }
       isFirst.compareAndSet(true, false);
-
       Map<String, String> headers = new HashMap<>();
       headers.put("environment", request.getEnvironment());
       HttpRequest httpRequest = new HttpRequest(url, headers, null, HttpRequest.GET);
@@ -102,9 +104,8 @@ public class KieClient implements KieConfigOperation {
       ConfigurationsResponse configurationsResponse = new ConfigurationsResponse();
       if (httpResponse.getStatusCode() == HttpStatus.SC_OK) {
         revision = httpResponse.getHeader("X-Kie-Revision");
-        KVResponse allConfigList = JsonUtils.OBJ_MAPPER
-            .readValue(httpResponse.getContent(), KVResponse.class);
-        Map<String, Object> Configurations = getConfigByLabel(allConfigList);
+        KVResponse allConfigList = HttpUtils.deserialize(httpResponse.getContent(), KVResponse.class);
+        Map<String, Object> Configurations = getConfigByLabel(allConfigList, request);
         configurationsResponse.setConfigurations(Configurations);
         configurationsResponse.setChanged(true);
         configurationsResponse.setRevision(revision);
@@ -122,12 +123,12 @@ public class KieClient implements KieConfigOperation {
               httpResponse.getMessage() + "; content:" + httpResponse.getContent());
 
     } catch (Exception e) {
-      addressManager.toggle();
+      addressManager.nextAddress();
       throw new OperationException("read response failed. " + httpResponse, e);
     }
   }
 
-  private Map<String, Object> getConfigByLabel(KVResponse resp) {
+  private Map<String, Object> getConfigByLabel(KVResponse resp, ConfigurationsRequest request) {
     Map<String, Object> resultMap = new HashMap<>();
     List<KVDoc> appList = new ArrayList<>();
     List<KVDoc> serviceList = new ArrayList<>();
@@ -138,14 +139,10 @@ public class KieClient implements KieConfigOperation {
         continue;
       }
       labelsMap = kvDoc.getLabels();
-      boolean checkApplication = checkValue(ConfigConstants.LABEL_APP, CommonConfiguration.KEY_SERVICE_APPLICATION,
-          "default");
-      boolean checkEnvironment = checkValue(ConfigConstants.LABEL_ENV, CommonConfiguration.KEY_SERVICE_ENVIRONMENT,
-          "");
-      boolean checkServer = checkValue(ConfigConstants.LABEL_SERVICE, CommonConfiguration.KEY_SERVICE_NAME,
-          "");
-      boolean checkVersion = checkValue(ConfigConstants.LABEL_VERSION, CommonConfiguration.KEY_SERVICE_VERSION,
-          "1.0.0");
+      boolean checkApplication = checkValue(ConfigConstants.LABEL_APP, request.getApplication());
+      boolean checkEnvironment = checkValue(ConfigConstants.LABEL_ENV, request.getEnvironment());
+      boolean checkServer = checkValue(ConfigConstants.LABEL_SERVICE, request.getServiceName());
+      boolean checkVersion = checkValue(ConfigConstants.LABEL_VERSION, request.getVersion());
       if (checkApplication && checkEnvironment && !labelsMap.containsKey(ConfigConstants.LABEL_SERVICE)) {
           appList.add(kvDoc);
       }
@@ -169,11 +166,11 @@ public class KieClient implements KieConfigOperation {
     return resultMap;
   }
 
-  private boolean checkValue(String key, String propertyName, String defaultValue) {
+  private boolean checkValue(String key, String propertyName) {
     if (!labelsMap.containsKey(key)) {
       return false;
     }
-    if (!labelsMap.get(key).equals(ConfigUtils.getProperty(propertyName, defaultValue))) {
+    if (!labelsMap.get(key).equals(propertyName)) {
       return false;
     }
     return true;
@@ -230,5 +227,9 @@ public class KieClient implements KieConfigOperation {
       }
     }
     return result;
+  }
+
+  private String getPropertiesValue(String key) {
+    return this.addressManager.getProperties().getProperty(key);
   }
 }

@@ -23,13 +23,20 @@ import org.apache.servicecomb.http.client.task.AbstractTask;
 import org.apache.servicecomb.http.client.task.Task;
 
 import com.google.common.eventbus.EventBus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfigCenterManager extends AbstractTask {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigCenterManager.class);
+
   private static final long POLL_INTERVAL = 15000;
 
   private ConfigCenterClient configCenterClient;
 
   private final EventBus eventBus;
+
+  private int InitNumber = 0;
 
   private QueryConfigurationsRequest queryConfigurationsRequest;
 
@@ -44,18 +51,30 @@ public class ConfigCenterManager extends AbstractTask {
   }
 
   public void startConfigCenterManager() {
-    this.startTask(new PollConfigurationTask());
+    this.startTask(new PollConfigurationTask(InitNumber));
   }
 
   class PollConfigurationTask implements Task {
+    int failCount;
+
+    public PollConfigurationTask(int failCount) {
+      this.failCount = failCount;
+    }
+
     @Override
     public void execute() {
-      QueryConfigurationsResponse response = configCenterClient.queryConfigurations(queryConfigurationsRequest);
-      if (response.isChanged()) {
-        queryConfigurationsRequest.setRevision(response.getRevision());
-        eventBus.post(new ConfigurationChangedEvent(response.getConfigurations()));
+      try {
+        QueryConfigurationsResponse response = configCenterClient.queryConfigurations(queryConfigurationsRequest);
+        if (response.isChanged()) {
+          queryConfigurationsRequest.setRevision(response.getRevision());
+          eventBus.post(new ConfigurationChangedEvent(response.getConfigurations()));
+        }
+        startTask(new BackOffSleepTask(POLL_INTERVAL, new PollConfigurationTask(InitNumber)));
+      } catch (Exception e) {
+        LOGGER.error("get configurations from ConfigCenter failed, and will try again.", e);
+        startTask(new BackOffSleepTask(failCount + 1, new PollConfigurationTask(failCount + 1)));
       }
-      startTask(new BackOffSleepTask(POLL_INTERVAL, new PollConfigurationTask()));
     }
+
   }
 }

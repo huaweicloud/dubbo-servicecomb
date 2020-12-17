@@ -46,14 +46,14 @@ public class CommonConfiguration {
   public static final String KEY_REGISTRY_ADDRESS = "dubbo.servicecomb.registry.address";
 
   // ###### config center configuration ############### //
-  public static final String KEY_CONFIG_ADDRESSTYPE = "dubbo.servicecomb.config.addressType";
+  public static final String KEY_CONFIG_ADDRESSTYPE = "dubbo.servicecomb.config.type";
 
   public static final String KEY_CONFIG_ADDRESS = "dubbo.servicecomb.config.address";
 
   // ###### kie config center polling configuration############### //
-  public static final String KEY_SERVICE_ENABLELONGPOLLING = "dubbo.servicecomb.enableLongPolling";
+  public static final String KEY_SERVICE_ENABLELONGPOLLING = "dubbo.servicecomb.config.enableLongPolling";
 
-  public static final String KEY_SERVICE_POLLINGWAITSEC = "dubbo.servicecomb.service.pollingWaitSec";
+  public static final String KEY_SERVICE_POLLINGWAITSEC = "dubbo.servicecomb.config.pollingWaitInSeconds";
 
   // ###### ssl configuration ############### //
   public static final String KEY_SSL_ENABLED = "dubbo.servicecomb.ssl.enabled";

@@ -22,13 +22,20 @@ import org.apache.servicecomb.config.kie.client.model.ConfigurationsRequest;
 import org.apache.servicecomb.config.kie.client.model.ConfigurationsResponse;
 import org.apache.servicecomb.http.client.task.AbstractTask;
 import org.apache.servicecomb.http.client.task.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class KieConfigManager extends AbstractTask {
-  private static long POLL_INTERVAL = 15000;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(KieConfigManager.class);
+
+  private static long POLL_INTERVAL = 1000;
 
   private KieConfigOperation configKieClient;
 
   private final EventBus eventBus;
+
+  private int InitNumber = 0;
 
   private ConfigurationsRequest configurationsRequest;
 
@@ -43,18 +50,30 @@ public class KieConfigManager extends AbstractTask {
   }
 
   public void startConfigKieManager() {
-    this.startTask(new PollConfigurationTask());
+    this.startTask(new PollConfigurationTask(InitNumber));
   }
 
   class PollConfigurationTask implements Task {
+    int failCount = 0;
+
+    public PollConfigurationTask(int failCount) {
+      this.failCount = failCount;
+    }
+
     @Override
     public void execute() {
-      ConfigurationsResponse response = configKieClient.queryConfigurations(configurationsRequest);
-      if (response.isChanged()) {
-        configurationsRequest.setRevision(response.getRevision());
-        eventBus.post(new KieConfigChangedEvent(response.getConfigurations()));
+      try {
+        ConfigurationsResponse response = configKieClient.queryConfigurations(configurationsRequest);
+        if (response.isChanged()) {
+          LOGGER.info("The configurations are change, will refresh local configurations.");
+          configurationsRequest.setRevision(response.getRevision());
+          eventBus.post(new KieConfigChangedEvent(response.getConfigurations()));
+        }
+        startTask(new BackOffSleepTask(POLL_INTERVAL, new PollConfigurationTask(InitNumber)));
+      } catch (Exception e) {
+        LOGGER.error("get configurations from KieConfigCenter failed, and will try again.", e);
+        startTask(new BackOffSleepTask(failCount + 1, new PollConfigurationTask(failCount + 1)));
       }
-      startTask(new BackOffSleepTask(POLL_INTERVAL, new PollConfigurationTask()));
     }
   }
 }

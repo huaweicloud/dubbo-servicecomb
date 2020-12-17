@@ -18,13 +18,17 @@
 package com.huaweicloud.dubbo.config;
 
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_CONFIG_ADDRESS;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_CONFIG_ADDRESSTYPE;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_APPLICATION;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_ENVIRONMENT;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_NAME;
-import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_PROJECT;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_VERSION;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_ENABLELONGPOLLING;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_POLLINGWAITSEC;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_PROJECT;
 
 import java.util.Arrays;
+import java.util.Properties;
 
 import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.servicecomb.config.kie.client.model.KieAddressManager;
@@ -33,10 +37,15 @@ import org.apache.servicecomb.config.kie.client.model.ConfigurationsRequest;
 
 public class KieConfigConfiguration {
 
+  //初始化配置属性值，这里统一初始化，对于client模块，解耦对默认值的感知
   public static KieAddressManager createKieAddressManager() {
-    String address = ConfigUtils.getProperty(KEY_CONFIG_ADDRESS, "http://127.0.0.1:30103");
-    String project = ConfigUtils.getProperty(KEY_SERVICE_PROJECT, "default");
-    return new KieAddressManager(project, Arrays.asList(address.split(",")));
+    Properties properties = ConfigUtils.getProperties();
+    properties.setProperty(KEY_SERVICE_PROJECT,ConfigUtils.getProperty(KEY_SERVICE_PROJECT, "default"));
+    properties.setProperty(KEY_CONFIG_ADDRESSTYPE,ConfigUtils.getProperty(KEY_CONFIG_ADDRESSTYPE, ""));
+    properties.setProperty(KEY_SERVICE_ENABLELONGPOLLING,ConfigUtils.getProperty(KEY_SERVICE_ENABLELONGPOLLING, "true"));
+    properties.setProperty(KEY_SERVICE_POLLINGWAITSEC,ConfigUtils.getProperty(KEY_SERVICE_POLLINGWAITSEC, "30"));
+    String address = properties.getProperty(KEY_CONFIG_ADDRESS, "http://127.0.0.1:30110");
+    return new KieAddressManager(properties, Arrays.asList(address.split(",")));
   }
 
   public static ConfigurationsRequest createConfigurationsRequest() {
