@@ -74,7 +74,7 @@ public class KieClient implements KieConfigOperation {
   @Override
   public ConfigurationsResponse queryConfigurations(ConfigurationsRequest request) {
     boolean isWatch = false;
-    if (Boolean.valueOf(getPropertiesValue(ConfigConstants.KEY_SERVICE_ENABLELONGPOLLING))) {
+    if (Boolean.valueOf(getPropertiesValue(getConfigKeyValue(ConfigConstants.KEY_ENABLELONGPOLLING)))) {
       isWatch = true;
     }
     try {
@@ -82,7 +82,7 @@ public class KieClient implements KieConfigOperation {
           + "/"
           + DEFAULT_KIE_API_VERSION
           + "/"
-          + getPropertiesValue(ConfigConstants.KEY_SERVICE_PROJECT)
+          + getPropertiesValue(getConfigKeyValue(ConfigConstants.KEY_PROJECT))
           + "/kie/kv?label=app:"
           //app 名称作为筛选条件
           + request.getApplication()
@@ -91,7 +91,7 @@ public class KieClient implements KieConfigOperation {
 
       if (isWatch && !isFirst.get()) {
         url +=
-            "&wait=" + getPropertiesValue(ConfigConstants.KEY_SERVICE_POLLINGWAITSEC) + "s";
+            "&wait=" + getPropertiesValue(getConfigKeyValue(ConfigConstants.KEY_POLLINGWAITSEC)) + "s";
       }
       isFirst.compareAndSet(true, false);
       Map<String, String> headers = new HashMap<>();
@@ -105,8 +105,8 @@ public class KieClient implements KieConfigOperation {
       if (httpResponse.getStatusCode() == HttpStatus.SC_OK) {
         revision = httpResponse.getHeader("X-Kie-Revision");
         KVResponse allConfigList = HttpUtils.deserialize(httpResponse.getContent(), KVResponse.class);
-        Map<String, Object> Configurations = getConfigByLabel(allConfigList, request);
-        configurationsResponse.setConfigurations(Configurations);
+        Map<String, Object> configurations = getConfigByLabel(allConfigList, request);
+        configurationsResponse.setConfigurations(configurations);
         configurationsResponse.setChanged(true);
         configurationsResponse.setRevision(revision);
         return configurationsResponse;
@@ -124,7 +124,7 @@ public class KieClient implements KieConfigOperation {
 
     } catch (Exception e) {
       addressManager.nextAddress();
-      throw new OperationException("read response failed. " + httpResponse, e);
+      throw new OperationException("read response failed. ", e);
     }
   }
 
@@ -231,5 +231,9 @@ public class KieClient implements KieConfigOperation {
 
   private String getPropertiesValue(String key) {
     return this.addressManager.getProperties().getProperty(key);
+  }
+
+  private String getConfigKeyValue(String key) {
+    return this.addressManager.getConfigKey().get(key);
   }
 }

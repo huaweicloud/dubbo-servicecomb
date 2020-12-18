@@ -35,8 +35,6 @@ public class KieConfigManager extends AbstractTask {
 
   private final EventBus eventBus;
 
-  private int InitNumber = 0;
-
   private ConfigurationsRequest configurationsRequest;
 
   public KieConfigManager(KieConfigOperation configKieClient, EventBus eventBus) {
@@ -50,7 +48,7 @@ public class KieConfigManager extends AbstractTask {
   }
 
   public void startConfigKieManager() {
-    this.startTask(new PollConfigurationTask(InitNumber));
+    this.startTask(new PollConfigurationTask(0));
   }
 
   class PollConfigurationTask implements Task {
@@ -69,7 +67,7 @@ public class KieConfigManager extends AbstractTask {
           configurationsRequest.setRevision(response.getRevision());
           eventBus.post(new KieConfigChangedEvent(response.getConfigurations()));
         }
-        startTask(new BackOffSleepTask(POLL_INTERVAL, new PollConfigurationTask(InitNumber)));
+        startTask(new BackOffSleepTask(POLL_INTERVAL, new PollConfigurationTask(0)));
       } catch (Exception e) {
         LOGGER.error("get configurations from KieConfigCenter failed, and will try again.", e);
         startTask(new BackOffSleepTask(failCount + 1, new PollConfigurationTask(failCount + 1)));

@@ -19,6 +19,7 @@ package org.apache.servicecomb.config.kie.client.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 
@@ -28,11 +29,14 @@ public class KieAddressManager {
 
   private final List<String> addresses;
 
+  private final Map<String, String> configKey;
+
   private int index;
 
-  public KieAddressManager(Properties properties, List<String> addresses) {
+  public KieAddressManager(Properties properties, List<String> addresses, Map<String, String> configKey) {
     this.properties = properties;
     this.addresses = new ArrayList<>(addresses.size());
+    this.configKey = configKey;
     addresses.forEach((address -> this.addresses.add(address)));
     this.index = new Random().nextInt(addresses.size());
   }
@@ -55,5 +59,9 @@ public class KieAddressManager {
 
   public Properties getProperties() {
     return properties;
+  }
+
+  public Map<String, String> getConfigKey() {
+    return configKey;
   }
 }

@@ -30,11 +30,11 @@ public class ConfigConstants {
 
   public static final String STATUS_ENABLED = "enabled";
 
-  public static final String KEY_SERVICE_PROJECT = "dubbo.servicecomb.service.project";
+  public static final String KEY_PROJECT = "project";
 
   // ###### kie config center polling configuration############### //
-  public static final String KEY_SERVICE_ENABLELONGPOLLING = "dubbo.servicecomb.config.enableLongPolling";
+  public static final String KEY_ENABLELONGPOLLING = "enableLongPolling";
 
-  public static final String KEY_SERVICE_POLLINGWAITSEC = "dubbo.servicecomb.config.pollingWaitInSeconds";
+  public static final String KEY_POLLINGWAITSEC = "pollingWaitInSeconds";
 
 }

@@ -28,24 +28,31 @@ import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_POLLI
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_PROJECT;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.dubbo.common.utils.ConfigUtils;
+import org.apache.servicecomb.config.kie.client.model.ConfigConstants;
 import org.apache.servicecomb.config.kie.client.model.KieAddressManager;
 import org.apache.servicecomb.config.kie.client.model.ConfigurationsRequest;
 
 
 public class KieConfigConfiguration {
 
-  //初始化配置属性值，这里统一初始化，对于client模块，解耦对默认值的感知
+  //初始化配置属性值，这里统一初始化，对于client模块，解耦对默认值的感知,屏蔽不同框架带来的配置项差异对KieAddressManager的影响
   public static KieAddressManager createKieAddressManager() {
     Properties properties = ConfigUtils.getProperties();
+    Map<String, String> configKey = new HashMap<>();
     properties.setProperty(KEY_SERVICE_PROJECT,ConfigUtils.getProperty(KEY_SERVICE_PROJECT, "default"));
     properties.setProperty(KEY_CONFIG_ADDRESSTYPE,ConfigUtils.getProperty(KEY_CONFIG_ADDRESSTYPE, ""));
     properties.setProperty(KEY_SERVICE_ENABLELONGPOLLING,ConfigUtils.getProperty(KEY_SERVICE_ENABLELONGPOLLING, "true"));
     properties.setProperty(KEY_SERVICE_POLLINGWAITSEC,ConfigUtils.getProperty(KEY_SERVICE_POLLINGWAITSEC, "30"));
     String address = properties.getProperty(KEY_CONFIG_ADDRESS, "http://127.0.0.1:30110");
-    return new KieAddressManager(properties, Arrays.asList(address.split(",")));
+    configKey.put(ConfigConstants.KEY_PROJECT,KEY_SERVICE_PROJECT);
+    configKey.put(ConfigConstants.KEY_ENABLELONGPOLLING,KEY_SERVICE_ENABLELONGPOLLING);
+    configKey.put(ConfigConstants.KEY_POLLINGWAITSEC,KEY_SERVICE_POLLINGWAITSEC);
+    return new KieAddressManager(properties, Arrays.asList(address.split(",")), configKey);
   }
 
   public static ConfigurationsRequest createConfigurationsRequest() {
