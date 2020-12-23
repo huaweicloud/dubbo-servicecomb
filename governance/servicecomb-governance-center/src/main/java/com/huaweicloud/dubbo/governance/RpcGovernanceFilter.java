@@ -17,7 +17,6 @@
 
 package com.huaweicloud.dubbo.governance;
 
-import com.huaweicloud.dubbo.governance.event.DynamicConfigListener;
 import com.huaweicloud.dubbo.governance.marker.GovHttpRequest;
 import com.huaweicloud.dubbo.governance.policy.Policy;
 import com.huaweicloud.dubbo.governance.track.RequestTrackContext;
@@ -87,15 +86,15 @@ public class RpcGovernanceFilter implements Filter {
   private void processException(Throwable th, Invoker<?> invoker, Invocation invocation) {
     if (th instanceof RequestNotPermitted) {
       LOGGER.warn("the request is rate limit by policy : {}",
-          DynamicConfigListener.getRateLimitingData());
+          govManager.getCurrentPolicy());
       this.throwError(invoker, invocation, RATE_LIMITING_MSG, 429);
     } else if (th instanceof CallNotPermittedException) {
       LOGGER.warn("circuitBreaker is open by policy : {}",
-          DynamicConfigListener.getCircuitBreakerData());
+          govManager.getCurrentPolicy());
       this.throwError(invoker, invocation, CIRCUIT_BREAKER_MSG, 502);
     } else if (th instanceof BulkheadFullException) {
       LOGGER.warn("bulkhead is full and does not permit further calls by policy : {}",
-          DynamicConfigListener.getBulkheadData());
+          govManager.getCurrentPolicy());
       this.throwError(invoker, invocation, BULKHEAD_MSG, 423);
     } else {
       try {

@@ -34,6 +34,8 @@ public class GovManager {
 
   Map<String, AbstractGovHandler<?>> handlers;
 
+  Policy currentPolicy =  null;
+
   // 利用dubbo的SPI特点，进行运行时加载。也支持对 ServerRecoverPolicy进行扩展
   ServerRecoverPolicy<?> serverRecoverPolicy = ExtensionLoader.getExtensionLoader(ServerRecoverPolicy.class).getDefaultExtension();
 
@@ -51,7 +53,8 @@ public class GovManager {
           handlers.get(policy.handler()).type() == HandlerType.CLIENT) {
         continue;
       }
-       ds = handlers.get(policy.handler()).process(ds, policy);
+      this.setCurrentPolicy(policy);
+      ds = handlers.get(policy.handler()).process(ds, policy);
     }
     Try<?> of = Try.of(ds.decorate());
     of.recover(throwable -> {
@@ -66,4 +69,12 @@ public class GovManager {
     return of.get();
   }
 
+
+  public Policy getCurrentPolicy() {
+    return currentPolicy;
+  }
+
+  public void setCurrentPolicy(Policy currentPolicy) {
+    this.currentPolicy = currentPolicy;
+  }
 }

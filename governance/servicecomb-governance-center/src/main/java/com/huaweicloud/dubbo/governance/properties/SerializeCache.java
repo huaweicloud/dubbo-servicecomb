@@ -17,6 +17,7 @@
 
 package com.huaweicloud.dubbo.governance.properties;
 
+import com.huaweicloud.dubbo.governance.event.DynamicConfigListener;
 import com.huaweicloud.dubbo.governance.util.MD5Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,14 @@ public class SerializeCache<T> {
   public SerializeCache() {
   }
 
-  public Map<String, T> get(Map<String, String> t, Class<T> entityClass) {
+  public Map<String, T> get(String prefix, Class<T> entityClass) {
+    Map<String, Object> configurations =DynamicConfigListener.configurations;
+    Map<String, String> t = new HashMap<>();
+    for (String key : configurations.keySet()) {
+      if (key.startsWith(prefix)) {
+        t.put(key.substring(prefix.length()), (String) configurations.get(key));
+      }
+    }
     if (CollectionUtils.isEmpty(t)) {
       return Collections.emptyMap();
     }

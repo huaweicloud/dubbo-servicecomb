@@ -15,23 +15,26 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.properties;
+package org.apache.servicecomb.config.kie.client.model;
 
-import com.huaweicloud.dubbo.governance.policy.BulkheadPolicy;
 
-import java.util.Map;
+public class ConfigConstants {
 
-public class BulkheadProperties implements GovProperties<BulkheadPolicy> {
+  public static final String LABEL_ENV = "environment";
 
-  private String prefixBulkhead = "servicecomb.bulkhead.";
+  public static final String LABEL_APP = "app";
 
-  SerializeCache<BulkheadPolicy> cache =new SerializeCache<>();
+  public static final String LABEL_SERVICE = "service";
 
-  public BulkheadProperties() {
-  }
+  public static final String LABEL_VERSION = "version";
 
-  @Override
-  public Map<String, BulkheadPolicy> covert() {
-    return cache.get(prefixBulkhead, BulkheadPolicy.class);
-  }
+  public static final String STATUS_ENABLED = "enabled";
+
+  public static final String KEY_PROJECT = "project";
+
+  // ###### kie config center polling configuration############### //
+  public static final String KEY_ENABLELONGPOLLING = "enableLongPolling";
+
+  public static final String KEY_POLLINGWAITSEC = "pollingWaitInSeconds";
+
 }

@@ -34,7 +34,7 @@ public class HttpTransportFactory {
 
   public static final int CONNECTION_REQUEST_TIMEOUT = 5000;
 
-  public static final int SOCKET_TIMEOUT = 5000;
+  public static int SOCKET_TIMEOUT = 5000;
 
   public static final int MAX_TOTAL = 100;
 

@@ -22,12 +22,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.servicecomb.config.center.client.AddressManager;
 import org.apache.servicecomb.config.center.client.ConfigCenterClient;
 import org.apache.servicecomb.config.center.client.ConfigCenterManager;
 import org.apache.servicecomb.config.center.client.ConfigurationChangedEvent;
 import org.apache.servicecomb.config.center.client.model.QueryConfigurationsRequest;
 import org.apache.servicecomb.config.center.client.model.QueryConfigurationsResponse;
+import org.apache.servicecomb.config.kie.client.KieClient;
+import org.apache.servicecomb.config.kie.client.KieConfigChangedEvent;
+import org.apache.servicecomb.config.kie.client.KieConfigManager;
+import org.apache.servicecomb.config.kie.client.KieConfigOperation;
+import org.apache.servicecomb.config.kie.client.model.ConfigurationsRequest;
+import org.apache.servicecomb.config.kie.client.model.ConfigurationsResponse;
+import org.apache.servicecomb.config.kie.client.model.KieAddressManager;
 import org.apache.servicecomb.http.client.common.HttpTransport;
 import org.apache.servicecomb.http.client.common.HttpTransportFactory;
 import org.apache.servicecomb.http.client.common.HttpUtils;
@@ -54,15 +62,23 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   ConfigCenterManager configCenterManager;
 
-  ConfigCenterClient configCenterClient;
+  KieConfigManager kieConfigManager;
 
   QueryConfigurationsRequest queryConfigurationsRequest;
 
-  Map<String, Object> configurations;
+  ConfigurationsRequest configurationsRequest;
+
+  HttpTransport httpTransport;
 
   final Map<String, Object> sources = new HashMap<>();
 
-  String governanceData = null;
+  private Map<String, Object> configurations = new HashMap<>();
+
+  private String governanceData = null;
+
+  private boolean isKie = false;
+
+  private int pollingWaitInSeconds = 0;
 
   public ConfigurationSpringInitializer() {
     setOrder(Ordered.LOWEST_PRECEDENCE / 2);
@@ -71,31 +87,78 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   @Override
   public void setEnvironment(Environment environment) {
-    if (environment instanceof ConfigurableEnvironment) {
-      ConfigurableEnvironment ce = (ConfigurableEnvironment) environment;
-      if (!configCenterPropertySourceExists(ce)) {
-        AddressManager addressManager = ConfigCenterConfiguration.createAddressManager();
-        HttpTransport httpTransport = HttpTransportFactory
-            .createHttpTransport(CommonConfiguration.createSSLProperties(), CommonConfiguration.createAKSKProperties());
-        configCenterClient = new ConfigCenterClient(addressManager, httpTransport);
-        queryConfigurationsRequest = ConfigCenterConfiguration.createQueryConfigurationsRequest();
+    if (!(environment instanceof ConfigurableEnvironment)) {
+      return;
+    }
+    ConfigurableEnvironment ce = (ConfigurableEnvironment) environment;
+    if (configCenterPropertySourceExists(ce)) {
+      return;
+    }
+    isKie = ConfigUtils.getProperty(CommonConfiguration.KEY_CONFIG_ADDRESSTYPE, "").equals("kie");
+    this.setTimeOut();
+    httpTransport = HttpTransportFactory
+        .createHttpTransport(CommonConfiguration.createSSLProperties(), CommonConfiguration.createAKSKProperties());
+    //判断是否使用KIE作为配置中心
+    if (isKie) {
+      configKieClient(ce);
+    } else {
+      configCenterClient(ce);
+    }
 
-        try {
-          QueryConfigurationsResponse response = configCenterClient.queryConfigurations(queryConfigurationsRequest);
-          configurations = response.getConfigurations();
-          queryConfigurationsRequest.setRevision(response.getRevision());
-          sources.putAll(response.getConfigurations());
-          ce.getPropertySources().addFirst(
-              new MapPropertySource(CONFIG_NAME, sources));
-        } catch (Exception e) {
-          LOGGER.warn("set up {} failed at startup.", CONFIG_NAME, e);
-        }
+  }
 
-        configCenterManager = new ConfigCenterManager(configCenterClient, EventManager.getEventBus());
-        EventManager.register(this);
-        configCenterManager.setQueryConfigurationsRequest(queryConfigurationsRequest);
-        configCenterManager.startConfigCenterManager();
-      }
+  private void configCenterClient(ConfigurableEnvironment ce) {
+    queryConfigurationsRequest = ConfigCenterConfiguration.createQueryConfigurationsRequest();
+    AddressManager addressManager = ConfigCenterConfiguration.createAddressManager();
+    ConfigCenterClient configCenterClient = new ConfigCenterClient(addressManager, httpTransport);
+    try {
+      QueryConfigurationsResponse response = configCenterClient.queryConfigurations(queryConfigurationsRequest);
+      configurations = response.getConfigurations();
+      queryConfigurationsRequest.setRevision(response.getRevision());
+      sources.putAll(response.getConfigurations());
+      ce.getPropertySources().addFirst(new MapPropertySource(CONFIG_NAME, sources));
+    } catch (Exception e) {
+      LOGGER.warn("set up {} failed at startup.", CONFIG_NAME, e);
+    }
+
+    configCenterManager = new ConfigCenterManager(configCenterClient, EventManager.getEventBus());
+    EventManager.register(this);
+    configCenterManager.setQueryConfigurationsRequest(queryConfigurationsRequest);
+    configCenterManager.startConfigCenterManager();
+  }
+
+  //use KIE as config center
+  private void configKieClient(ConfigurableEnvironment ce) {
+    configurationsRequest = KieConfigConfiguration.createConfigurationsRequest();
+    KieAddressManager kieAddressManager = KieConfigConfiguration.createKieAddressManager();
+    KieConfigOperation kieClient = new KieClient(kieAddressManager, httpTransport);
+
+    try {
+      ConfigurationsResponse response = kieClient.queryConfigurations(configurationsRequest);
+      configurations = response.getConfigurations();
+      configurationsRequest.setRevision(response.getRevision());
+      sources.putAll(response.getConfigurations());
+      ce.getPropertySources().addFirst(new MapPropertySource(CONFIG_NAME, sources));
+    } catch (Exception e) {
+      LOGGER.warn("set up {} failed at startup.", CONFIG_NAME, e);
+    }
+
+    kieConfigManager = new KieConfigManager(kieClient, EventManager.getEventBus());
+    EventManager.register(this);
+    kieConfigManager.setConfigurationsRequest(configurationsRequest);
+    kieConfigManager.startConfigKieManager();
+  }
+
+  private void setTimeOut() {
+    if (!isKie) {
+      return;
+    }
+    String test = ConfigUtils.getProperty(CommonConfiguration.KEY_SERVICE_ENABLELONGPOLLING,
+        "true");
+    if (Boolean.parseBoolean(test)) {
+      pollingWaitInSeconds = Integer.valueOf(ConfigUtils.getProperty(CommonConfiguration.KEY_SERVICE_POLLINGWAITSEC,
+          "30"));
+      HttpTransportFactory.SOCKET_TIMEOUT = pollingWaitInSeconds * 1000 + 5000;
     }
   }
 
@@ -105,6 +168,14 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   @Subscribe
   public void onConfigurationChangedEvent(ConfigurationChangedEvent event) {
+    LOGGER.info("receive new configurations [{}]", event.getConfigurations().keySet());
+    sources.clear();
+    sources.putAll(event.getConfigurations());
+    notifyGovernanceDataChange(event.getConfigurations());
+  }
+
+  @Subscribe
+  public void onKieConfigChangedEvent(KieConfigChangedEvent event) {
     LOGGER.info("receive new configurations [{}]", event.getConfigurations().keySet());
     sources.clear();
     sources.putAll(event.getConfigurations());
@@ -137,7 +208,11 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
         EventManager
             .post(new GovernanceDataChangeEvent(HttpUtils.deserialize(this.governanceData, GovernanceData.class)));
       }
-      EventManager.post(new ConfigurationChangedEvent(configurations));
+      if (isKie) {
+        EventManager.post(new KieConfigChangedEvent(configurations));
+      } else {
+        EventManager.post(new ConfigurationChangedEvent(configurations));
+      }
     } catch (IOException e) {
       LOGGER.error("wrong governance data [{}] received.", this.governanceData);
     }

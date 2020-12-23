@@ -79,5 +79,10 @@
             <artifactId>dubbo-servicecomb-config-center-client</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+            <artifactId>config-kie-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

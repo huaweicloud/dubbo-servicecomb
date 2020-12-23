@@ -15,23 +15,23 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.properties;
-
-import com.huaweicloud.dubbo.governance.policy.BulkheadPolicy;
+package org.apache.servicecomb.config.kie.client;
 
 import java.util.Map;
 
-public class BulkheadProperties implements GovProperties<BulkheadPolicy> {
+public class KieConfigChangedEvent {
+  private Map<String, Object> configurations;
 
-  private String prefixBulkhead = "servicecomb.bulkhead.";
-
-  SerializeCache<BulkheadPolicy> cache =new SerializeCache<>();
-
-  public BulkheadProperties() {
+  public KieConfigChangedEvent(Map<String, Object> configurations) {
+    this.configurations = configurations;
   }
 
-  @Override
-  public Map<String, BulkheadPolicy> covert() {
-    return cache.get(prefixBulkhead, BulkheadPolicy.class);
+  public Map<String, Object> getConfigurations() {
+    return configurations;
+  }
+
+  public KieConfigChangedEvent setConfigurations(Map<String, Object> configurations) {
+    this.configurations = configurations;
+    return this;
   }
 }

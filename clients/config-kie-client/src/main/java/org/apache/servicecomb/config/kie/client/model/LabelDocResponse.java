@@ -15,23 +15,33 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.properties;
+package org.apache.servicecomb.config.kie.client.model;
 
-import com.huaweicloud.dubbo.governance.policy.BulkheadPolicy;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class BulkheadProperties implements GovProperties<BulkheadPolicy> {
+public class LabelDocResponse {
 
-  private String prefixBulkhead = "servicecomb.bulkhead.";
+  @JsonAlias("label_id")
+  private String labelId;
 
-  SerializeCache<BulkheadPolicy> cache =new SerializeCache<>();
+  private Map<String, String> labels = new HashMap<String, String>();
 
-  public BulkheadProperties() {
+  public String getLabelId() {
+    return labelId;
   }
 
-  @Override
-  public Map<String, BulkheadPolicy> covert() {
-    return cache.get(prefixBulkhead, BulkheadPolicy.class);
+  public Map<String, String> getLabels() {
+    return labels;
+  }
+
+  public void setLabelId(String labelId) {
+    this.labelId = labelId;
+  }
+
+  public void setLabels(Map<String, String> labels) {
+    this.labels = labels;
   }
 }
