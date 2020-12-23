@@ -36,8 +36,6 @@ public class ConfigCenterManager extends AbstractTask {
 
   private final EventBus eventBus;
 
-  private int InitNumber = 0;
-
   private QueryConfigurationsRequest queryConfigurationsRequest;
 
   public ConfigCenterManager(ConfigCenterClient configCenterClient, EventBus eventBus) {
@@ -51,7 +49,7 @@ public class ConfigCenterManager extends AbstractTask {
   }
 
   public void startConfigCenterManager() {
-    this.startTask(new PollConfigurationTask(InitNumber));
+    this.startTask(new PollConfigurationTask(0));
   }
 
   class PollConfigurationTask implements Task {
@@ -69,7 +67,7 @@ public class ConfigCenterManager extends AbstractTask {
           queryConfigurationsRequest.setRevision(response.getRevision());
           eventBus.post(new ConfigurationChangedEvent(response.getConfigurations()));
         }
-        startTask(new BackOffSleepTask(POLL_INTERVAL, new PollConfigurationTask(InitNumber)));
+        startTask(new BackOffSleepTask(POLL_INTERVAL, new PollConfigurationTask(0)));
       } catch (Exception e) {
         LOGGER.error("get configurations from ConfigCenter failed, and will try again.", e);
         startTask(new BackOffSleepTask(failCount + 1, new PollConfigurationTask(failCount + 1)));
