@@ -47,13 +47,16 @@ import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.support.EncodedResource;
+import org.springframework.core.io.support.ResourcePropertySource;
 
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
-import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
-import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
 import com.huaweicloud.dubbo.common.GovernanceData;
+import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
+import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
 
 public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigurer implements EnvironmentAware {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationSpringInitializer.class);
@@ -91,6 +94,13 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
       return;
     }
     ConfigurableEnvironment ce = (ConfigurableEnvironment) environment;
+
+    addDubboProperties(ce);
+
+    addConfigCenterProperties(ce);
+  }
+
+  private void addConfigCenterProperties(ConfigurableEnvironment ce) {
     if (configCenterPropertySourceExists(ce)) {
       return;
     }
@@ -104,7 +114,15 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     } else {
       configCenterClient(ce);
     }
+  }
 
+  private void addDubboProperties(ConfigurableEnvironment ce) {
+    try {
+      EncodedResource resource = new EncodedResource(new ClassPathResource("dubbo.properties"));
+      ce.getPropertySources().addLast(new ResourcePropertySource(resource));
+    } catch (IOException e) {
+      LOGGER.error("add dubbo.properties failed.", e);
+    }
   }
 
   private void configCenterClient(ConfigurableEnvironment ce) {

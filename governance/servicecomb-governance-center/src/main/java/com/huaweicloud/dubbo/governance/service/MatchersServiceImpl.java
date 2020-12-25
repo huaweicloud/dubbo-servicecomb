@@ -17,39 +17,46 @@
 
 package com.huaweicloud.dubbo.governance.service;
 
-import com.huaweicloud.dubbo.governance.marker.GovHttpRequest;
-import com.huaweicloud.dubbo.governance.marker.Matcher;
-import com.huaweicloud.dubbo.governance.marker.RequestProcessor;
-import com.huaweicloud.dubbo.governance.marker.TrafficMarker;
-import com.huaweicloud.dubbo.governance.properties.MatchProperties;
-
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.huaweicloud.governance.marker.GovHttpRequest;
+import com.huaweicloud.governance.marker.Matcher;
+import com.huaweicloud.governance.marker.RequestProcessor;
+import com.huaweicloud.governance.marker.TrafficMarker;
+import com.huaweicloud.governance.properties.MatchProperties;
+import com.huaweicloud.governance.service.MatchersService;
+
+@Component
 public class MatchersServiceImpl implements MatchersService {
 
-  private RequestProcessor requestProcessor = new RequestProcessor();
+  @Autowired
+  private RequestProcessor requestProcessor;
 
-  private MatchProperties matchProperties = new MatchProperties();
+  @Autowired
+  private MatchProperties matchProperties;
 
   /**
    * @param govHttpRequest
    * @return
    */
   @Override
-  public List<String> getMatchStr(GovHttpRequest govHttpRequest) {
-    Map<String, TrafficMarker> map = matchProperties.covert();
+  public List<String> getMatchedNames(GovHttpRequest govHttpRequest) {
+    Map<String, TrafficMarker> map = matchProperties.getParsedEntity();
     List<String> marks = new ArrayList<>();
     for (Entry<String, TrafficMarker> entry : map.entrySet()) {
       for (Matcher match : entry.getValue().getMatches()) {
         if (requestProcessor.match(govHttpRequest, match)) {
           marks.add(entry.getKey() + "." + match.getName());
         }
-        }
       }
+    }
     return marks;
   }
 }

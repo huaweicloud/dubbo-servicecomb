@@ -22,11 +22,20 @@ import org.apache.dubbo.rpc.cluster.Directory;
 import org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker;
 import org.apache.dubbo.rpc.cluster.support.wrapper.AbstractCluster;
 
+import com.huaweicloud.governance.MatchersManager;
+
 public class DubboServicecombCluster extends AbstractCluster {
   public final static String NAME = "dubbo-servicecomb";
 
+  private MatchersManager matchersManager;
+
   @Override
   public <T> AbstractClusterInvoker<T> doJoin(Directory<T> directory) throws RpcException {
-    return new FaildefaultClusterInvoker<>(directory);
+    return new FaildefaultClusterInvoker<>(directory, matchersManager);
+  }
+
+  // inject by spring
+  public void setMatchersManager(MatchersManager matchersManager) {
+    this.matchersManager = matchersManager;
   }
 }
