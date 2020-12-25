@@ -21,8 +21,7 @@ import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.cluster.Directory;
 import org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker;
 import org.apache.dubbo.rpc.cluster.support.wrapper.AbstractCluster;
-
-import com.huaweicloud.governance.MatchersManager;
+import org.apache.servicecomb.governance.MatchersManager;
 
 public class DubboServicecombCluster extends AbstractCluster {
   public final static String NAME = "dubbo-servicecomb";

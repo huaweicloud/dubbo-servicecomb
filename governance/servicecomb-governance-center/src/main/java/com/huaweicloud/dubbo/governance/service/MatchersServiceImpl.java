@@ -23,15 +23,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.servicecomb.governance.marker.GovHttpRequest;
+import org.apache.servicecomb.governance.marker.Matcher;
+import org.apache.servicecomb.governance.marker.RequestProcessor;
+import org.apache.servicecomb.governance.marker.TrafficMarker;
+import org.apache.servicecomb.governance.properties.MatchProperties;
+import org.apache.servicecomb.governance.service.MatchersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.huaweicloud.governance.marker.GovHttpRequest;
-import com.huaweicloud.governance.marker.Matcher;
-import com.huaweicloud.governance.marker.RequestProcessor;
-import com.huaweicloud.governance.marker.TrafficMarker;
-import com.huaweicloud.governance.properties.MatchProperties;
-import com.huaweicloud.governance.service.MatchersService;
 
 @Component
 public class MatchersServiceImpl implements MatchersService {

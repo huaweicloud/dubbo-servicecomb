@@ -19,9 +19,8 @@ package com.huaweicloud.dubbo.governance.retries;
 
 import java.util.List;
 
+import org.apache.servicecomb.governance.handler.ext.RetryExtension;
 import org.springframework.stereotype.Component;
-
-import com.huaweicloud.governance.handler.ext.RetryExtension;
 
 // 目前代码没有使用 resilience4j, 不会使用这个类。但是需要写一个默认实现。
 @Component

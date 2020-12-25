@@ -40,11 +40,10 @@ import org.apache.dubbo.rpc.cluster.Directory;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
 import org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker;
 import org.apache.dubbo.rpc.support.RpcUtils;
-
-import com.huaweicloud.governance.MatchersManager;
-import com.huaweicloud.governance.marker.GovHttpRequest;
-import com.huaweicloud.governance.policy.Policy;
-import com.huaweicloud.governance.policy.RetryPolicy;
+import org.apache.servicecomb.governance.MatchersManager;
+import org.apache.servicecomb.governance.marker.GovHttpRequest;
+import org.apache.servicecomb.governance.policy.Policy;
+import org.apache.servicecomb.governance.policy.RetryPolicy;
 
 public class FaildefaultClusterInvoker<T> extends AbstractClusterInvoker<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(FaildefaultClusterInvoker.class);
