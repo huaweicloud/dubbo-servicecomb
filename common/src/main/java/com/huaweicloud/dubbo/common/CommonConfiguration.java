@@ -19,7 +19,8 @@ package com.huaweicloud.dubbo.common;
 
 import org.apache.servicecomb.foundation.ssl.SSLCustom;
 import org.apache.servicecomb.foundation.ssl.SSLOption;
-import org.apache.servicecomb.http.client.common.HttpConfiguration.AKSKProperties;
+import org.apache.servicecomb.http.client.auth.DefaultRequestAuthHeaderProvider;
+import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
 
 import org.apache.dubbo.common.utils.ConfigUtils;
@@ -132,13 +133,13 @@ public class CommonConfiguration {
     return sslProperties;
   }
 
-  public static AKSKProperties createAKSKProperties() {
-    AKSKProperties akskProperties = new AKSKProperties();
-    akskProperties.setEnabled(Boolean.valueOf(ConfigUtils.getProperty(KEY_AK_SK_ENABLED, "false")));
-    akskProperties.setAccessKey(ConfigUtils.getProperty(KEY_AK_SK_ACCESS_KEY, null));
-    akskProperties.setSecretKey(ConfigUtils.getProperty(KEY_AK_SK_SECRET_KEY, null));
-    akskProperties.setCipher(ConfigUtils.getProperty(KEY_AK_SK_CIPHER, null));
-    akskProperties.setProject(ConfigUtils.getProperty(KEY_AK_SK_PROJECT, null));
-    return akskProperties;
+  public static RequestAuthHeaderProvider createRequestAuthHeaderProvider() {
+    DefaultRequestAuthHeaderProvider requestAuthHeaderProvider = new DefaultRequestAuthHeaderProvider();
+    requestAuthHeaderProvider.setEnabled(Boolean.valueOf(ConfigUtils.getProperty(KEY_AK_SK_ENABLED, "false")));
+    requestAuthHeaderProvider.setAccessKey(ConfigUtils.getProperty(KEY_AK_SK_ACCESS_KEY, null));
+    requestAuthHeaderProvider.setSecretKey(ConfigUtils.getProperty(KEY_AK_SK_SECRET_KEY, null));
+    requestAuthHeaderProvider.setCipher(ConfigUtils.getProperty(KEY_AK_SK_CIPHER, null));
+    requestAuthHeaderProvider.setProject(ConfigUtils.getProperty(KEY_AK_SK_PROJECT, null));
+    return requestAuthHeaderProvider;
   }
 }

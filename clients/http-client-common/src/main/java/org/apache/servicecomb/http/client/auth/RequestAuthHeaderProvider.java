@@ -15,22 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.http.client.common.auth;
+package org.apache.servicecomb.http.client.auth;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Collections;
+
+import org.apache.servicecomb.foundation.auth.SignRequest;
+
 import java.util.Map;
 
-public class AKSKHeaderExtensionUtil {
-
-  private static AKSKHeaderExtension headerExtension = new FileSystemMountAKSKHeaderExtension();
-
-  public static Map<String, String> genAuthHeaders() {
-    if (Files.exists(Paths.get(AKSKHeaderExtension.DEFAULT_SECRET_AUTH_PATH,
-        AKSKHeaderExtension.DEFAULT_SECRET_AUTH_NAME))) {
-      return headerExtension.getHeaders();
-    }
-    return Collections.emptyMap();
-  }
+public interface RequestAuthHeaderProvider {
+  Map<String, String> loadAuthHeader(SignRequest signRequest);
 }

@@ -107,7 +107,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     isKie = ConfigUtils.getProperty(CommonConfiguration.KEY_CONFIG_ADDRESSTYPE, "").equals("kie");
     this.setTimeOut();
     httpTransport = HttpTransportFactory
-        .createHttpTransport(CommonConfiguration.createSSLProperties(), CommonConfiguration.createAKSKProperties());
+        .createHttpTransport(CommonConfiguration.createSSLProperties(), CommonConfiguration.createRequestAuthHeaderProvider());
     //判断是否使用KIE作为配置中心
     if (isKie) {
       configKieClient(ce);
