@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.registry.NotifyListener;
-import org.apache.servicecomb.http.client.common.HttpConfiguration.AKSKProperties;
+import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
 import org.apache.servicecomb.service.center.client.AddressManager;
 import org.apache.servicecomb.service.center.client.DiscoveryEvents.InstanceChangedEvent;
@@ -166,8 +166,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       try {
         AddressManager addressManager = ServiceCenterConfiguration.createAddressManager();
         SSLProperties sslProperties = CommonConfiguration.createSSLProperties();
-        AKSKProperties akskProperties = CommonConfiguration.createAKSKProperties();
-        client = new ServiceCenterClient(addressManager, sslProperties, akskProperties, "default", null);
+        RequestAuthHeaderProvider requestAuthHeaderProvider = CommonConfiguration.createRequestAuthHeaderProvider();
+        client = new ServiceCenterClient(addressManager, sslProperties, requestAuthHeaderProvider,
+            "default", null);
         microservice = ServiceCenterConfiguration.createMicroservice();
         if (registry != null) {
           // consumer: 如果没有 provider 接口， dubbo 启动的时候， 不会初始化 Registry。 调用接口的时候，才会初始化。

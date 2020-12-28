@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.servicecomb.http.client.common.HttpConfiguration.AKSKProperties;
+import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
 import org.apache.servicecomb.http.client.common.HttpResponse;
 import org.apache.servicecomb.http.client.common.HttpTransport;
@@ -65,10 +65,10 @@ public class ServiceCenterClient implements ServiceCenterOperation {
   }
 
   public ServiceCenterClient(AddressManager addressManager, SSLProperties sslProperties,
-      AKSKProperties akskProperties,
+         RequestAuthHeaderProvider requestAuthHeaderProvider,
       String tenantName,
       Map<String, String> extraGlobalHeaders) {
-    HttpTransport httpTransport = HttpTransportFactory.createHttpTransport(sslProperties, akskProperties);
+    HttpTransport httpTransport = HttpTransportFactory.createHttpTransport(sslProperties, requestAuthHeaderProvider);
     httpTransport.addHeaders(extraGlobalHeaders);
 
     this.httpClient = new ServiceCenterRawClient.Builder()
