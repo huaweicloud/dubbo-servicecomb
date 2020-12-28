@@ -35,6 +35,7 @@
     <module>service-center-client</module>
     <module>config-center-client</module>
     <module>config-kie-client</module>
+    <module>governance</module>
   </modules>
   <dependencyManagement>
     <dependencies>

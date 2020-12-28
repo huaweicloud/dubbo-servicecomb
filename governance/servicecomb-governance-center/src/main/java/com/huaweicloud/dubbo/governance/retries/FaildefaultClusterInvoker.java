@@ -17,10 +17,15 @@
 
 package com.huaweicloud.dubbo.governance.retries;
 
-import com.huaweicloud.dubbo.governance.MatchersManagerImpl;
-import com.huaweicloud.dubbo.governance.marker.GovHttpRequest;
-import com.huaweicloud.dubbo.governance.policy.Policy;
-import com.huaweicloud.dubbo.governance.policy.RetryPolicy;
+import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_RETRIES;
+import static org.apache.dubbo.common.constants.CommonConstants.RETRIES_KEY;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.Version;
 import org.apache.dubbo.common.logger.Logger;
@@ -35,19 +40,19 @@ import org.apache.dubbo.rpc.cluster.Directory;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
 import org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker;
 import org.apache.dubbo.rpc.support.RpcUtils;
-
-import java.util.*;
-
-import static org.apache.dubbo.common.constants.CommonConstants.DEFAULT_RETRIES;
-import static org.apache.dubbo.common.constants.CommonConstants.RETRIES_KEY;
+import org.apache.servicecomb.governance.MatchersManager;
+import org.apache.servicecomb.governance.marker.GovHttpRequest;
+import org.apache.servicecomb.governance.policy.Policy;
+import org.apache.servicecomb.governance.policy.RetryPolicy;
 
 public class FaildefaultClusterInvoker<T> extends AbstractClusterInvoker<T> {
   private static final Logger LOGGER = LoggerFactory.getLogger(FaildefaultClusterInvoker.class);
 
-  private MatchersManagerImpl matchersManagerImpl = new MatchersManagerImpl();
+  private MatchersManager matchersManager;
 
-  public FaildefaultClusterInvoker(Directory<T> directory) {
+  public FaildefaultClusterInvoker(Directory<T> directory, MatchersManager matchersManager) {
     super(directory);
+    this.matchersManager = matchersManager;
   }
 
   private boolean onSame = false;//改成int区分onNext,先same
@@ -60,9 +65,11 @@ public class FaildefaultClusterInvoker<T> extends AbstractClusterInvoker<T> {
 
   private Invoker<T> invoker = null;
 
+
   @Override
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public Result doInvoke(Invocation invocation, final List<Invoker<T>> invokers, LoadBalance loadbalance) throws RpcException {
+  public Result doInvoke(Invocation invocation, final List<Invoker<T>> invokers, LoadBalance loadbalance)
+      throws RpcException {
     List<Invoker<T>> copyInvokers = invokers;
     checkInvokers(copyInvokers, invocation);
     //get retry times
@@ -83,32 +90,32 @@ public class FaildefaultClusterInvoker<T> extends AbstractClusterInvoker<T> {
         invoker = select(loadbalance, invocation, copyInvokers, invoked);
         invoked.add(invoker);
         RpcContext.getContext().setInvokers((List) invoked);
-        }
-        try {
-          Result result = invoker.invoke(invocation);
-          if (rpcException != null && LOGGER.isWarnEnabled()) {
-            LOGGER.warn("Although retry the method " + methodName
-                + " in the service " + getInterface().getName()
-                + " was successful by the provider " + invoker.getUrl().getAddress()
-                + ", but there have been failed providers " + providers
-                + " (" + providers.size() + "/" + copyInvokers.size()
-                + ") from the registry " + directory.getUrl().getAddress()
-                + " on the consumer " + NetUtils.getLocalHost()
-                + " using the dubbo version " + Version.getVersion() + ". Last error is: "
-                + rpcException.getMessage(), rpcException);
-          }
-          return result;
-        } catch (RpcException e) {
-          if (e.isBiz()) { // biz exception.
-            throw e;
-          }
-          rpcException = e;
-        } catch (Throwable e) {
-          rpcException = new RpcException(e.getMessage(), e);
-        } finally {
-          providers.add(invoker.getUrl().getAddress());
-        }
       }
+      try {
+        Result result = invoker.invoke(invocation);
+        if (rpcException != null && LOGGER.isWarnEnabled()) {
+          LOGGER.warn("Although retry the method " + methodName
+              + " in the service " + getInterface().getName()
+              + " was successful by the provider " + invoker.getUrl().getAddress()
+              + ", but there have been failed providers " + providers
+              + " (" + providers.size() + "/" + copyInvokers.size()
+              + ") from the registry " + directory.getUrl().getAddress()
+              + " on the consumer " + NetUtils.getLocalHost()
+              + " using the dubbo version " + Version.getVersion() + ". Last error is: "
+              + rpcException.getMessage(), rpcException);
+        }
+        return result;
+      } catch (RpcException e) {
+        if (e.isBiz()) { // biz exception.
+          throw e;
+        }
+        rpcException = e;
+      } catch (Throwable e) {
+        rpcException = new RpcException(e.getMessage(), e);
+      } finally {
+        providers.add(invoker.getUrl().getAddress());
+      }
+    }
     throw new RpcException(rpcException.getCode(), "Failed to invoke the method "
         + this.methodName + " in the service " + getInterface().getName()
         + ". Tried " + this.retryTimes + " times of the providers " + providers
@@ -123,9 +130,15 @@ public class FaildefaultClusterInvoker<T> extends AbstractClusterInvoker<T> {
   private void getRetryPolicy(Invocation invocation) {
     this.methodName = RpcUtils.getMethodName(invocation);
     //if you want to make some configure changes, you can dynamic change here.
-    Policy policy = matchersManagerImpl.matchRetry(covertInvocation(invocation, getUrl()));
-    if (policy != null) {
-      RetryPolicy retryPolicy = (RetryPolicy)policy;
+    Map<String, Policy> policies = matchersManager.match(covertInvocation(invocation, getUrl()));
+    RetryPolicy retryPolicy = null;
+    for (Policy p : policies.values()) {
+      if (p instanceof RetryPolicy) {
+        retryPolicy = (RetryPolicy) p;
+        break;
+      }
+    }
+    if (retryPolicy != null) {
       this.retryTimes = retryPolicy.getMaxAttempts() + 1;
       this.onSame = retryPolicy.isOnSame();
     } else {
@@ -141,8 +154,7 @@ public class FaildefaultClusterInvoker<T> extends AbstractClusterInvoker<T> {
     GovHttpRequest govHttpRequest = new GovHttpRequest();
     govHttpRequest.setHeaders(consumerUrl.getParameters());
     govHttpRequest.setMethod("POST");
-    govHttpRequest.setUri(invocation.getServiceName()+"."+invocation.getMethodName());
+    govHttpRequest.setUri(invocation.getServiceName() + "." + invocation.getMethodName());
     return govHttpRequest;
   }
-
 }

@@ -17,9 +17,10 @@
 
 package com.huaweicloud.dubbo.governance.track;
 
-import com.huaweicloud.dubbo.governance.policy.Policy;
 
 import java.util.List;
+
+import org.apache.servicecomb.governance.policy.Policy;
 
 public class RequestTrackContext {
 
