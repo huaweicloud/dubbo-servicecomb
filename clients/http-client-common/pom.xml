@@ -71,7 +71,7 @@
 
     <dependency>
       <groupId>org.apache.servicecomb</groupId>
-      <artifactId>foundation-spi</artifactId>
+      <artifactId>foundation-common</artifactId>
     </dependency>
 
     <dependency>
