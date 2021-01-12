@@ -15,26 +15,19 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.track;
+package org.apache.servicecomb.governance;
 
+import org.springframework.stereotype.Component;
 
-import java.util.List;
-
-import org.apache.servicecomb.governance.policy.Policy;
-
-public class RequestTrackContext {
-
-  private static ThreadLocal<List<Policy>> policyThreadLocal = new ThreadLocal<>();
-
-  public static void remove() {
-    policyThreadLocal.remove();
+@Component
+public class MockMicroserviceMeta implements MicroserviceMeta {
+  @Override
+  public String getName() {
+    return "myself";
   }
 
-  public static List<Policy> getPolicies() {
-    return policyThreadLocal.get();
-  }
-
-  public static void setPolicies(List<Policy> policies) {
-    policyThreadLocal.set(policies);
+  @Override
+  public String getVersion() {
+    return "1.0";
   }
 }

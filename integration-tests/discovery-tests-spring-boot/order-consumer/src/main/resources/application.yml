@@ -24,41 +24,29 @@ servicecomb:
       matches:
         - apiPath:
             exact: "com.huaweicloud.it.order.OrderGovernanceService.hello"
-          name: xx
     demo-retry: |
       matches:
         - apiPath:
             exact: "com.huaweicloud.it.price.GovernanceService.retry"
-          name: xx
     demo-circuitBreaker: |
       matches:
         - apiPath:
             exact: "com.huaweicloud.it.order.OrderGovernanceService.circuitBreaker"
-          name: xx
     demo-bulkhead: |
       matches:
         - apiPath:
             exact: "com.huaweicloud.it.order.OrderGovernanceService.bulkhead"
-          name: xx
   rateLimiting:
-    xxxxx: |
-      rules:
-        match: demo-rateLimiting.xx
+    demo-rateLimiting: |
       rate: 10
   retry:
-    xxx: |
-      rules:
-        match: demo-retry.xx
+    demo-retry: |
       maxAttempts: 3
   circuitBreaker:
-    xxx: |
-      rules:
-        match: demo-circuitBreaker.xx
+    demo-circuitBreaker: |
       minimumNumberOfCalls: 10
       slidingWindowSize: 10
       failureRateThreshold: 20
   bulkhead:
-    xxx: |
-      rules:
-        match: demo-bulkhead.xx
+    demo-bulkhead: |
       maxConcurrentCalls: 5

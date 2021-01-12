@@ -15,27 +15,34 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.util;
+package com.huaweicloud.dubbo.governance;
 
-import org.springframework.http.HttpHeaders;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
-public class HeaderUtil {
+import org.apache.servicecomb.governance.InvocationContext;
+import org.springframework.stereotype.Component;
 
+@Component
+public class DubboServicecombInvocationContext implements InvocationContext {
+  private static ThreadLocal<Map<String, Boolean>> context = new ThreadLocal<>();
 
-  public static Map<String, String> getHeaders(HttpServletRequest servletRequest) {
-    Enumeration<String> headerNames = servletRequest.getHeaderNames();
-    HttpHeaders httpHeaders = new HttpHeaders();
-    while (headerNames.hasMoreElements()) {
-      String headerName = headerNames.nextElement();
-      Enumeration<String> headerValues = servletRequest.getHeaders(headerName);
-      while (headerValues.hasMoreElements()) {
-        httpHeaders.add(headerName, headerValues.nextElement());
-      }
-    }
-    return httpHeaders.toSingleValueMap();
+  public static void setInvocationContext() {
+    context.set(new HashMap<>());
+  }
+
+  public static void removeInvocationContext() {
+    context.remove();
+  }
+
+  @Override
+  public Map<String, Boolean> getCalculatedMatches() {
+    return context.get();
+  }
+
+  @Override
+  public void addMatch(String key, Boolean value) {
+    Map<String, Boolean> result = context.get();
+    result.put(key, value);
   }
 }

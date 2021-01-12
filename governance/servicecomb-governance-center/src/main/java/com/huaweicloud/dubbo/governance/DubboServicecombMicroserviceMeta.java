@@ -15,26 +15,24 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.retries;
+package com.huaweicloud.dubbo.governance;
 
-import org.apache.dubbo.rpc.RpcException;
-import org.apache.dubbo.rpc.cluster.Directory;
-import org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker;
-import org.apache.dubbo.rpc.cluster.support.wrapper.AbstractCluster;
-import org.apache.servicecomb.governance.MatchersManager;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_NAME;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_VERSION;
 
-public class DubboServicecombCluster extends AbstractCluster {
-  public final static String NAME = "dubbo-servicecomb";
+import org.apache.dubbo.common.utils.ConfigUtils;
+import org.apache.servicecomb.governance.MicroserviceMeta;
+import org.springframework.stereotype.Component;
 
-  private MatchersManager matchersManager;
-
+@Component
+public class DubboServicecombMicroserviceMeta implements MicroserviceMeta {
   @Override
-  public <T> AbstractClusterInvoker<T> doJoin(Directory<T> directory) throws RpcException {
-    return new FaildefaultClusterInvoker<>(directory, matchersManager);
+  public String getName() {
+    return ConfigUtils.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName");
   }
 
-  // inject by spring
-  public void setMatchersManager(MatchersManager matchersManager) {
-    this.matchersManager = matchersManager;
+  @Override
+  public String getVersion() {
+    return ConfigUtils.getProperty(KEY_SERVICE_VERSION, "1.0.0.0");
   }
 }
