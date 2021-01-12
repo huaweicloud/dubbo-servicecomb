@@ -26,25 +26,21 @@ import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.Result;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.RpcException;
-import org.apache.servicecomb.governance.MatchersManager;
 import org.apache.servicecomb.governance.handler.BulkheadHandler;
 import org.apache.servicecomb.governance.handler.CircuitBreakerHandler;
 import org.apache.servicecomb.governance.handler.RateLimitingHandler;
 import org.apache.servicecomb.governance.handler.ext.ServerRecoverPolicy;
 import org.apache.servicecomb.governance.marker.GovernanceRequest;
-import org.apache.servicecomb.governance.policy.BulkheadPolicy;
-import org.apache.servicecomb.governance.policy.CircuitBreakerPolicy;
-import org.apache.servicecomb.governance.policy.RateLimitingPolicy;
-import org.apache.servicecomb.governance.properties.BulkheadProperties;
-import org.apache.servicecomb.governance.properties.CircuitBreakerProperties;
-import org.apache.servicecomb.governance.properties.RateLimitProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadFullException;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.decorators.Decorators;
 import io.github.resilience4j.decorators.Decorators.DecorateCheckedSupplier;
+import io.github.resilience4j.ratelimiter.RateLimiter;
 import io.github.resilience4j.ratelimiter.RequestNotPermitted;
 import io.vavr.CheckedFunction0;
 
@@ -53,50 +49,25 @@ public class DubboServicecombGovernanceFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RpcContext.class);
 
-  private MatchersManager matchersManager;
-
   private RateLimitingHandler rateLimitingHandler;
-
-  private RateLimitProperties rateLimitProperties;
 
   private CircuitBreakerHandler circuitBreakerHandler;
 
-  private CircuitBreakerProperties circuitBreakerProperties;
-
   private BulkheadHandler bulkheadHandler;
-
-  private BulkheadProperties bulkheadProperties;
 
   private ServerRecoverPolicy<Object> serverRecoverPolicy;
 
-  public void setMatchersManager(MatchersManager matchersManager) {
-    this.matchersManager = matchersManager;
-  }
-
   public void setRateLimitingHandler(RateLimitingHandler rateLimitingHandler) {
     this.rateLimitingHandler = rateLimitingHandler;
-  }
-
-  public void setRateLimitProperties(RateLimitProperties rateLimitProperties) {
-    this.rateLimitProperties = rateLimitProperties;
   }
 
   public void setCircuitBreakerHandler(CircuitBreakerHandler circuitBreakerHandler) {
     this.circuitBreakerHandler = circuitBreakerHandler;
   }
 
-  public void setCircuitBreakerProperties(CircuitBreakerProperties circuitBreakerProperties) {
-    this.circuitBreakerProperties = circuitBreakerProperties;
-  }
-
   public void setBulkheadHandler(BulkheadHandler bulkheadHandler) {
     this.bulkheadHandler = bulkheadHandler;
   }
-
-  public void setBulkheadProperties(BulkheadProperties bulkheadProperties) {
-    this.bulkheadProperties = bulkheadProperties;
-  }
-
 
   @Override
   public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
@@ -166,24 +137,23 @@ public class DubboServicecombGovernanceFilter implements Filter {
   }
 
   private void addBulkhead(DecorateCheckedSupplier<Result> dcs, GovernanceRequest request) {
-    BulkheadPolicy bulkheadPolicy = matchersManager.match(request, bulkheadProperties.getParsedEntity());
-    if (bulkheadPolicy != null) {
-      dcs.withBulkhead(bulkheadHandler.getActuator(bulkheadPolicy));
+    Bulkhead bulkhead = bulkheadHandler.getActuator(request);
+    if (bulkhead != null) {
+      dcs.withBulkhead(bulkhead);
     }
   }
 
   private void addCircuitBreaker(DecorateCheckedSupplier<Result> dcs, GovernanceRequest request) {
-    CircuitBreakerPolicy circuitBreakerPolicy = matchersManager
-        .match(request, circuitBreakerProperties.getParsedEntity());
-    if (circuitBreakerPolicy != null) {
-      dcs.withCircuitBreaker(circuitBreakerHandler.getActuator(circuitBreakerPolicy));
+    CircuitBreaker circuitBreaker = circuitBreakerHandler.getActuator(request);
+    if (circuitBreaker != null) {
+      dcs.withCircuitBreaker(circuitBreaker);
     }
   }
 
   private void addRateLimiting(DecorateCheckedSupplier<Result> dcs, GovernanceRequest request) {
-    RateLimitingPolicy rateLimitingPolicy = matchersManager.match(request, rateLimitProperties.getParsedEntity());
-    if (rateLimitingPolicy != null) {
-      dcs.withRateLimiter(rateLimitingHandler.getActuator(rateLimitingPolicy));
+    RateLimiter rateLimiter = rateLimitingHandler.getActuator(request);
+    if (rateLimiter != null) {
+      dcs.withRateLimiter(rateLimiter);
     }
   }
 }

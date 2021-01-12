@@ -26,24 +26,17 @@ import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.cluster.Directory;
 import org.apache.dubbo.rpc.cluster.LoadBalance;
 import org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker;
-import org.apache.servicecomb.governance.MatchersManager;
 import org.apache.servicecomb.governance.handler.RetryHandler;
 import org.apache.servicecomb.governance.handler.ext.ClientRecoverPolicy;
 import org.apache.servicecomb.governance.marker.GovernanceRequest;
-import org.apache.servicecomb.governance.policy.RetryPolicy;
-import org.apache.servicecomb.governance.properties.RetryProperties;
 
 import io.github.resilience4j.decorators.Decorators;
 import io.github.resilience4j.decorators.Decorators.DecorateCheckedSupplier;
+import io.github.resilience4j.retry.Retry;
 import io.vavr.CheckedFunction0;
 
 public class DubboServicecombClusterInvoker<T> extends AbstractClusterInvoker<T> {
-
-  private MatchersManager matchersManager;
-
   private RetryHandler retryHandler;
-
-  private RetryProperties retryProperties;
 
   private ClientRecoverPolicy<Object> clientRecoverPolicy;
 
@@ -51,17 +44,9 @@ public class DubboServicecombClusterInvoker<T> extends AbstractClusterInvoker<T>
     this.retryHandler = retryHandler;
   }
 
-  public void setRetryProperties(RetryProperties retryProperties) {
-    this.retryProperties = retryProperties;
-  }
-
   public void setClientRecoverPolicy(
       ClientRecoverPolicy<Object> clientRecoverPolicy) {
     this.clientRecoverPolicy = clientRecoverPolicy;
-  }
-
-  public void setMatchersManager(MatchersManager matchersManager) {
-    this.matchersManager = matchersManager;
   }
 
   public DubboServicecombClusterInvoker(Directory<T> directory) {
@@ -113,9 +98,9 @@ public class DubboServicecombClusterInvoker<T> extends AbstractClusterInvoker<T>
   }
 
   private void addRetry(DecorateCheckedSupplier<Result> dcs, GovernanceRequest request) {
-    RetryPolicy retryPolicy = matchersManager.match(request, retryProperties.getParsedEntity());
-    if (retryPolicy != null) {
-      dcs.withRetry(retryHandler.getActuator(retryPolicy));
+    Retry retry = retryHandler.getActuator(request);
+    if (retry != null) {
+      dcs.withRetry(retry);
     }
   }
 }

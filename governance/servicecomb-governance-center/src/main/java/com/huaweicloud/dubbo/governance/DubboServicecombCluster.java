@@ -21,32 +21,18 @@ import org.apache.dubbo.rpc.RpcException;
 import org.apache.dubbo.rpc.cluster.Directory;
 import org.apache.dubbo.rpc.cluster.support.AbstractClusterInvoker;
 import org.apache.dubbo.rpc.cluster.support.wrapper.AbstractCluster;
-import org.apache.servicecomb.governance.MatchersManager;
 import org.apache.servicecomb.governance.handler.RetryHandler;
 import org.apache.servicecomb.governance.handler.ext.ClientRecoverPolicy;
-import org.apache.servicecomb.governance.properties.RetryProperties;
 
 public class DubboServicecombCluster extends AbstractCluster {
   public final static String NAME = "dubbo-servicecomb";
 
-  private MatchersManager matchersManager;
-
   private RetryHandler retryHandler;
-
-  private RetryProperties retryProperties;
 
   private ClientRecoverPolicy<Object> clientRecoverPolicy;
 
-  public void setMatchersManager(MatchersManager matchersManager) {
-    this.matchersManager = matchersManager;
-  }
-
   public void setRetryHandler(RetryHandler retryHandler) {
     this.retryHandler = retryHandler;
-  }
-
-  public void setRetryProperties(RetryProperties retryProperties) {
-    this.retryProperties = retryProperties;
   }
 
   public void setClientRecoverPolicy(
@@ -58,9 +44,7 @@ public class DubboServicecombCluster extends AbstractCluster {
   @Override
   public <T> AbstractClusterInvoker<T> doJoin(Directory<T> directory) throws RpcException {
     DubboServicecombClusterInvoker<T> invoker = new DubboServicecombClusterInvoker<>(directory);
-    invoker.setMatchersManager(matchersManager);
     invoker.setRetryHandler(retryHandler);
-    invoker.setRetryProperties(retryProperties);
     invoker.setClientRecoverPolicy(clientRecoverPolicy);
     return invoker;
   }
