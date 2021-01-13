@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.retries;
+package com.huaweicloud.dubbo.governance;
 
 import java.util.List;
 
+import org.apache.dubbo.rpc.RpcException;
 import org.apache.servicecomb.governance.handler.ext.RetryExtension;
 import org.springframework.stereotype.Component;
 
-// 目前代码没有使用 resilience4j, 不会使用这个类。但是需要写一个默认实现。
 @Component
-public class DubboRetryExtension implements RetryExtension {
+public class DubboServicecombRetryExtension implements RetryExtension {
   @Override
   public boolean isRetry(List<Integer> statusList, Object result) {
     return false;
@@ -33,6 +33,8 @@ public class DubboRetryExtension implements RetryExtension {
   @Override
   @SuppressWarnings({"unchecked", "rawtypes"})
   public Class<? extends Throwable>[] retryExceptions() {
-    return new Class[0];
+    return new Class[] {
+        RpcException.class
+    };
   }
 }

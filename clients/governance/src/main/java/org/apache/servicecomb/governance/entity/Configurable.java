@@ -15,16 +15,31 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance.exception;
+package org.apache.servicecomb.governance.entity;
 
-import org.apache.dubbo.rpc.RpcException;
+/**
+ * Indicates a object can be configure in configuration file or config center.
+ */
+public abstract class Configurable {
+  protected String name;
 
-//in order for extend RpcException
-public class RpcExtendException extends RpcException {
+  protected String services;
 
-  private static final long serialVersionUID = 7915459842583636844L;
+  public abstract boolean isValid();
 
-  public RpcExtendException() {
-    super();
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getServices() {
+    return this.services;
+  }
+
+  public void setServices(String services) {
+    this.services = services;
   }
 }

@@ -17,8 +17,6 @@
 
 package com.huaweicloud.it;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -34,56 +32,52 @@ public class GovernanceServiceIT {
 
   RestTemplate template = new RestTemplate();
 
-  //TODO: retry has bugs
-//  @Test
-//  public void testRetry() {
-//    String invocationID = UUID.randomUUID().toString();
-//    String result = template.getForObject(url + "/govern/retry?invocationID={1}", String.class, invocationID);
-//    assertThat(result).isEqualTo("try times: 3");
-//  }
+  @Test
+  public void testRetry() {
+    String invocationID = UUID.randomUUID().toString();
+    String result = template.getForObject(url + "/govern/retry?invocationID={1}", String.class, invocationID);
+    Assert.assertEquals("try times: 3", result);
+  }
 
-  //TODO: circuit breaker has bugs
-//  @Test
-//  public void testCircuitBreaker() throws Exception {
-//    CountDownLatch latch = new CountDownLatch(100);
-//    AtomicBoolean expectedFailed = new AtomicBoolean(false);
-//    AtomicBoolean notExpectedFailed = new AtomicBoolean(false);
-//
-//    for (int i = 0; i < 10; i++) {
-//      for (int j = 0; j < 10; j++) {
-//        String name = "t-" + i + "-" + j;
-//        new Thread(name) {
-//          public void run() {
-//            try {
-//              String result = template.getForObject(url + "/govern/circuitBreaker", String.class);
-//              if (!"ok".equals(result)) {
-//                notExpectedFailed.set(true);
-//              }
-//            } catch (Exception e) {
-//              // TODO: dubbo rest message
-////              if (!"429 : [circuitBreaker is open.]".equals(e.getMessage())
-//              InternalServerError ie = (InternalServerError) e;
-//              String message = ie.getResponseBodyAsString();
-//
-//              if (!message.contains("circuitBreaker is open.")
-//                  && !message.contains("test error")) {
-//                notExpectedFailed.set(true);
-//              }
-//              if (message.contains("circuitBreaker is open")) {
-//                expectedFailed.set(true);
-//              }
-//            }
-//            latch.countDown();
-//          }
-//        }.start();
-//      }
-//      Thread.sleep(100);
-//    }
-//
-//    latch.await(20, TimeUnit.SECONDS);
-//    Assert.assertEquals(true, expectedFailed.get());
-//    Assert.assertEquals(false, notExpectedFailed.get());
-//  }
+  @Test
+  public void testCircuitBreaker() throws Exception {
+    CountDownLatch latch = new CountDownLatch(100);
+    AtomicBoolean expectedFailed = new AtomicBoolean(false);
+    AtomicBoolean notExpectedFailed = new AtomicBoolean(false);
+
+    for (int i = 0; i < 10; i++) {
+      for (int j = 0; j < 10; j++) {
+        String name = "t-" + i + "-" + j;
+        new Thread(name) {
+          public void run() {
+            try {
+              String result = template.getForObject(url + "/govern/circuitBreaker", String.class);
+              if (!"ok".equals(result)) {
+                notExpectedFailed.set(true);
+              }
+            } catch (Exception e) {
+              InternalServerError ie = (InternalServerError) e;
+              String message = ie.getResponseBodyAsString();
+
+              if (!message.contains("circuitBreaker is open.")
+                  && !message.contains("test error")) {
+                notExpectedFailed.set(true);
+              }
+              if (message.contains("circuitBreaker is open")) {
+                expectedFailed.set(true);
+              }
+            }
+            latch.countDown();
+          }
+        }.start();
+      }
+      Thread.sleep(100);
+    }
+
+    latch.await(20, TimeUnit.SECONDS);
+    Assert.assertEquals(true, expectedFailed.get());
+    Assert.assertEquals(false, notExpectedFailed.get());
+  }
 
   @Test
   public void testBulkhead() throws Exception {
@@ -102,8 +96,6 @@ public class GovernanceServiceIT {
                 notExpectedFailed.set(true);
               }
             } catch (Exception e) {
-              // TODO dubbo http message
-//              if (!"429 : [bulkhead is full and does not permit further calls.]".equals(e.getMessage())) {
               if (!e.getMessage().contains("bulkhead is full and does not permit further calls.")) {
                 notExpectedFailed.set(true);
               }
@@ -138,8 +130,6 @@ public class GovernanceServiceIT {
                 notExpectedFailed.set(true);
               }
             } catch (Exception e) {
-              //TODO: dubbo rest http message
-//              if (!"429 : [rate limited.]".equals(e.getMessage())) {
               if (!e.getMessage().contains("rate limited.")) {
                 notExpectedFailed.set(true);
               }

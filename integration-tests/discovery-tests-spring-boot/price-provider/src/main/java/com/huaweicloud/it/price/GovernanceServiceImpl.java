@@ -41,12 +41,7 @@ public class GovernanceServiceImpl implements GovernanceService {
       return "try times: " + retry;
     }
 
-    try {
-      Thread.sleep(2000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    return "mocked timeout error";
+    throw new RpcException(RpcException.TIMEOUT_EXCEPTION);
   }
 
   @Override

@@ -14,39 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.servicecomb.governance.marker;
 
-import java.util.Map;
+package org.apache.servicecomb.governance.marker.operator;
 
-public class GovHttpRequest {
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
-  private Map<String, String> headers;
-
-  private String uri;
-
-  private String method;
-
-  public Map<String, String> getHeaders() {
-    return headers;
-  }
-
-  public void setHeaders(Map<String, String> headers) {
-    this.headers = headers;
-  }
-
-  public String getUri() {
-    return uri;
-  }
-
-  public void setUri(String uri) {
-    this.uri = uri;
-  }
-
-  public String getMethod() {
-    return method;
-  }
-
-  public void setMethod(String method) {
-    this.method = method;
+@Component
+public class PrefixOperator implements MatchOperator {
+  @Override
+  public boolean match(String requestValue, String patternValue) {
+    return StringUtils.startsWith(requestValue, patternValue);
   }
 }

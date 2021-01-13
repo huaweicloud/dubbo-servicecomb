@@ -14,13 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.servicecomb.governance.service;
+package org.apache.servicecomb.governance.marker;
 
-import java.util.List;
 import java.util.Map;
 
-import org.apache.servicecomb.governance.policy.Policy;
+public class GovernanceRequest {
+  private Map<String, String> headers;
 
-public interface PolicyService {
-  Map<String, Policy> getAllPolicies(List<String> mark);
+  private String uri;
+
+  private String method;
+
+  public Map<String, String> getHeaders() {
+    return headers;
+  }
+
+  public void setHeaders(Map<String, String> headers) {
+    this.headers = headers;
+  }
+
+  public String getUri() {
+    return uri;
+  }
+
+  public void setUri(String uri) {
+    this.uri = uri;
+  }
+
+  public String getMethod() {
+    return method;
+  }
+
+  public void setMethod(String method) {
+    this.method = method;
+  }
 }
