@@ -51,6 +51,11 @@
       </dependency>
       <dependency>
         <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+        <artifactId>dubbo-servicecomb-governance-center</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
         <artifactId>dubbo-servicecomb-spring-boot</artifactId>
         <version>${project.version}</version>
       </dependency>
