@@ -15,12 +15,26 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.http.client.auth;
+package org.apache.servicecomb.service.center.client.model;
 
-import java.util.Map;
+public class RbacTokenResponse {
+  private int statusCode;
 
-import org.apache.servicecomb.foundation.auth.SignRequest;
+  private String token;
 
-public interface RequestAuthHeaderProvider {
-  Map<String, String> loadAuthHeader(SignRequest signRequest);
+  public int getStatusCode() {
+    return statusCode;
+  }
+
+  public void setStatusCode(int statusCode) {
+    this.statusCode = statusCode;
+  }
+
+  public String getToken() {
+    return token;
+  }
+
+  public void setToken(String token) {
+    this.token = token;
+  }
 }
