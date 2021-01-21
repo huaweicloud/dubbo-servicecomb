@@ -55,7 +55,11 @@ public class RequestProcessor {
     }
 
     for (Entry<String, String> entry : rawOperator.entrySet()) {
-      if (!operatorMap.get(entry.getKey() + OPERATOR_SUFFIX).match(str, entry.getValue())) {
+      MatchOperator matchOperator = operatorMap.get(entry.getKey() + OPERATOR_SUFFIX);
+      if (matchOperator == null) {
+        return false;
+      }
+      if (!matchOperator.match(str, entry.getValue())) {
         return false;
       }
     }
