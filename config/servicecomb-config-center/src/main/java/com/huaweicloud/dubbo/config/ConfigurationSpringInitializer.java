@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.dubbo.common.utils.ConfigUtils;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.servicecomb.config.center.client.AddressManager;
 import org.apache.servicecomb.config.center.client.ConfigCenterClient;
 import org.apache.servicecomb.config.center.client.ConfigCenterManager;
@@ -105,9 +106,12 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
       return;
     }
     isKie = ConfigUtils.getProperty(CommonConfiguration.KEY_CONFIG_ADDRESSTYPE, "").equals("kie");
-    this.setTimeOut();
+    RequestConfig.Builder config = HttpTransportFactory.defaultRequestConfig();
+
+    this.setTimeOut(config);
     httpTransport = HttpTransportFactory
-        .createHttpTransport(CommonConfiguration.createSSLProperties(), CommonConfiguration.createRequestAuthHeaderProvider());
+        .createHttpTransport(CommonConfiguration.createSSLProperties(),
+            CommonConfiguration.createRequestAuthHeaderProvider());
     //判断是否使用KIE作为配置中心
     if (isKie) {
       configKieClient(ce);
@@ -167,7 +171,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     kieConfigManager.startConfigKieManager();
   }
 
-  private void setTimeOut() {
+  private void setTimeOut(RequestConfig.Builder config) {
     if (!isKie) {
       return;
     }
@@ -176,7 +180,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     if (Boolean.parseBoolean(test)) {
       pollingWaitInSeconds = Integer.valueOf(ConfigUtils.getProperty(CommonConfiguration.KEY_SERVICE_POLLINGWAITSEC,
           "30"));
-      HttpTransportFactory.SOCKET_TIMEOUT = pollingWaitInSeconds * 1000 + 5000;
+      config.setSocketTimeout(pollingWaitInSeconds * 1000 + 5000);
     }
   }
 

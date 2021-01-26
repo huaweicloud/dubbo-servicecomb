@@ -15,12 +15,35 @@
  * limitations under the License.
  */
 
-package org.apache.servicecomb.http.client.auth;
+package org.apache.servicecomb.service.center.client.model;
 
-import java.util.Map;
+public class RbacTokenRequest {
+  private String name;
 
-import org.apache.servicecomb.foundation.auth.SignRequest;
+  private String password;
 
-public interface RequestAuthHeaderProvider {
-  Map<String, String> loadAuthHeader(SignRequest signRequest);
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("RbacTokenRequest{");
+    sb.append("name='").append(name).append('\'');
+    sb.append(", password='").append(password).append('\'');
+    sb.append('}');
+    return sb.toString();
+  }
 }

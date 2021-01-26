@@ -29,7 +29,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.servicecomb.http.client.auth.DefaultRequestAuthHeaderProvider;
+import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -39,9 +39,7 @@ public class HttpTransportImplTest {
   @Test
   public void TestHttpTransport() throws IOException {
     HttpClient httpClient = mock(HttpClient.class);
-    DefaultRequestAuthHeaderProvider requestAuthHeaderProvider = new DefaultRequestAuthHeaderProvider();
-    requestAuthHeaderProvider.setEnabled(false);
-
+    RequestAuthHeaderProvider requestAuthHeaderProvider = mock(RequestAuthHeaderProvider.class);
     org.apache.http.HttpResponse httpResponse = mock(org.apache.http.HttpResponse.class);
     StatusLine statusLine = mock(StatusLine.class);
     when(statusLine.getStatusCode()).thenReturn(200);

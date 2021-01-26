@@ -17,13 +17,11 @@
 
 package com.huaweicloud.dubbo.common;
 
+import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.servicecomb.foundation.ssl.SSLCustom;
 import org.apache.servicecomb.foundation.ssl.SSLOption;
-import org.apache.servicecomb.http.client.auth.DefaultRequestAuthHeaderProvider;
 import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
-
-import org.apache.dubbo.common.utils.ConfigUtils;
 
 public class CommonConfiguration {
   public static final String DEFAULT_CIPHERS = "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,"
@@ -134,7 +132,7 @@ public class CommonConfiguration {
   }
 
   public static RequestAuthHeaderProvider createRequestAuthHeaderProvider() {
-    DefaultRequestAuthHeaderProvider requestAuthHeaderProvider = new DefaultRequestAuthHeaderProvider();
+    DubboRequestAuthHeaderProvider requestAuthHeaderProvider = new DubboRequestAuthHeaderProvider();
     requestAuthHeaderProvider.setEnabled(Boolean.valueOf(ConfigUtils.getProperty(KEY_AK_SK_ENABLED, "false")));
     requestAuthHeaderProvider.setAccessKey(ConfigUtils.getProperty(KEY_AK_SK_ACCESS_KEY, null));
     requestAuthHeaderProvider.setSecretKey(ConfigUtils.getProperty(KEY_AK_SK_SECRET_KEY, null));

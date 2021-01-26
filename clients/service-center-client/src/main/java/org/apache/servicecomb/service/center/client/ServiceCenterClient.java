@@ -48,6 +48,8 @@ import org.apache.servicecomb.service.center.client.model.MicroserviceInstancesR
 import org.apache.servicecomb.service.center.client.model.MicroserviceResponse;
 import org.apache.servicecomb.service.center.client.model.MicroservicesResponse;
 import org.apache.servicecomb.service.center.client.model.ModifySchemasRequest;
+import org.apache.servicecomb.service.center.client.model.RbacTokenRequest;
+import org.apache.servicecomb.service.center.client.model.RbacTokenResponse;
 import org.apache.servicecomb.service.center.client.model.RegisteredMicroserviceInstanceResponse;
 import org.apache.servicecomb.service.center.client.model.RegisteredMicroserviceResponse;
 import org.apache.servicecomb.service.center.client.model.SchemaInfo;
@@ -64,8 +66,9 @@ public class ServiceCenterClient implements ServiceCenterOperation {
     this.httpClient = httpClient;
   }
 
-  public ServiceCenterClient(AddressManager addressManager, SSLProperties sslProperties,
-         RequestAuthHeaderProvider requestAuthHeaderProvider,
+  public ServiceCenterClient(AddressManager addressManager,
+      SSLProperties sslProperties,
+      RequestAuthHeaderProvider requestAuthHeaderProvider,
       String tenantName,
       Map<String, String> extraGlobalHeaders) {
     HttpTransport httpTransport = HttpTransportFactory.createHttpTransport(sslProperties, requestAuthHeaderProvider);
@@ -486,6 +489,33 @@ public class ServiceCenterClient implements ServiceCenterOperation {
     } catch (IOException e) {
       throw new OperationException(
           "update service schema fails", e);
+    }
+  }
+
+  @Override
+  public RbacTokenResponse queryToken(RbacTokenRequest request) {
+    try {
+      HttpResponse response = httpClient
+          .postHttpRequestAbsoluteUrl("/v4/token", null,
+              HttpUtils.serialize(request));
+      if (response.getStatusCode() == HttpStatus.SC_OK) {
+        RbacTokenResponse result = HttpUtils.deserialize(response.getContent(), RbacTokenResponse.class);
+        result.setStatusCode(HttpStatus.SC_OK);
+        return result;
+      } else if (response.getStatusCode() == HttpStatus.SC_NOT_FOUND ||
+          response.getStatusCode() == HttpStatus.SC_FORBIDDEN) {
+        RbacTokenResponse result = new RbacTokenResponse();
+        result.setStatusCode(response.getStatusCode());
+        return result;
+      } else {
+        throw new OperationException(
+            "query token failed, statusCode = " + response.getStatusCode() + "; message = " + response
+                .getMessage()
+                + "; content = " + response.getContent());
+      }
+    } catch (IOException e) {
+      throw new OperationException(
+          "query token failed", e);
     }
   }
 }
