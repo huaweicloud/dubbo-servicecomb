@@ -37,12 +37,15 @@ public class DtmConsumerFilter implements Filter {
   @SuppressWarnings("unchecked")
   public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
     try {
+      if (DtmConfig.getContextGetMethod() == null) {
+        return invoker.invoke(invocation);
+      }
       Object context = DtmConfig.getContextGetMethod().invoke(null);
       if (context instanceof Map) {
         invocation.getAttachments().putAll((Map<? extends String, ? extends String>) context);
       }
     } catch (Throwable e) {
-      LOGGER.warn("Failed to add dtm consumer context", e);
+      LOGGER.warn("Failed to add dtm consumer context: " + e.getMessage());
     }
     return invoker.invoke(invocation);
   }

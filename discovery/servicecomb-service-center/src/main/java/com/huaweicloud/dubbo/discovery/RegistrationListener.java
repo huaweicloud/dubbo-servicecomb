@@ -248,7 +248,17 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       Map<String, Microservice> result = new HashMap<>();
       MicroservicesResponse microservicesResponse = client.getMicroserviceList();
       microservicesResponse.getServices().forEach(service -> {
-        service.getSchemas().forEach(schema -> result.put(schema, service));
+        // 先不考虑运行 crossAPP 的场景， 只允许同应用发现
+        if (service.getAppId().equals(this.microservice.getAppId())) {
+          service.getSchemas().forEach(schema -> {
+            if (result.containsKey(schema)) {
+              LOGGER.warn("found duplicate schema {} in microservice {} and {}", schema, service.getServiceName()
+                      + ":" + service.getVersion(),
+                  result.get(schema).getServiceName() + ":" + result.get(schema).getVersion());
+            }
+            result.put(schema, service);
+          });
+        }
       });
       interfaceMap.clear();
       interfaceMap.putAll(result);
