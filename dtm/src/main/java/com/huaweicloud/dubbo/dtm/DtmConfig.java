@@ -18,7 +18,12 @@ package com.huaweicloud.dubbo.dtm;
 
 import java.lang.reflect.Method;
 
+import org.apache.dubbo.common.logger.Logger;
+import org.apache.dubbo.common.logger.LoggerFactory;
+
 public class DtmConfig {
+  private static final Logger LOGGER = LoggerFactory.getLogger(DtmConfig.class);
+
   private static final String DTM_CONTEXT_CLASS_NAME = "com.huawei.middleware.dtm.client.context.DTMContext";
 
   private static final String DTM_EXPORT_METHOD = "getContextData";
@@ -39,7 +44,7 @@ public class DtmConfig {
       contextGetMethod = clazz.getMethod(DtmConfig.DTM_EXPORT_METHOD);
       contextSetMethod = clazz.getMethod(DtmConfig.DTM_IMPORT_METHOD);
     } catch (Throwable e) {
-      throw new RuntimeException("Failed to create DTMContext. Dtm client libraries must included.", e);
+      LOGGER.warn("Failed to create DTMContext. Dtm client libraries must included. Cause: " + e.getMessage());
     }
   }
 

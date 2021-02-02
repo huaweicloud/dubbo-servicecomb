@@ -53,6 +53,7 @@
     <module>dtm</module>
     <module>spring-boot</module>
     <module>governance</module>
+    <module>solutions</module>
   </modules>
 
   <licenses>
