@@ -39,6 +39,11 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+      <artifactId>config-clients-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>
