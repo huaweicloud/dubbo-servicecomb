@@ -33,6 +33,7 @@
   <modules>
     <module>http-client-common</module>
     <module>service-center-client</module>
+    <module>config-common</module>
     <module>config-center-client</module>
     <module>config-kie-client</module>
     <module>governance</module>

@@ -26,18 +26,16 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>config-kie-client</artifactId>
+    <artifactId>config-clients-common</artifactId>
+    <name>ServiceComb::Clients::Config Common</name>
+
     <dependencies>
         <dependency>
             <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
             <artifactId>http-client-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-            <artifactId>config-clients-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>

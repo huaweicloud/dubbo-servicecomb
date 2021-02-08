@@ -18,6 +18,7 @@
 package com.huaweicloud.dubbo.config;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -27,11 +28,10 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.servicecomb.config.center.client.AddressManager;
 import org.apache.servicecomb.config.center.client.ConfigCenterClient;
 import org.apache.servicecomb.config.center.client.ConfigCenterManager;
-import org.apache.servicecomb.config.center.client.ConfigurationChangedEvent;
 import org.apache.servicecomb.config.center.client.model.QueryConfigurationsRequest;
 import org.apache.servicecomb.config.center.client.model.QueryConfigurationsResponse;
+import org.apache.servicecomb.config.common.ConfigurationChangedEvent;
 import org.apache.servicecomb.config.kie.client.KieClient;
-import org.apache.servicecomb.config.kie.client.KieConfigChangedEvent;
 import org.apache.servicecomb.config.kie.client.KieConfigManager;
 import org.apache.servicecomb.config.kie.client.KieConfigOperation;
 import org.apache.servicecomb.config.kie.client.model.ConfigurationsRequest;
@@ -143,7 +143,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
       LOGGER.warn("set up {} failed at startup.", CONFIG_NAME, e);
     }
 
-    configCenterManager = new ConfigCenterManager(configCenterClient, EventManager.getEventBus());
+    configCenterManager = new ConfigCenterManager(configCenterClient, EventManager.getEventBus(), configurations);
     EventManager.register(this);
     configCenterManager.setQueryConfigurationsRequest(queryConfigurationsRequest);
     configCenterManager.startConfigCenterManager();
@@ -165,7 +165,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
       LOGGER.warn("set up {} failed at startup.", CONFIG_NAME, e);
     }
 
-    kieConfigManager = new KieConfigManager(kieClient, EventManager.getEventBus());
+    kieConfigManager = new KieConfigManager(kieClient, EventManager.getEventBus(), configurations);
     EventManager.register(this);
     kieConfigManager.setConfigurationsRequest(configurationsRequest);
     kieConfigManager.startConfigKieManager();
@@ -190,19 +190,15 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   @Subscribe
   public void onConfigurationChangedEvent(ConfigurationChangedEvent event) {
-    LOGGER.info("receive new configurations [{}]", event.getConfigurations().keySet());
-    sources.clear();
-    sources.putAll(event.getConfigurations());
-    notifyGovernanceDataChange(event.getConfigurations());
+    LOGGER.info("receive new configurations, added=[{}], updated=[{}], deleted=[{}]",
+        event.getAdded().keySet(),
+        event.getUpdated().keySet(),
+        event.getDeleted().keySet());
+    event.getDeleted().forEach((k, v) -> sources.remove(k));
+    sources.putAll(event.getComplete());
+    notifyGovernanceDataChange(event.getComplete());
   }
 
-  @Subscribe
-  public void onKieConfigChangedEvent(KieConfigChangedEvent event) {
-    LOGGER.info("receive new configurations [{}]", event.getConfigurations().keySet());
-    sources.clear();
-    sources.putAll(event.getConfigurations());
-    notifyGovernanceDataChange(event.getConfigurations());
-  }
 
   @Override
   protected Properties mergeProperties() throws IOException {
@@ -230,11 +226,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
         EventManager
             .post(new GovernanceDataChangeEvent(HttpUtils.deserialize(this.governanceData, GovernanceData.class)));
       }
-      if (isKie) {
-        EventManager.post(new KieConfigChangedEvent(configurations));
-      } else {
-        EventManager.post(new ConfigurationChangedEvent(configurations));
-      }
+      EventManager.post(
+          ConfigurationChangedEvent.createIncremental(configurations, Collections.emptyMap(), Collections.emptyMap()));
     } catch (IOException e) {
       LOGGER.error("wrong governance data [{}] received.", this.governanceData);
     }

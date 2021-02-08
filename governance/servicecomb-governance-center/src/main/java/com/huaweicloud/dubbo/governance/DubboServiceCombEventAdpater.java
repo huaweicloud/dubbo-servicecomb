@@ -21,8 +21,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.servicecomb.config.center.client.ConfigurationChangedEvent;
-import org.apache.servicecomb.config.kie.client.KieConfigChangedEvent;
+import org.apache.servicecomb.config.common.ConfigurationChangedEvent;
 import org.springframework.stereotype.Component;
 
 import com.google.common.eventbus.Subscribe;
@@ -35,18 +34,11 @@ public class DubboServiceCombEventAdpater {
   }
 
   @Subscribe
-  public void onKieConfigurationChangedEvent(KieConfigChangedEvent event) {
+  public void onKieConfigurationChangedEvent(ConfigurationChangedEvent event) {
     Set<String> changedKeys = new HashSet<>();
-    addMap(changedKeys, event.getConfigurations());
-    org.apache.servicecomb.governance.event.ConfigurationChangedEvent newEvent =
-        new org.apache.servicecomb.governance.event.ConfigurationChangedEvent(changedKeys);
-    org.apache.servicecomb.governance.event.EventManager.post(newEvent);
-  }
-
-  @Subscribe
-  public void onConfigurationChangedEvent(ConfigurationChangedEvent event) {
-    Set<String> changedKeys = new HashSet<>();
-    addMap(changedKeys, event.getConfigurations());
+    addMap(changedKeys, event.getAdded());
+    addMap(changedKeys, event.getUpdated());
+    addMap(changedKeys, event.getDeleted());
     org.apache.servicecomb.governance.event.ConfigurationChangedEvent newEvent =
         new org.apache.servicecomb.governance.event.ConfigurationChangedEvent(changedKeys);
     org.apache.servicecomb.governance.event.EventManager.post(newEvent);
