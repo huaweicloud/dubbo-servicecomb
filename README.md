@@ -116,17 +116,16 @@ This quick start can be found in [dubbo-servicecomb-sample](https://github.com/h
         PAAS_CSE_SC_ENDPOINT: http://127.0.0.1:30100
         PAAS_CSE_CC_ENDPOINT: http://127.0.0.1:30113
         
-        #### 服务配置信息 ####
         dubbo:
           servicecomb:
             service:
-              application: basic-application # 所属应用。
-              name: price-provider   # 服务名称。
-              version: 1.0.0   # 版本。默认为 1.0.0.0
-              # environmen: production # 环境。默认为空。可选值：development, testing, acceptance, production
-              # project: # project。 默认为 default
+              application: basic-application
+              name: price-provider
+              version: 1.0.0
+              # environmen: production # options: development, testing, acceptance, production
+              # project: 
               # instance:
-              # initialStatus: UP # 实例初始状态。可选值： UP, DOWN, STARTING, OUTOFSERVICE
+              # initialStatus: UP # options: UP, DOWN, STARTING, OUTOFSERVICE
         
             registry:
               address: ${PAAS_CSE_SC_ENDPOINT}
