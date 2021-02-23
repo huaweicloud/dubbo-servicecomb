@@ -27,22 +27,27 @@ import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_VERSI
 
 import java.util.Arrays;
 
-
-import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.dubbo.registry.support.AbstractRegistryFactory;
 import org.apache.servicecomb.service.center.client.AddressManager;
 import org.apache.servicecomb.service.center.client.model.Framework;
 import org.apache.servicecomb.service.center.client.model.Microservice;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstanceStatus;
+import org.springframework.core.env.Environment;
 
 public class ServiceCenterConfiguration {
-  public static Microservice createMicroservice() {
+  private Environment environment;
+
+  public ServiceCenterConfiguration(Environment environment) {
+    this.environment = environment;
+  }
+
+  public Microservice createMicroservice() {
     Microservice microservice = new Microservice();
-    microservice.setAppId(ConfigUtils.getProperty(KEY_SERVICE_APPLICATION, "default"));
-    microservice.setServiceName(ConfigUtils.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
-    microservice.setVersion(ConfigUtils.getProperty(KEY_SERVICE_VERSION, "1.0.0.0"));
-    microservice.setEnvironment(ConfigUtils.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
+    microservice.setAppId(environment.getProperty(KEY_SERVICE_APPLICATION, "default"));
+    microservice.setServiceName(environment.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
+    microservice.setVersion(environment.getProperty(KEY_SERVICE_VERSION, "1.0.0.0"));
+    microservice.setEnvironment(environment.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
     Framework framework = new Framework();
     framework.setName("DUBBO-SERVICECOMB");
     StringBuilder version = new StringBuilder();
@@ -56,15 +61,15 @@ public class ServiceCenterConfiguration {
     return microservice;
   }
 
-  public static MicroserviceInstance createMicroserviceInstance() {
+  public MicroserviceInstance createMicroserviceInstance() {
     MicroserviceInstance instance = new MicroserviceInstance();
-    instance.setStatus(MicroserviceInstanceStatus.valueOf(ConfigUtils.getProperty(KEY_INSTANCE_ENVIRONMENT, "UP")));
+    instance.setStatus(MicroserviceInstanceStatus.valueOf(environment.getProperty(KEY_INSTANCE_ENVIRONMENT, "UP")));
     return instance;
   }
 
-  public static AddressManager createAddressManager() {
-    String address = ConfigUtils.getProperty(KEY_REGISTRY_ADDRESS, "http://127.0.0.1:30100");
-    String project = ConfigUtils.getProperty(KEY_SERVICE_PROJECT, "default");
+  public AddressManager createAddressManager() {
+    String address = environment.getProperty(KEY_REGISTRY_ADDRESS, "http://127.0.0.1:30100");
+    String project = environment.getProperty(KEY_SERVICE_PROJECT, "default");
     return new AddressManager(project, Arrays.asList(address.split(",")));
   }
 }

@@ -26,26 +26,34 @@ import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_VERSI
 
 import java.util.Arrays;
 
+import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.servicecomb.config.center.client.AddressManager;
 import org.apache.servicecomb.config.center.client.model.QueryConfigurationsRequest;
-
-import org.apache.dubbo.common.utils.ConfigUtils;
+import org.springframework.core.env.Environment;
 
 
 public class ConfigCenterConfiguration {
+  private Environment environment;
 
-  public static AddressManager createAddressManager() {
-    String address = ConfigUtils.getProperty(KEY_CONFIG_ADDRESS, "http://127.0.0.1:30103");
-    String project = ConfigUtils.getProperty(KEY_SERVICE_PROJECT, "default");
+  public ConfigCenterConfiguration(Environment environment) {
+    this.environment = environment;
+  }
+
+  public AddressManager createAddressManager() {
+    String address = environment.getProperty(KEY_CONFIG_ADDRESS, "");
+    if (StringUtils.isEmpty(address)) {
+      return null;
+    }
+    String project = environment.getProperty(KEY_SERVICE_PROJECT, "default");
     return new AddressManager(project, Arrays.asList(address.split(",")));
   }
 
-  public static QueryConfigurationsRequest createQueryConfigurationsRequest() {
+  public QueryConfigurationsRequest createQueryConfigurationsRequest() {
     QueryConfigurationsRequest request = new QueryConfigurationsRequest();
-    request.setApplication(ConfigUtils.getProperty(KEY_SERVICE_APPLICATION, "default"));
-    request.setServiceName(ConfigUtils.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
-    request.setVersion(ConfigUtils.getProperty(KEY_SERVICE_VERSION, "1.0.0.0"));
-    request.setEnvironment(ConfigUtils.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
+    request.setApplication(environment.getProperty(KEY_SERVICE_APPLICATION, "default"));
+    request.setServiceName(environment.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
+    request.setVersion(environment.getProperty(KEY_SERVICE_VERSION, "1.0.0.0"));
+    request.setEnvironment(environment.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
     // 需要设置为 null， 并且 query 参数为 revision=null 才会返回 revision 信息。 revision = 是不行的。
     request.setRevision(null);
     return request;
