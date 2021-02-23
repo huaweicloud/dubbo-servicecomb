@@ -26,6 +26,6 @@ spring:
       discovery:
         enabled: true
         address: http://127.0.0.1:30100
-        appName: discovery
+        appName: discovery-spring
         serviceName: portal-consumer
         version: 0.0.1
