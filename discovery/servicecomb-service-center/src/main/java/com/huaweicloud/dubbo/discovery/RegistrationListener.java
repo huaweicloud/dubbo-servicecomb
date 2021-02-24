@@ -50,7 +50,9 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.context.event.ContextStartedEvent;
+import org.springframework.core.env.Environment;
 
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
@@ -61,7 +63,8 @@ import com.huaweicloud.dubbo.common.ProviderInfo;
 import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
 import com.huaweicloud.dubbo.common.SchemaInfo;
 
-public class RegistrationListener implements ApplicationListener<ApplicationEvent>, ApplicationEventPublisherAware {
+public class RegistrationListener implements ApplicationListener<ApplicationEvent>, ApplicationEventPublisherAware,
+    EnvironmentAware {
   static class SubscriptionKey {
     final String appId;
 
@@ -136,6 +139,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private List<NewSubscriberEvent> pendingSubscribeEvent = new ArrayList<>();
 
+  private ServiceCenterConfiguration serviceCenterConfiguration;
+
   public RegistrationListener() {
   }
 
@@ -161,22 +166,27 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   }
 
   @Override
+  public void setEnvironment(Environment environment) {
+    serviceCenterConfiguration = new ServiceCenterConfiguration(environment);
+  }
+
+  @Override
   public void onApplicationEvent(ApplicationEvent applicationEvent) {
     if (applicationEvent instanceof ContextStartedEvent) {
       try {
-        AddressManager addressManager = ServiceCenterConfiguration.createAddressManager();
+        AddressManager addressManager = serviceCenterConfiguration.createAddressManager();
         SSLProperties sslProperties = CommonConfiguration.createSSLProperties();
         RequestAuthHeaderProvider requestAuthHeaderProvider = CommonConfiguration.createRequestAuthHeaderProvider();
         client = new ServiceCenterClient(addressManager, sslProperties, requestAuthHeaderProvider,
             "default", null);
-        microservice = ServiceCenterConfiguration.createMicroservice();
+        microservice = serviceCenterConfiguration.createMicroservice();
         if (registry != null) {
           // consumer: 如果没有 provider 接口， dubbo 启动的时候， 不会初始化 Registry。 调用接口的时候，才会初始化。
           microservice
               .setSchemas(registry.getRegisters().stream().map(URL::getPath).collect(Collectors.toList()));
         }
 
-        instance = ServiceCenterConfiguration.createMicroserviceInstance();
+        instance = serviceCenterConfiguration.createMicroserviceInstance();
         List<String> endpoints = new ArrayList<>();
         if (registry != null) {
           endpoints.addAll(registry.getRegisters().stream()

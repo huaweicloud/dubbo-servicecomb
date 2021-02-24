@@ -18,8 +18,8 @@ dubbo-servicecomb 为 dubbo 版本（包括 2.7.x 之前的版本）， 提供 `
 | ---  | ------- | ------------ | ----------- |
 | 2.6.x | 1.1.3 | 2.6.9 | 2.6.x，建议使用前先升级到 2.6.9 以上的版本|
 | 2.6.x | 1.1.5-SNAPSHOT | 2.6.9 | 2.6.x，建议使用前先升级到 2.6.9 及以上的版本|
-| master | 1.3.3 | 2.7.8 | 2.7.x，建议使用前先升级到 2.7.8 及以上的版本|
-| master | 1.3.5-SNAPSHOT | 2.7.8 | 2.7.x，建议使用前先升级到 2.7.8 及以上的版本|
+| master | 1.3.5 | 2.7.8 | 2.7.x，建议使用前先升级到 2.7.8 及以上的版本|
+| master | 1.3.6-SNAPSHOT | 2.7.8 | 2.7.x，建议使用前先升级到 2.7.8 及以上的版本|
 
 ## dubbo 微服务概念 vs dubbo-servicecomb
 
@@ -104,33 +104,11 @@ dubbo.servicecomb.governance: {"providerInfos":[{"serviceName":"price-provider",
         ```
         <dependency>
           <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-          <artifactId>dubbo-servicecomb-service-center</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-          <artifactId>dubbo-servicecomb-config-center</artifactId>
+          <artifactId>dubbo-servicecomb-solution-spring-boot</artifactId>
         </dependency>
         ```
         
   上面两个部件，实现 dubbo 应用的注册和动态配置、服务治理配置项检测等功能。 
-
-* 采用 Spring 启动
-  Spring 扫描路径中，需要增加 `classpath*:spring/dubbo-servicecomb.xml`， 举例如下：
-
-        ```
-        public class PriceApplication {
-          public static void main(String[] args) throws Exception {
-            try {
-              ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-                  "classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml");
-              context.start();
-              System.in.read();
-            } catch (Throwable e) {
-              e.printStackTrace();
-            }
-          }
-        }
-        ```
  
  * 采用 Spring Boot 启动
   Spring 扫描路径中，需要增加 `classpath*:spring/dubbo-servicecomb.xml`， 举例如下：
@@ -148,15 +126,6 @@ dubbo.servicecomb.governance: {"providerInfos":[{"serviceName":"price-provider",
           }
         }
         ``` 
-   
-   Spring Boot 启动，需要额外依赖如下 jar 包：
-
-        ```
-        <dependency>
-          <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-          <artifactId>dubbo-servicecomb-spring-boot</artifactId>
-        </dependency>
-        ```
 
 * 使用 service center 作为注册发现。
    在 Spring 配置文件中增加如下配置。 如果配置文件已经配置了 zookeeper， 那么需要使用下面的配置项进行替换。 
@@ -167,26 +136,29 @@ dubbo.servicecomb.governance: {"providerInfos":[{"serviceName":"price-provider",
     
     这里配置的地址信息是不重要的。 服务中心和配置中心的实际地址在 `dubbo.properties` 里面指定。 
     
-* 在配置文件 `dubbo.properties` 增加配置项。
+* 在配置文件 `dubbo.properties` 或者 `application.yml` 增加配置项。
   基本配置项包括微服务信息、微服务实例信息和服务中心、注册中心地址信息。  
   
-        ```properties        
+        ```yaml        
+        PAAS_CSE_SC_ENDPOINT: http://127.0.0.1:30100
+        PAAS_CSE_CC_ENDPOINT: http://127.0.0.1:30113
+        
         #### 服务配置信息 ####
-        # 所属应用。
-        dubbo.servicecomb.service.application=discovery
-        # 服务名称。
-        dubbo.servicecomb.service.name=price-provider
-        # 版本。默认为 1.0.0.0
-        dubbo.servicecomb.service.version=1.0.0
-        # 环境。默认为空。可选值：development, testing, acceptance, production
-        dubbo.servicecomb.service.environment=production
-        #### END
+        dubbo:
+          servicecomb:
+            service:
+              application: basic-application # 所属应用。
+              name: price-provider   # 服务名称。
+              version: 1.0.0   # 版本。默认为 1.0.0.0
+              # environmen: production # 环境。默认为空。可选值：development, testing, acceptance, production
+              # project: # project。 默认为 default
+              # instance:
+              # initialStatus: UP # 实例初始状态。可选值： UP, DOWN, STARTING, OUTOFSERVICE
         
-        #### 服务中心配置信息 ####
-        dubbo.servicecomb.registry.address=http://127.0.0.1:30100
-        
-        #### 配置中心配置信息 ####
-        dubbo.servicecomb.config.address=http://127.0.0.1:30113
+            registry:
+              address: ${PAAS_CSE_SC_ENDPOINT}
+            config:
+              address: ${PAAS_CSE_CC_ENDPOINT}
         ```
 
 ## 接入微服务引擎

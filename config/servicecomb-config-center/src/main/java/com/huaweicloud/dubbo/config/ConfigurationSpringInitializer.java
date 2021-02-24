@@ -84,6 +84,10 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   private int pollingWaitInSeconds = 0;
 
+  private ConfigCenterConfiguration configCenterConfiguration;
+
+  private KieConfigConfiguration kieConfigConfiguration;
+
   public ConfigurationSpringInitializer() {
     setOrder(Ordered.LOWEST_PRECEDENCE / 2);
     setIgnoreUnresolvablePlaceholders(true);
@@ -91,9 +95,12 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   @Override
   public void setEnvironment(Environment environment) {
+    configCenterConfiguration = new ConfigCenterConfiguration(environment);
+    kieConfigConfiguration = new KieConfigConfiguration(environment);
     if (!(environment instanceof ConfigurableEnvironment)) {
       return;
     }
+
     ConfigurableEnvironment ce = (ConfigurableEnvironment) environment;
 
     addDubboProperties(ce);
@@ -130,8 +137,12 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
   }
 
   private void configCenterClient(ConfigurableEnvironment ce) {
-    queryConfigurationsRequest = ConfigCenterConfiguration.createQueryConfigurationsRequest();
-    AddressManager addressManager = ConfigCenterConfiguration.createAddressManager();
+    queryConfigurationsRequest = configCenterConfiguration.createQueryConfigurationsRequest();
+    AddressManager addressManager = configCenterConfiguration.createAddressManager();
+    if (addressManager == null) {
+      LOGGER.warn("Config center address is not configured and will not enable dynamic config.");
+      return;
+    }
     ConfigCenterClient configCenterClient = new ConfigCenterClient(addressManager, httpTransport);
     try {
       QueryConfigurationsResponse response = configCenterClient.queryConfigurations(queryConfigurationsRequest);
@@ -151,8 +162,12 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   //use KIE as config center
   private void configKieClient(ConfigurableEnvironment ce) {
-    configurationsRequest = KieConfigConfiguration.createConfigurationsRequest();
-    KieAddressManager kieAddressManager = KieConfigConfiguration.createKieAddressManager();
+    configurationsRequest = kieConfigConfiguration.createConfigurationsRequest();
+    KieAddressManager kieAddressManager = kieConfigConfiguration.createKieAddressManager();
+    if (kieAddressManager == null) {
+      LOGGER.warn("Kie address is not configured and will not enable dynamic config.");
+      return;
+    }
     KieConfigOperation kieClient = new KieClient(kieAddressManager, httpTransport);
 
     try {

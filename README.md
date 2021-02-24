@@ -20,8 +20,8 @@ Before reading the next contents, check the supported versions in different bran
 | ---  | ------- | ------------ | ----------- |
 | 2.6.x | 1.1.3 | 2.6.9 | 2.6.x，Suggested upgrade to 2.6.9 or later |
 | 2.6.x | 1.1.5-SNAPSHOT | 2.6.9 | 2.6.x，Suggested upgrade to 2.6.9 or later |
-| master | 1.3.3 | 2.7.8 | 2.7.x，Suggested upgrade to 2.7.8 or later |
-| master | 1.3.5-SNAPSHOT | 2.7.8 | 2.7.x，Suggested upgrade to 2.7.8 or later |
+| master | 1.3.5 | 2.7.8 | 2.7.x，Suggested upgrade to 2.7.8 or later |
+| master | 1.3.6-SNAPSHOT | 2.7.8 | 2.7.x，Suggested upgrade to 2.7.8 or later |
 
 ## Dubbo Microservice Concepts vs Dubbo-ServiceComb Concepts
 
@@ -75,34 +75,10 @@ This quick start can be found in [dubbo-servicecomb-sample](https://github.com/h
         ```
         <dependency>
           <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-          <artifactId>dubbo-servicecomb-service-center</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-          <artifactId>dubbo-servicecomb-config-center</artifactId>
+          <artifactId>dubbo-servicecomb-solution-spring-boot</artifactId>
         </dependency>
         ```
-        
-
-* Start Up using Spring
-
-  In Spring Component scan, add `classpath*:spring/dubbo-servicecomb.xml`.
-
-        ```
-        public class PriceApplication {
-          public static void main(String[] args) throws Exception {
-            try {
-              ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(
-                  "classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml");
-              context.start();
-              System.in.read();
-            } catch (Throwable e) {
-              e.printStackTrace();
-            }
-          }
-        }
-        ```
- 
+  
  * Start Up using Spring Boot
  
   In Spring Boot Component scan, add `classpath*:spring/dubbo-servicecomb.xml`.
@@ -120,15 +96,6 @@ This quick start can be found in [dubbo-servicecomb-sample](https://github.com/h
           }
         }
         ``` 
-   
-   In POM, add
-
-        ```
-        <dependency>
-          <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-          <artifactId>dubbo-servicecomb-spring-boot</artifactId>
-        </dependency>
-        ```
 
 * using service center 
 
@@ -140,27 +107,38 @@ This quick start can be found in [dubbo-servicecomb-sample](https://github.com/h
     
     The address is ignored and configured in `dubbo.properties`. 
     
-* In `dubbo.properties` configurations
+* In `dubbo.properties` or `applicion.yaml` configurations
 
   The configurations include microservice name, version and address of service
   center, config center.   
   
-        ```properties        
-        dubbo.servicecomb.service.application=discovery
-        dubbo.servicecomb.service.name=price-provider
-        dubbo.servicecomb.service.version=1.0.0
-        dubbo.servicecomb.service.environment=production
-        #### END
+        ```yaml        
+        PAAS_CSE_SC_ENDPOINT: http://127.0.0.1:30100
+        PAAS_CSE_CC_ENDPOINT: http://127.0.0.1:30113
         
-        dubbo.servicecomb.registry.address=http://127.0.0.1:30100
+        dubbo:
+          servicecomb:
+            service:
+              application: basic-application
+              name: price-provider
+              version: 1.0.0
+              # environmen: production # options: development, testing, acceptance, production
+              # project: 
+              # instance:
+              # initialStatus: UP # options: UP, DOWN, STARTING, OUTOFSERVICE
         
-        dubbo.servicecomb.config.address=http://127.0.0.1:30113
+            registry:
+              address: ${PAAS_CSE_SC_ENDPOINT}
+            config:
+              address: ${PAAS_CSE_CC_ENDPOINT}
         ```
 
 * add governance configurations
 
 ```yaml
-dubbo.servicecomb.governance: {"providerInfos":[{"serviceName":"price-provider","schemaInfos":[{"schemaId":"com.huaweicloud.it.price.PriceService","parameters":{"timeout":5000}}]}]}
+dubbo:
+  servicecomb:
+    governance: {"providerInfos":[{"serviceName":"price-provider","schemaInfos":[{"schemaId":"com.huaweicloud.it.price.PriceService","parameters":{"timeout":5000}}]}]}
 ```
 
 ## Using Cloud Service Engine
