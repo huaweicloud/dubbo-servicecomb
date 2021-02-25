@@ -36,11 +36,6 @@ public class DtmProviderFilter implements Filter {
   public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
     if (DtmConfig.getContextSetMethod() != null) {
       try {
-        String traceId = invocation.getAttachments().get(DtmConfig.TRACE_ID_NAME);
-        if (!StringUtils.isEmpty(traceId)) {
-          invocation.getAttachments().put(DtmConfig.DTM_TRACE_ID_KEY, traceId);
-        }
-
         DtmConfig.getContextSetMethod().invoke(null, invocation.getAttachments());
       } catch (Throwable e) {
         LOGGER.warn("Failed to add dtm producer context: " + e.getMessage());

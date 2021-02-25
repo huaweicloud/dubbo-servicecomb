@@ -17,6 +17,7 @@
 package com.huaweicloud.dubbo.dtm;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import org.apache.dubbo.common.logger.Logger;
 import org.apache.dubbo.common.logger.LoggerFactory;
@@ -30,10 +31,6 @@ public class DtmConfig {
 
   private static final String DTM_IMPORT_METHOD = "setContextData";
 
-  public static final String DTM_TRACE_ID_KEY = "X-Dtm-Trace-Id-Key";
-
-  public static final String TRACE_ID_NAME = "X-B3-TraceId";
-
   private static Method contextGetMethod;
 
   private static Method contextSetMethod;
@@ -42,7 +39,7 @@ public class DtmConfig {
     try {
       Class<?> clazz = Class.forName(DtmConfig.DTM_CONTEXT_CLASS_NAME);
       contextGetMethod = clazz.getMethod(DtmConfig.DTM_EXPORT_METHOD);
-      contextSetMethod = clazz.getMethod(DtmConfig.DTM_IMPORT_METHOD);
+      contextSetMethod = clazz.getMethod(DtmConfig.DTM_IMPORT_METHOD, Map.class);
     } catch (Throwable e) {
       LOGGER.warn("Failed to create DTMContext. Dtm client libraries must included. Cause: " + e.getMessage());
     }
