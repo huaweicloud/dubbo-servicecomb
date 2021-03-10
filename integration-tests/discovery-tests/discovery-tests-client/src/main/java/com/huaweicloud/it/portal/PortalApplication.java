@@ -50,8 +50,6 @@ public class PortalApplication {
       e.printStackTrace();
     }
 
-    Thread.sleep(3000); // TODO: 尽可能规避 spring cloud huawei 的 bug, 需要等待新版本
-
     System.out.println("running all test cases");
     portalController.testAll();
     System.out.println("running all test cases successfully");
