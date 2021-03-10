@@ -228,6 +228,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     }
     if (microservice == null) {
       LOGGER.error("the subscribe url [{}] is not registered.", newSubscriberEvent.getUrl().getPath());
+      pendingSubscribeEvent.add(newSubscriberEvent);
       return;
     }
     MicroserviceInstancesResponse instancesResponse = client
