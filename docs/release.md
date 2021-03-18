@@ -34,7 +34,7 @@
 
 7. 发布完成，更新 SNAPSHOT 版本，并提交 PR
 
-        mvn versions:set -DgenerateBackupPoms=false -DnewVersion=1.3.1-SNAPSHOT
+        mvn versions:set -Pit -DgenerateBackupPoms=false -DnewVersion=1.3.1-SNAPSHOT
 
 ## 版本验证
 
