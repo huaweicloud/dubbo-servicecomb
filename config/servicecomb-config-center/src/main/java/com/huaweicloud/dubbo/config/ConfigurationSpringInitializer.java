@@ -51,6 +51,7 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.ResourcePropertySource;
+import org.springframework.stereotype.Component;
 
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
@@ -59,6 +60,7 @@ import com.huaweicloud.dubbo.common.GovernanceData;
 import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
 import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
 
+@Component
 public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigurer implements EnvironmentAware {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationSpringInitializer.class);
 
@@ -88,6 +90,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   private KieConfigConfiguration kieConfigConfiguration;
 
+  private CommonConfiguration commonConfiguration;
+
   public ConfigurationSpringInitializer() {
     setOrder(Ordered.LOWEST_PRECEDENCE / 2);
     setIgnoreUnresolvablePlaceholders(true);
@@ -97,6 +101,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
   public void setEnvironment(Environment environment) {
     configCenterConfiguration = new ConfigCenterConfiguration(environment);
     kieConfigConfiguration = new KieConfigConfiguration(environment);
+    commonConfiguration = new CommonConfiguration(environment);
+
     if (!(environment instanceof ConfigurableEnvironment)) {
       return;
     }
@@ -117,8 +123,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
     this.setTimeOut(config);
     httpTransport = HttpTransportFactory
-        .createHttpTransport(CommonConfiguration.createSSLProperties(),
-            CommonConfiguration.createRequestAuthHeaderProvider());
+        .createHttpTransport(commonConfiguration.createSSLProperties(),
+            commonConfiguration.createRequestAuthHeaderProvider());
     //判断是否使用KIE作为配置中心
     if (isKie) {
       configKieClient(ce);

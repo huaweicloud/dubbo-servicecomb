@@ -53,6 +53,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 import com.google.common.eventbus.Subscribe;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
@@ -63,6 +64,7 @@ import com.huaweicloud.dubbo.common.ProviderInfo;
 import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
 import com.huaweicloud.dubbo.common.SchemaInfo;
 
+@Component
 public class RegistrationListener implements ApplicationListener<ApplicationEvent>, ApplicationEventPublisherAware,
     EnvironmentAware {
   static class SubscriptionKey {
@@ -141,6 +143,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private ServiceCenterConfiguration serviceCenterConfiguration;
 
+  private CommonConfiguration commonConfiguration;
+
   public RegistrationListener() {
   }
 
@@ -168,6 +172,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   @Override
   public void setEnvironment(Environment environment) {
     serviceCenterConfiguration = new ServiceCenterConfiguration(environment);
+    commonConfiguration = new CommonConfiguration(environment);
   }
 
   @Override
@@ -175,8 +180,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     if (applicationEvent instanceof ContextStartedEvent) {
       try {
         AddressManager addressManager = serviceCenterConfiguration.createAddressManager();
-        SSLProperties sslProperties = CommonConfiguration.createSSLProperties();
-        RequestAuthHeaderProvider requestAuthHeaderProvider = CommonConfiguration.createRequestAuthHeaderProvider();
+        SSLProperties sslProperties = commonConfiguration.createSSLProperties();
+        RequestAuthHeaderProvider requestAuthHeaderProvider = commonConfiguration.createRequestAuthHeaderProvider();
         client = new ServiceCenterClient(addressManager, sslProperties, requestAuthHeaderProvider,
             "default", null);
         microservice = serviceCenterConfiguration.createMicroservice();
