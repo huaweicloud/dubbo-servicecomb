@@ -17,12 +17,17 @@
 
 package com.huaweicloud.dubbo.common;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.apache.commons.codec.binary.Hex;
 import org.apache.servicecomb.foundation.auth.SignRequest;
 import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
-import org.apache.servicecomb.http.client.common.HttpUtils;
 
 public class DubboRequestAuthHeaderProvider implements RequestAuthHeaderProvider {
 
@@ -36,11 +41,14 @@ public class DubboRequestAuthHeaderProvider implements RequestAuthHeaderProvider
 
   private String project;
 
-  public static  final String X_SERVICE_AK = "X-Service-AK";
+  public static final String X_SERVICE_AK = "X-Service-AK";
 
-  public static  final String X_SERVICE_SHAAKSK = "X-Service-ShaAKSK";
+  public static final String X_SERVICE_SHAAKSK = "X-Service-ShaAKSK";
 
-  public static  final String X_SERVICE_PROJECT = "X-Service-Project";
+  public static final String X_SERVICE_PROJECT = "X-Service-Project";
+
+  public DubboRequestAuthHeaderProvider() {
+  }
 
   @Override
   public Map<String, String> loadAuthHeader(SignRequest signRequest) {
@@ -60,13 +68,13 @@ public class DubboRequestAuthHeaderProvider implements RequestAuthHeaderProvider
   }
 
   public String getSecretKey() {
-    if ("ShaAKSKCipher".equalsIgnoreCase(this.cipher)) {
-      return this.secretKey;
-    }
-    try {
-      return HttpUtils.sha256Encode(this.secretKey, this.accessKey);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("not able to encode ak sk.", e);
+    String decodedSecretKey = new String(findCipher().decrypt(this.secretKey.toCharArray()));
+
+    // ShaAKSKCipher 不解密, 认证的时候不处理；其他算法解密为 plain，需要 encode 为 ShaAKSKCipher 去认证。
+    if (ShaAKSKCipher.CIPHER_NAME.equalsIgnoreCase(getCipher())) {
+      return decodedSecretKey;
+    } else {
+      return sha256Encode(decodedSecretKey, getAccessKey());
     }
   }
 
@@ -98,5 +106,27 @@ public class DubboRequestAuthHeaderProvider implements RequestAuthHeaderProvider
       headers.put(X_SERVICE_PROJECT, this.getProject());
     }
     return headers;
+  }
+
+  private Cipher findCipher() {
+    if (DefaultCipher.CIPHER_NAME.equals(getCipher())) {
+      return DefaultCipher.getInstance();
+    }
+
+    List<Cipher> ciphers = SPIServiceUtils.getOrLoadSortedService(Cipher.class);
+    return ciphers.stream().filter(c -> c.name().equals(getCipher())).findFirst()
+        .orElseThrow(() -> new IllegalArgumentException("failed to find cipher named " + getCipher()));
+  }
+
+  public static String sha256Encode(String key, String data) {
+    try {
+      Mac sha256HMAC = Mac.getInstance("HmacSHA256");
+      SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8),
+          "HmacSHA256");
+      sha256HMAC.init(secretKey);
+      return Hex.encodeHexString(sha256HMAC.doFinal(data.getBytes(StandardCharsets.UTF_8)));
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Can not encode ak sk. Please check the value is correct.", e);
+    }
   }
 }

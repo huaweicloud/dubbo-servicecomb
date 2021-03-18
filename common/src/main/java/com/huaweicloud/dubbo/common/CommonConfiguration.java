@@ -17,11 +17,11 @@
 
 package com.huaweicloud.dubbo.common;
 
-import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.servicecomb.foundation.ssl.SSLCustom;
 import org.apache.servicecomb.foundation.ssl.SSLOption;
 import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
+import org.springframework.core.env.Environment;
 
 public class CommonConfiguration {
   public static final String DEFAULT_CIPHERS = "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,"
@@ -102,42 +102,48 @@ public class CommonConfiguration {
 
   public static final String KEY_AK_SK_PROJECT = "dubbo.servicecomb.credentials.project";
 
-  public static SSLProperties createSSLProperties() {
+  private Environment environment;
+
+  public CommonConfiguration(Environment environment) {
+    this.environment = environment;
+  }
+
+  public SSLProperties createSSLProperties() {
     SSLProperties sslProperties = new SSLProperties();
-    sslProperties.setEnabled(Boolean.valueOf(ConfigUtils.getProperty(KEY_SSL_ENABLED, "false")));
+    sslProperties.setEnabled(Boolean.valueOf(environment.getProperty(KEY_SSL_ENABLED, "false")));
     if (sslProperties.isEnabled()) {
       SSLOption option = new SSLOption();
-      option.setEngine(ConfigUtils.getProperty(KEY_SSL_ENGINE, "jdk"));
-      option.setProtocols(ConfigUtils.getProperty(KEY_SSL_PROTOCOLS, "TLSv1.2"));
-      option.setCiphers(ConfigUtils.getProperty(KEY_SSL_CIPHERS, DEFAULT_CIPHERS));
-      option.setAuthPeer(Boolean.valueOf(ConfigUtils.getProperty(KEY_SSL_AUTH_PEER, "false")));
-      option.setCheckCNHost(Boolean.valueOf(ConfigUtils.getProperty(KEY_SSL_CHECKCN_HOST, "false")));
-      option.setCheckCNWhite(Boolean.valueOf(ConfigUtils.getProperty(KEY_SSL_CHECKCN_WHITE, "false")));
-      option.setCheckCNWhiteFile(ConfigUtils.getProperty(KEY_SSL_CHECKCN_WHITE_FILE, "white.list"));
-      option.setAllowRenegociate(Boolean.valueOf(ConfigUtils.getProperty(KEY_SSL_ALLOW_RENEGOTIATE, "false")));
-      option.setStorePath(ConfigUtils.getProperty(KEY_SSL_STORE_PATH, "internal"));
-      option.setKeyStore(ConfigUtils.getProperty(KEY_SSL_KEYSTORE, "server.p12"));
-      option.setKeyStoreType(ConfigUtils.getProperty(KEY_SSL_KEYSTORE_TYPE, "PKCS12"));
-      option.setKeyStoreValue(ConfigUtils.getProperty(KEY_SSL_KEYSTORE_VALUE, "keyStoreValue"));
-      option.setTrustStore(ConfigUtils.getProperty(KEY_SSL_TRUST_STORE, "trust.jks"));
-      option.setTrustStoreType(ConfigUtils.getProperty(KEY_SSL_TRUST_STORE_TYPE, "JKS"));
-      option.setTrustStoreValue(ConfigUtils.getProperty(KEY_SSL_TRUST_STORE_VALUE, "trustStoreValue"));
-      option.setCrl(ConfigUtils.getProperty(KEY_SSL_CRL, "revoke.crl"));
+      option.setEngine(environment.getProperty(KEY_SSL_ENGINE, "jdk"));
+      option.setProtocols(environment.getProperty(KEY_SSL_PROTOCOLS, "TLSv1.2"));
+      option.setCiphers(environment.getProperty(KEY_SSL_CIPHERS, DEFAULT_CIPHERS));
+      option.setAuthPeer(Boolean.valueOf(environment.getProperty(KEY_SSL_AUTH_PEER, "false")));
+      option.setCheckCNHost(Boolean.valueOf(environment.getProperty(KEY_SSL_CHECKCN_HOST, "false")));
+      option.setCheckCNWhite(Boolean.valueOf(environment.getProperty(KEY_SSL_CHECKCN_WHITE, "false")));
+      option.setCheckCNWhiteFile(environment.getProperty(KEY_SSL_CHECKCN_WHITE_FILE, "white.list"));
+      option.setAllowRenegociate(Boolean.valueOf(environment.getProperty(KEY_SSL_ALLOW_RENEGOTIATE, "false")));
+      option.setStorePath(environment.getProperty(KEY_SSL_STORE_PATH, "internal"));
+      option.setKeyStore(environment.getProperty(KEY_SSL_KEYSTORE, "server.p12"));
+      option.setKeyStoreType(environment.getProperty(KEY_SSL_KEYSTORE_TYPE, "PKCS12"));
+      option.setKeyStoreValue(environment.getProperty(KEY_SSL_KEYSTORE_VALUE, "keyStoreValue"));
+      option.setTrustStore(environment.getProperty(KEY_SSL_TRUST_STORE, "trust.jks"));
+      option.setTrustStoreType(environment.getProperty(KEY_SSL_TRUST_STORE_TYPE, "JKS"));
+      option.setTrustStoreValue(environment.getProperty(KEY_SSL_TRUST_STORE_VALUE, "trustStoreValue"));
+      option.setCrl(environment.getProperty(KEY_SSL_CRL, "revoke.crl"));
 
-      SSLCustom sslCustom = SSLCustom.createSSLCustom(ConfigUtils.getProperty(KEY_SSL_SSL_CUSTOM_CLASS, null));
+      SSLCustom sslCustom = SSLCustom.createSSLCustom(environment.getProperty(KEY_SSL_SSL_CUSTOM_CLASS, ""));
       sslProperties.setSslOption(option);
       sslProperties.setSslCustom(sslCustom);
     }
     return sslProperties;
   }
 
-  public static RequestAuthHeaderProvider createRequestAuthHeaderProvider() {
+  public RequestAuthHeaderProvider createRequestAuthHeaderProvider() {
     DubboRequestAuthHeaderProvider requestAuthHeaderProvider = new DubboRequestAuthHeaderProvider();
-    requestAuthHeaderProvider.setEnabled(Boolean.valueOf(ConfigUtils.getProperty(KEY_AK_SK_ENABLED, "false")));
-    requestAuthHeaderProvider.setAccessKey(ConfigUtils.getProperty(KEY_AK_SK_ACCESS_KEY, null));
-    requestAuthHeaderProvider.setSecretKey(ConfigUtils.getProperty(KEY_AK_SK_SECRET_KEY, null));
-    requestAuthHeaderProvider.setCipher(ConfigUtils.getProperty(KEY_AK_SK_CIPHER, null));
-    requestAuthHeaderProvider.setProject(ConfigUtils.getProperty(KEY_AK_SK_PROJECT, null));
+    requestAuthHeaderProvider.setEnabled(Boolean.valueOf(environment.getProperty(KEY_AK_SK_ENABLED, "false")));
+    requestAuthHeaderProvider.setAccessKey(environment.getProperty(KEY_AK_SK_ACCESS_KEY, ""));
+    requestAuthHeaderProvider.setSecretKey(environment.getProperty(KEY_AK_SK_SECRET_KEY, ""));
+    requestAuthHeaderProvider.setCipher(environment.getProperty(KEY_AK_SK_CIPHER, ""));
+    requestAuthHeaderProvider.setProject(environment.getProperty(KEY_AK_SK_PROJECT, ""));
     return requestAuthHeaderProvider;
   }
 }
