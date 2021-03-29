@@ -22,6 +22,10 @@ import org.apache.servicecomb.foundation.ssl.SSLOption;
 import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
 import org.springframework.core.env.Environment;
+import org.springframework.util.StringUtils;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 public class CommonConfiguration {
   public static final String DEFAULT_CIPHERS = "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,"
@@ -143,7 +147,18 @@ public class CommonConfiguration {
     requestAuthHeaderProvider.setAccessKey(environment.getProperty(KEY_AK_SK_ACCESS_KEY, ""));
     requestAuthHeaderProvider.setSecretKey(environment.getProperty(KEY_AK_SK_SECRET_KEY, ""));
     requestAuthHeaderProvider.setCipher(environment.getProperty(KEY_AK_SK_CIPHER, ""));
-    requestAuthHeaderProvider.setProject(environment.getProperty(KEY_AK_SK_PROJECT, ""));
+    requestAuthHeaderProvider.setProject(safeGetProject(environment.getProperty(KEY_AK_SK_PROJECT, "")));
     return requestAuthHeaderProvider;
+  }
+
+  private String safeGetProject(String project) {
+    if (StringUtils.isEmpty(project)) {
+      return project;
+    }
+    try {
+      return URLEncoder.encode(project, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      return project;
+    }
   }
 }
