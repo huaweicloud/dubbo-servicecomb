@@ -62,7 +62,10 @@
       <artifactId>foundation-ssl</artifactId>
       <version>${servicecomb.version}</version>
     </dependency>
-
+    <dependency>
+      <groupId>org.java-websocket</groupId>
+      <artifactId>Java-WebSocket</artifactId>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
