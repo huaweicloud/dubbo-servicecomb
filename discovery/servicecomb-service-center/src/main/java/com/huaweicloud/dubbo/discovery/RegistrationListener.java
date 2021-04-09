@@ -243,7 +243,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         new SubscriptionData(newSubscriberEvent.getNotifyListener(), new ArrayList<>()));
     // 第一次订阅， 按照 dubbo 的要求， 需要查询实例列表
     notify(microservice.getAppId(), microservice.getServiceName(), instancesResponse.getInstances());
-    serviceCenterDiscovery.register(microservice);
+    serviceCenterDiscovery
+        .register(new ServiceCenterDiscovery.SubscriptionKey(microservice.getAppId(), microservice.getServiceName()));
   }
 
   @Override
@@ -305,10 +306,10 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     if (event.isSuccess()) {
       if (serviceCenterDiscovery == null) {
         serviceCenterDiscovery = new ServiceCenterDiscovery(client, EventManager.getEventBus());
-        serviceCenterDiscovery.updateMySelf(microservice);
+        serviceCenterDiscovery.updateMyselfServiceId(microservice.getServiceId());
         serviceCenterDiscovery.startDiscovery();
       } else {
-        serviceCenterDiscovery.updateMySelf(microservice);
+        serviceCenterDiscovery.updateMyselfServiceId(microservice.getServiceId());
       }
     }
   }
