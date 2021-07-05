@@ -79,9 +79,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+            <groupId>org.apache.servicecomb</groupId>
             <artifactId>servicecomb-governance</artifactId>
-            <version>${project.version}</version>
+            <version>${servicecomb.version}</version>
         </dependency>
         <dependency>
             <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
