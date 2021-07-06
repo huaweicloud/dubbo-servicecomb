@@ -143,6 +143,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private ServiceCenterConfiguration serviceCenterConfiguration;
 
+  private org.apache.servicecomb.service.center.client.model.ServiceCenterConfiguration serviceCenterConfigurationComb;
+
   private CommonConfiguration commonConfiguration;
 
   public RegistrationListener() {
@@ -202,7 +204,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         instance.setHostName(InetAddress.getLocalHost().getHostName());
 
         EventManager.register(this);
-        serviceCenterRegistration = new ServiceCenterRegistration(client, EventManager.getEventBus());
+        serviceCenterRegistration = new ServiceCenterRegistration(client,serviceCenterConfigurationComb,EventManager.getEventBus());
         serviceCenterRegistration.setMicroservice(microservice);
         serviceCenterRegistration.setMicroserviceInstance(instance);
         serviceCenterRegistration.startRegistration();

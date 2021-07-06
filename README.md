@@ -138,7 +138,7 @@ This quick start can be found in [dubbo-servicecomb-sample](https://github.com/h
 ```yaml
 dubbo:
   servicecomb:
-    governance: {"providerInfos":[{"serviceName":"price-provider","schemaInfos":[{"schemaId":"PriceService","parameters":{"timeout":5000}}]}]}
+    governance: {"providerInfos":[{"serviceName":"price-provider","schemaInfos":[{"schemaId":"com.huawei.it.price.PriceService","parameters":{"timeout":5000}}]}]}
 ```
 
 ## Using Cloud Service Engine
