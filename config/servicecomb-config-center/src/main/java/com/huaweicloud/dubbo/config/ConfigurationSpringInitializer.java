@@ -19,9 +19,11 @@ package com.huaweicloud.dubbo.config;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Properties;
 
 import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.http.client.config.RequestConfig;
