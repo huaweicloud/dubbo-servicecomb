@@ -64,11 +64,12 @@ public class KieConfigConfiguration {
     configKey.put(ConfigConstants.KEY_ENABLELONGPOLLING, KEY_SERVICE_ENABLELONGPOLLING);
     configKey.put(ConfigConstants.KEY_POLLINGWAITSEC, KEY_SERVICE_POLLINGWAITSEC);
 
-    return new KieAddressManager(properties, Arrays.asList(address.split(",")), configKey);
+    KieAddressManager kieAddressManager = new KieAddressManagerExt(properties,Arrays.asList(address.split(",")),configKey);
+    return kieAddressManager;
   }
 
   public ConfigurationsRequest createConfigurationsRequest() {
-    ConfigurationsRequest request = new ConfigurationsRequest();
+    ConfigurationsRequestExt request = new ConfigurationsRequestExt();
     request.setApplication(environment.getProperty(KEY_SERVICE_APPLICATION, "default"));
     request.setServiceName(environment.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
     request.setVersion(environment.getProperty(KEY_SERVICE_VERSION, "1.0.0.0"));
