@@ -19,11 +19,7 @@ package com.huaweicloud.dubbo.config;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Properties;
+import java.util.*;
 
 import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.http.client.config.RequestConfig;
@@ -64,6 +60,8 @@ import com.huaweicloud.dubbo.common.GovernanceData;
 import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
 import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
 
+import org.springframework.util.StringUtils;
+
 @Component
 public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigurer implements EnvironmentAware {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationSpringInitializer.class);
@@ -98,9 +96,10 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   private KieConfiguration kieConfiguration;
 
-  private ConfigConverter configConverter = new ConfigConverter(new ArrayList<>(sources.keySet()));
+  private ConfigConverter configConverter;
 
   public ConfigurationSpringInitializer() {
+    configConverter = initConfigConverter();
     setOrder(Ordered.LOWEST_PRECEDENCE / 2);
     setIgnoreUnresolvablePlaceholders(true);
   }
@@ -120,6 +119,16 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     addDubboProperties(ce);
 
     addConfigCenterProperties(ce);
+  }
+
+  private ConfigConverter initConfigConverter() {
+    String fileSources = ConfigUtils.getProperty(CommonConfiguration.KEY_CONFIG_FILESOURCE);
+    if (StringUtils.isEmpty(fileSources)) {
+      configConverter = new ConfigConverter(null);
+    } else {
+      configConverter = new ConfigConverter(Arrays.asList(fileSources.split("，")));
+    }
+    return configConverter;
   }
 
   private void addConfigCenterProperties(ConfigurableEnvironment ce) {
@@ -160,6 +169,9 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     ConfigCenterClient configCenterClient = new ConfigCenterClient(addressManager, httpTransport);
     try {
       QueryConfigurationsResponse response = configCenterClient.queryConfigurations(queryConfigurationsRequest);
+      if (response.isChanged()) {
+        configConverter.updateData(response.getConfigurations());
+      }
       configurations = response.getConfigurations();
       queryConfigurationsRequest.setRevision(response.getRevision());
       sources.putAll(response.getConfigurations());
@@ -167,7 +179,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     } catch (Exception e) {
       LOGGER.warn("set up {} failed at startup.", CONFIG_NAME, e);
     }
-    configCenterManager = new ConfigCenterManagerExt(configCenterClient, EventManager.getEventBus(), configConverter,configurations);
+    configCenterManager = new ConfigCenterManager(configCenterClient, EventManager.getEventBus(), configConverter);
     EventManager.register(this);
     configCenterManager.setQueryConfigurationsRequest(queryConfigurationsRequest);
     configCenterManager.startConfigCenterManager();
@@ -181,7 +193,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
       LOGGER.warn("Kie address is not configured and will not enable dynamic config.");
       return;
     }
-    KieConfigOperation kieClient = new KieClient(kieAddressManager, httpTransport,kieConfiguration);
+    KieConfigOperation kieClient = new KieClient(kieAddressManager, httpTransport, kieConfiguration);
 
     try {
       ConfigurationsResponse response = kieClient.queryConfigurations(configurationsRequest);
@@ -193,7 +205,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
       LOGGER.warn("set up {} failed at startup.", CONFIG_NAME, e);
     }
 
-    kieConfigManager = new KieConfigManagerExt(kieClient,kieConfiguration,configConverter,EventManager.getEventBus(),configurations).setConfigurationsRequest(configurationsRequest);
+    kieConfigManager = new KieConfigManagerExt(kieClient, kieConfiguration, configConverter, EventManager.getEventBus(),
+        configurations).setConfigurationsRequest(configurationsRequest);
     EventManager.register(this);
     kieConfigManager.startConfigKieManager();
   }
@@ -222,7 +235,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
         event.getUpdated().keySet(),
         event.getDeleted().keySet());
     event.getDeleted().forEach((k, v) -> sources.remove(k));
-    Map<String,Object> result= new HashMap<String,Object>(event.getAdded().size() + event.getUpdated().size());
+    Map<String, Object> result = new HashMap<String, Object>(event.getAdded().size() + event.getUpdated().size());
     result.putAll(event.getAdded());
     result.putAll(event.getUpdated());
     sources.putAll(result);
@@ -256,7 +269,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
         EventManager
             .post(new GovernanceDataChangeEvent(HttpUtils.deserialize(this.governanceData, GovernanceData.class)));
       }
-      Class<?> configurationChangedEventClass = Class.forName("org.apache.servicecomb.config.common.ConfigurationChangedEvent");
+      Class<?> configurationChangedEventClass = Class
+          .forName("org.apache.servicecomb.config.common.ConfigurationChangedEvent");
       Class<?>[] paramTypes = {Map.class, Map.class, Map.class};
       Object[] params = {configurations, Collections.emptyMap(), Collections.emptyMap()};
       Constructor<?> constructor = configurationChangedEventClass.getDeclaredConstructor(paramTypes);

@@ -51,6 +51,8 @@ public class CommonConfiguration {
   // ###### config center configuration ############### //
   public static final String KEY_CONFIG_ADDRESSTYPE = "dubbo.servicecomb.config.type";
 
+  public static final String KEY_CONFIG_FILESOURCE = "dubbo.servicecomb.config.fileSource";
+
   public static final String KEY_CONFIG_ADDRESS = "dubbo.servicecomb.config.address";
 
   // ###### kie config center polling configuration############### //

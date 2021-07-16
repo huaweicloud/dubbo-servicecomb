@@ -35,6 +35,8 @@
     <module>docker-run-config</module>
     <module>discovery-tests</module>
     <module>discovery-tests-spring-boot</module>
+    <module>cse-v1</module>
+    <module>cse-v2</module>
   </modules>
 
   <dependencies>
