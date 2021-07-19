@@ -23,7 +23,7 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: cse-v1-consumer
+        - id: cse-v1-test-consumer
           uri: http://localhost:8808/
           predicates:
             - Path=/**
@@ -36,7 +36,7 @@ spring:
       discovery:
         enabled: true
         address: https://cse.cn-south-1.myhuaweicloud.com
-        appName: discovery
+        appName: cse-v1
         serviceName: spring-cloud-gateway-service
         version: 0.0.1
         watch: false
@@ -46,6 +46,8 @@ spring:
           delay: 10000
       credentials:
         enabled: true
+#        accessKey: ${CREDENTIALS_AK}
+#        secretKey: ${CREDENTIALS_SK}
         accessKey: 7V6DX8G44OOYRWGYJKYK
         secretKey: x1GeZiCiYPi0HPJGArIWVk8NVdwmQuCO85JShYBL
         akskCustomCipher: default

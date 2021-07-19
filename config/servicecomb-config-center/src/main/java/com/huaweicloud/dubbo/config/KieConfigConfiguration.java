@@ -52,29 +52,12 @@ public class KieConfigConfiguration {
     if (StringUtils.isEmpty(address)) {
       return null;
     }
-    Properties properties = new Properties();
-    Map<String, String> configKey = new HashMap<>();
-    properties.setProperty(KEY_SERVICE_PROJECT, environment.getProperty(KEY_SERVICE_PROJECT, "default"));
-    properties.setProperty(KEY_CONFIG_ADDRESSTYPE, environment.getProperty(KEY_CONFIG_ADDRESSTYPE, ""));
-    properties
-        .setProperty(KEY_SERVICE_ENABLELONGPOLLING, environment.getProperty(KEY_SERVICE_ENABLELONGPOLLING, "true"));
-    properties.setProperty(KEY_SERVICE_POLLINGWAITSEC, environment.getProperty(KEY_SERVICE_POLLINGWAITSEC, "30"));
-
-    configKey.put(ConfigConstants.KEY_PROJECT, KEY_SERVICE_PROJECT);
-    configKey.put(ConfigConstants.KEY_ENABLELONGPOLLING, KEY_SERVICE_ENABLELONGPOLLING);
-    configKey.put(ConfigConstants.KEY_POLLINGWAITSEC, KEY_SERVICE_POLLINGWAITSEC);
-
-    KieAddressManager kieAddressManager = new KieAddressManagerExt(properties,Arrays.asList(address.split(",")),configKey);
+    KieAddressManager kieAddressManager = new KieAddressManager(Arrays.asList(address.split(",")));
     return kieAddressManager;
   }
 
   public ConfigurationsRequest createConfigurationsRequest() {
-    ConfigurationsRequestExt request = new ConfigurationsRequestExt();
-    request.setApplication(environment.getProperty(KEY_SERVICE_APPLICATION, "default"));
-    request.setServiceName(environment.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
-    request.setVersion(environment.getProperty(KEY_SERVICE_VERSION, "1.0.0.0"));
-    request.setEnvironment(environment.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
-    // 需要设置为 null， 并且 query 参数为 revision=null 才会返回 revision 信息。 revision = 是不行的。
+    ConfigurationsRequest request = new ConfigurationsRequest();
     request.setRevision(null);
     return request;
   }
