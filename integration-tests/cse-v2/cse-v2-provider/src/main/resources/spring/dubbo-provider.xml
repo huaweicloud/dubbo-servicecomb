@@ -8,7 +8,7 @@
 
     <dubbo:application name="cse-v2-provider"/>
 
-    <dubbo:registry address="sc://127.0.0.1:30100"/>
+    <dubbo:registry address="sc://192.168.0.212.30100"/>
 
     <dubbo:protocol name="dubbo" port="20880"/>
 
