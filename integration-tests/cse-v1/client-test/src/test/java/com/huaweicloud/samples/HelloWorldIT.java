@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.springframework.web.client.RestTemplate;
 
 
-public class HelloWorldTest {
+public class HelloWorldIT {
 
   RestTemplate template = new RestTemplate();
 

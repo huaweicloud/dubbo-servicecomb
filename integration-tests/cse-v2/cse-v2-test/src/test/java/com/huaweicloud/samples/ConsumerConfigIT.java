@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 import org.springframework.web.client.RestTemplate;
 
-public class ConsumerConfigTest {
+public class ConsumerConfigIT {
 
   RestTemplate template = new RestTemplate();
 
