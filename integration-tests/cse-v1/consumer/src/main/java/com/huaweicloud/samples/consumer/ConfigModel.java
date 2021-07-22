@@ -18,23 +18,23 @@
 package com.huaweicloud.samples.consumer;
 
 public class ConfigModel {
-    private String name;
+  private String name;
 
-    private int index;
+  private int index;
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public int getIndex() {
-        return index;
-    }
+  public int getIndex() {
+    return index;
+  }
 
-    public void setIndex(int index) {
-        this.index = index;
-    }
+  public void setIndex(int index) {
+    this.index = index;
+  }
 }

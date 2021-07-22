@@ -28,39 +28,39 @@ import java.util.List;
 @RestController
 public class ConsumerConfigController {
 
-    @Autowired
-    private Environment environment;
+  @Autowired
+  private Environment environment;
 
-    @Autowired
-    private ConsumerConfigurationProperties consumerConfigurationProperties;
+  @Autowired
+  private ConsumerConfigurationProperties consumerConfigurationProperties;
 
-    @GetMapping("/config")
-    public String config(@RequestParam("key") String key) {
-        System.out.println(consumerConfigurationProperties);
-        return environment.getProperty(key);
-    }
+  @GetMapping("/config")
+  public String config(@RequestParam("key") String key) {
+    System.out.println(consumerConfigurationProperties);
+    return environment.getProperty(key);
+  }
 
-    @GetMapping("/foo")
-    public String foo() {
-        System.out.println(consumerConfigurationProperties);
-        return consumerConfigurationProperties.getFoo();
-    }
+  @GetMapping("/foo")
+  public String foo() {
+    System.out.println(consumerConfigurationProperties);
+    return consumerConfigurationProperties.getFoo();
+  }
 
-    @GetMapping("/bar")
-    public String bar() {
-        System.out.println(consumerConfigurationProperties);
-        return consumerConfigurationProperties.getBar();
-    }
+  @GetMapping("/bar")
+  public String bar() {
+    System.out.println(consumerConfigurationProperties);
+    return consumerConfigurationProperties.getBar();
+  }
 
-    @GetMapping("/sequences")
-    public List<String> sequences() {
-        System.out.println(consumerConfigurationProperties);
-        return consumerConfigurationProperties.getSequences();
-    }
+  @GetMapping("/sequences")
+  public List<String> sequences() {
+    System.out.println(consumerConfigurationProperties);
+    return consumerConfigurationProperties.getSequences();
+  }
 
-    @GetMapping("/models")
-    public List<ConfigModel> models() {
-        System.out.println(consumerConfigurationProperties);
-        return consumerConfigurationProperties.getConfigModels();
-    }
+  @GetMapping("/models")
+  public List<ConfigModel> models() {
+    System.out.println(consumerConfigurationProperties);
+    return consumerConfigurationProperties.getConfigModels();
+  }
 }

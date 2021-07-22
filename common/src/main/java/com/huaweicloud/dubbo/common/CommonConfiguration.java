@@ -61,15 +61,8 @@ public class CommonConfiguration {
   public static final String KEY_SERVICE_POLLINGWAITSEC = "dubbo.servicecomb.config.pollingWaitInSeconds";
 
   // ###### kie configuration############### //
-  public static final String KEY_SERVICE_KIE_PROJECT = "dubbo.servicecomb.config.kie.project";
 
-  public static final String KEY_SERVICE_KIE_APPNAME = "dubbo.servicecomb.config.kie.appName";
-
-  public static final String KEY_SERVICE_KIE_SERVICENAME = "dubbo.servicecomb.config.kie.serviceName";
-
-  public static final String KEY_SERVICE_KIE_ENVIROMENT = "dubbo.servicecomb.config.kie.environment";
-
-  public static final String KEY_SERVICE_KIE_CUSTOMLABEL = "dubbo.servicecomb.config.kie.customLabel";
+  public static final String KEY_SERVICE_KIE_CUSTOMLABEL = "dubbo.servicecomb.config.customLabel";
 
   public static final String KEY_SERVICE_KIE_CUSTOMLABELVALUE = "dubbo.servicecomb.config.customLabelValue";
 

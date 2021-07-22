@@ -16,23 +16,17 @@
   limitations under the License.
   -->
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
-       xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
+  xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+  xmlns="http://www.springframework.org/schema/beans"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
        http://dubbo.apache.org/schema/dubbo
        http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
 
-    <dubbo:application name="cse-v1-consumer"/>
+  <dubbo:application name="cse-v1-consumer"/>
 
-    <dubbo:registry address="sc://127.0.0.1:30100"/>
+  <dubbo:registry address="sc://127.0.0.1:30100"/>
 
-    <dubbo:reference interface="com.huaweicloud.api.ProviderService" id="providerService"/>
-    
-<!--    <dubbo:service interface="com.huaweicloud.samples.consumer.IConsumerConfigController" id="consumerConfigController"/>-->
-<!--    <bean id="consumerConfigController" class="com.huaweicloud.samples.consumer.ConsumerConfigController"/>-->
-
-<!--    <dubbo:service interface="com.huaweicloud.samples.consumer.IConsumerController" id="consumerController"/>-->
-<!--    <bean id="consumerController" class="com.huaweicloud.samples.consumer.ConsumerController"/>-->
+  <dubbo:reference interface="com.huaweicloud.api.ProviderService" id="providerService"/>
 
 </beans>

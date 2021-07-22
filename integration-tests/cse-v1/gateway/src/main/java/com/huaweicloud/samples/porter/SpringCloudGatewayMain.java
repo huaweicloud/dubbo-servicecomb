@@ -23,12 +23,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SpringCloudGatewayMain {
 
-    public static void main(String[] args) throws Exception {
-        try {
-            SpringApplication.run(SpringCloudGatewayMain.class, args);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+  public static void main(String[] args) throws Exception {
+    try {
+      SpringApplication.run(SpringCloudGatewayMain.class, args);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
-
+  }
 }

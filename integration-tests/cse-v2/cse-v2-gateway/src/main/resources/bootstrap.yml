@@ -23,14 +23,14 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: cse-v2-consumer
+        - id: cse-v2-test-consumer
           uri: http://localhost:8082/
           predicates:
             - Path=/**
-#      discovery:
-#        locator:
-#          enabled: true
-#          lowerCaseServiceId: true
+          discovery:
+            locator:
+              enabled: true
+              lowerCaseServiceId: true
 
     servicecomb:
       discovery:

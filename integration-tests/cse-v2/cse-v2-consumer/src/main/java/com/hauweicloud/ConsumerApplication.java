@@ -15,15 +15,21 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.samples;
+package com.hauweicloud;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ImportResource;
 
-import com.huaweicloud.api.ProviderService;
+@SpringBootApplication
+@ImportResource({"classpath*:spring/dubbo-consumer.xml", "classpath*:spring/dubbo-servicecomb.xml"})
+public class ConsumerApplication {
 
-public class ProviderServiceImpl implements ProviderService {
-
-  @Override
-  public String sayHello(String name) {
-    return "Hello " + name;
+  public static void main(String[] args) {
+    try {
+      SpringApplication.run(ConsumerApplication.class);
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
   }
 }

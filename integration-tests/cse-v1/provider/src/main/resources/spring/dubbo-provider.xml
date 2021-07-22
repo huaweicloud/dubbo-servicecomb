@@ -16,19 +16,19 @@
   limitations under the License.
   -->
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
-       xmlns="http://www.springframework.org/schema/beans"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+  xmlns:dubbo="http://dubbo.apache.org/schema/dubbo"
+  xmlns="http://www.springframework.org/schema/beans"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
        http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd">
 
-    <dubbo:application name="cse-v1-provider"/>
+  <dubbo:application name="cse-v1-provider"/>
 
-    <dubbo:registry address="sc://127.0.0.1:30100"/>
+  <dubbo:registry address="sc://127.0.0.1:30100"/>
 
-    <dubbo:protocol name="dubbo" port="20880"/>
+  <dubbo:protocol name="dubbo" port="20880"/>
 
-    <dubbo:service interface="com.huaweicloud.api.ProviderService" ref="providerService"/>
+  <dubbo:service interface="com.huaweicloud.api.ProviderService" ref="providerService"/>
 
-    <bean id="providerService" class="com.huaweicloud.samples.ProviderServiceImpl"/>
+  <bean id="providerService" class="com.huaweicloud.samples.ProviderServiceImpl"/>
 
 </beans>

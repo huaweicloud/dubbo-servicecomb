@@ -46,10 +46,8 @@ spring:
           delay: 10000
       credentials:
         enabled: true
-#        accessKey: ${CREDENTIALS_AK}
-#        secretKey: ${CREDENTIALS_SK}
-        accessKey: 7V6DX8G44OOYRWGYJKYK
-        secretKey: x1GeZiCiYPi0HPJGArIWVk8NVdwmQuCO85JShYBL
+        accessKey: ${CREDENTIALS_AK}
+        secretKey: ${CREDENTIALS_SK}
         akskCustomCipher: default
         project: cn-south-1
 

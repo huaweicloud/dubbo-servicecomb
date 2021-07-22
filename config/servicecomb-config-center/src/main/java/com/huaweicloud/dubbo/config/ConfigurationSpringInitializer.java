@@ -18,16 +18,13 @@
 package com.huaweicloud.dubbo.config;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
 
 import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.config.RequestConfig.Builder;
 import org.apache.servicecomb.config.center.client.AddressManager;
 import org.apache.servicecomb.config.center.client.ConfigCenterClient;
 import org.apache.servicecomb.config.center.client.ConfigCenterManager;
@@ -37,9 +34,6 @@ import org.apache.servicecomb.config.common.ConfigConverter;
 import org.apache.servicecomb.config.common.ConfigurationChangedEvent;
 import org.apache.servicecomb.config.kie.client.KieClient;
 import org.apache.servicecomb.config.kie.client.KieConfigManager;
-import org.apache.servicecomb.config.kie.client.KieConfigOperation;
-import org.apache.servicecomb.config.kie.client.model.ConfigurationsRequest;
-import org.apache.servicecomb.config.kie.client.model.ConfigurationsResponse;
 import org.apache.servicecomb.config.kie.client.model.KieAddressManager;
 import org.apache.servicecomb.config.kie.client.model.KieConfiguration;
 import org.apache.servicecomb.http.client.common.HttpTransport;
@@ -68,7 +62,7 @@ import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
 import org.springframework.util.StringUtils;
 
 @Component
-public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigurer implements EnvironmentAware{
+public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigurer implements EnvironmentAware {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationSpringInitializer.class);
 
   public static final String CONFIG_NAME = "config-center-property-source";
@@ -79,13 +73,9 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   QueryConfigurationsRequest queryConfigurationsRequest;
 
-  ConfigurationsRequest configurationsRequest;
-
   HttpTransport httpTransport;
 
   final Map<String, Object> sources = new HashMap<>();
-
-  private Map<String, Object> configurations = new HashMap<>();
 
   private String governanceData = null;
 
@@ -127,7 +117,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
   }
 
   private ConfigConverter initConfigConverter() {
-    String fileSources = ConfigUtils.getProperty(CommonConfiguration.KEY_CONFIG_FILESOURCE);
+    String fileSources = ConfigUtils.getProperty(CommonConfiguration.KEY_CONFIG_FILESOURCE, "");
     if (StringUtils.isEmpty(fileSources)) {
       configConverter = new ConfigConverter(null);
     } else {
@@ -150,12 +140,6 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
             commonConfiguration.createRequestAuthHeaderProvider(), config.build());
     //判断是否使用KIE作为配置中心
     if (isKie) {
-      kieConfiguration = kieConfigConfiguration.createKieConfiguration();
-      int pollingWaitSec = kieConfiguration.getPollingWaitInSeconds();
-      if (kieConfiguration.isEnableLongPolling() && pollingWaitSec >= 0){
-        config.setConnectionRequestTimeout(pollingWaitSec * 2 * 1000);
-        config.setSocketTimeout(pollingWaitSec * 2 * 1000);
-      }
       configKieClient(ce);
     } else {
       configCenterClient(ce);
@@ -198,30 +182,22 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   //use KIE as config center
   private void configKieClient(ConfigurableEnvironment ce) {
-    configurationsRequest = kieConfigConfiguration.createConfigurationsRequest();
+
+    kieConfiguration = kieConfigConfiguration.createKieConfiguration();
+
     KieAddressManager kieAddressManager = kieConfigConfiguration.createKieAddressManager();
     if (kieAddressManager == null) {
       LOGGER.warn("Kie address is not configured and will not enable dynamic config.");
       return;
     }
 
-    KieConfigOperation kieClient = new KieClient(kieAddressManager, httpTransport, kieConfiguration);
-
-//    try {
-//      ConfigurationsResponse response = kieClient.queryConfigurations(configurationsRequest);
-//      if (response.isChanged()) {
-//        configConverter.updateData(response.getConfigurations());
-//      }
-//      configurationsRequest.setRevision(response.getRevision());
-//      sources.putAll(configConverter.getCurrentData());
-//      ce.getPropertySources().addFirst(new MapPropertySource(CONFIG_NAME, sources));
-//    } catch (Exception e) {
-//      LOGGER.warn("set up {} failed at startup.", CONFIG_NAME, e);
-//    }
+    KieClient kieClient = new KieClient(kieAddressManager, httpTransport, kieConfiguration);
 
     kieConfigManager = new KieConfigManager(kieClient, EventManager.getEventBus(),
         kieConfiguration, configConverter);
     kieConfigManager.firstPull();
+    sources.putAll(configConverter.getCurrentData());
+    ce.getPropertySources().addFirst(new MapPropertySource(CONFIG_NAME, sources));
     EventManager.register(this);
     kieConfigManager.startConfigKieManager();
   }
@@ -253,28 +229,15 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     notifyGovernanceDataChange(event);
   }
 
-  private void updatePropertySourceData(ConfigurationChangedEvent event){
-    try {
-      if (!event.getDeleted().isEmpty()){
-        System.out.println("updatePropertySourceData====event.getDeleted()" + event.getDeleted().keySet());
-        System.out.println("删除前："+sources);
-        event.getDeleted().forEach((k,v) -> sources.remove(k));
-        System.out.println("删除后："+sources);
-      }
-      if (!event.getAdded().isEmpty()){
-        System.out.println("updatePropertySourceData====event.getAdded()" + event.getAdded());
-        System.out.println("添加前："+sources);
-        sources.putAll(event.getAdded());
-        System.out.println("添加后："+sources);
-      }
-      if (!event.getUpdated().isEmpty()){
-        System.out.println("updatePropertySourceData====event.getUpdated()" + event.getUpdated());
-        System.out.println("更新前："+sources);
-        sources.putAll(event.getUpdated());
-        System.out.println("更新前："+sources);
-      }
-    } catch (Exception e) {
-      LOGGER.error("",e);
+  private void updatePropertySourceData(ConfigurationChangedEvent event) {
+    if (!event.getDeleted().isEmpty()) {
+      event.getDeleted().forEach((k, v) -> sources.remove(k));
+    }
+    if (!event.getAdded().isEmpty()) {
+      sources.putAll(event.getAdded());
+    }
+    if (!event.getUpdated().isEmpty()) {
+      sources.putAll(event.getUpdated());
     }
   }
 
@@ -305,14 +268,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
         EventManager
             .post(new GovernanceDataChangeEvent(HttpUtils.deserialize(this.governanceData, GovernanceData.class)));
       }
-      Class<?> configurationChangedEventClass = Class
-          .forName("org.apache.servicecomb.config.common.ConfigurationChangedEvent");
-      Class<?>[] paramTypes = {Map.class, Map.class, Map.class};
-      Object[] params = {configurations, Collections.emptyMap(), Collections.emptyMap()};
-      Constructor<?> constructor = configurationChangedEventClass.getDeclaredConstructor(paramTypes);
-      constructor.setAccessible(true);
-      Object obj = constructor.newInstance(params);
-      EventManager.post(obj);
+      EventManager.post(ConfigurationChangedEvent
+          .createIncremental(configConverter.getCurrentData(), configConverter.getLastRawData()));
     } catch (IOException e) {
       LOGGER.error("wrong governance data [{}] received.", this.governanceData);
     } catch (Exception e) {

@@ -18,23 +18,22 @@
 package com.huaweicloud.dubbo.config;
 
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_CONFIG_ADDRESS;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_APPLICATION;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_ENABLELONGPOLLING;
-import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_APPNAME;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_ENVIRONMENT;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_CUSTOMLABEL;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_CUSTOMLABELVALUE;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_ENABLEAPPCONFIG;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_ENABLECUSTOMCONFIG;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_ENABLESERVICECONFIG;
-import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_ENVIROMENT;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_FRISTPULLREQUIRED;
-import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_PROJECT;
-import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_SERVICENAME;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_NAME;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_POLLINGWAITSEC;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_PROJECT;
 
 import java.util.Arrays;
 
 import org.apache.dubbo.common.utils.StringUtils;
-import org.apache.servicecomb.config.kie.client.model.ConfigurationsRequest;
 import org.apache.servicecomb.config.kie.client.model.KieAddressManager;
 import org.apache.servicecomb.config.kie.client.model.KieConfiguration;
 import org.springframework.core.env.Environment;
@@ -57,20 +56,15 @@ public class KieConfigConfiguration {
     return kieAddressManager;
   }
 
-  public ConfigurationsRequest createConfigurationsRequest() {
-    ConfigurationsRequest request = new ConfigurationsRequest();
-    request.setRevision(null);
-    return request;
-  }
 
   public KieConfiguration createKieConfiguration() {
     KieConfiguration kieConfiguration = new KieConfiguration();
-    kieConfiguration.setAppName(environment.getProperty(KEY_SERVICE_KIE_APPNAME, "default"));
-    kieConfiguration.setServiceName(environment.getProperty(KEY_SERVICE_KIE_SERVICENAME, "defaultMicroserviceName"));
-    kieConfiguration.setEnvironment(environment.getProperty(KEY_SERVICE_KIE_ENVIROMENT, ""));
-    kieConfiguration.setProject(environment.getProperty(KEY_SERVICE_KIE_PROJECT, "default"));
+    kieConfiguration.setAppName(environment.getProperty(KEY_SERVICE_APPLICATION, "default"));
+    kieConfiguration.setServiceName(environment.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
+    kieConfiguration.setEnvironment(environment.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
+    kieConfiguration.setProject(environment.getProperty(KEY_SERVICE_PROJECT, "default"));
     kieConfiguration.setCustomLabel(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABEL, "public"));
-    kieConfiguration.setCustomLabelValue(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABELVALUE, ""));
+    kieConfiguration.setCustomLabelValue(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABELVALUE, "default"));
     kieConfiguration
         .setEnableCustomConfig(Boolean.valueOf(environment.getProperty(KEY_SERVICE_KIE_ENABLECUSTOMCONFIG, "true")));
     kieConfiguration
@@ -80,7 +74,7 @@ public class KieConfigConfiguration {
     kieConfiguration
         .setFirstPullRequired(Boolean.valueOf(environment.getProperty(KEY_SERVICE_KIE_FRISTPULLREQUIRED, "true")));
     kieConfiguration
-        .setEnableLongPolling(Boolean.valueOf(environment.getProperty(KEY_SERVICE_ENABLELONGPOLLING, "true")));
+        .setEnableLongPolling(Boolean.valueOf(environment.getProperty(KEY_SERVICE_ENABLELONGPOLLING, "false")));
     kieConfiguration
         .setPollingWaitInSeconds(Integer.parseInt(environment.getProperty(KEY_SERVICE_POLLINGWAITSEC, "10")));
     return kieConfiguration;
