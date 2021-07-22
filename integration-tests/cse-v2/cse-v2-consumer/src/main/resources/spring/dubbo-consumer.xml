@@ -25,7 +25,7 @@
 
   <dubbo:application name="cse-v2-consumer"/>
 
-  <dubbo:registry address="sc://159.138.26.93:30100"/>
+  <dubbo:registry address="sc://127.0.0.1:30100"/>
 
   <dubbo:reference interface="com.huaweicloud.api.Provider" id="provider"/>
 
