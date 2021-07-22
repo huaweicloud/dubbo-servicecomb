@@ -272,8 +272,6 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
           .createIncremental(configConverter.getCurrentData(), configConverter.getLastRawData()));
     } catch (IOException e) {
       LOGGER.error("wrong governance data [{}] received.", this.governanceData);
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 
