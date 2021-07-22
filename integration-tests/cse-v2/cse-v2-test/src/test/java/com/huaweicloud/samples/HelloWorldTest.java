@@ -18,10 +18,10 @@
 package com.huaweicloud.samples;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 import org.springframework.web.client.RestTemplate;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 
 public class HelloWorldTest {
