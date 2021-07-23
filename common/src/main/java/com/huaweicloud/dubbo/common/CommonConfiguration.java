@@ -60,6 +60,8 @@ public class CommonConfiguration {
 
   public static final String KEY_SERVICE_POLLINGWAITSEC = "dubbo.servicecomb.config.pollingWaitInSeconds";
 
+  public static final String KEY_SERVICE_IGNORESWAGGERDIFFERENT = "dubbo.servicecomb.config.ignoreSwaggerDifferent";
+
   // ###### kie configuration############### //
 
   public static final String KEY_SERVICE_KIE_CUSTOMLABEL = "dubbo.servicecomb.config.customLabel";

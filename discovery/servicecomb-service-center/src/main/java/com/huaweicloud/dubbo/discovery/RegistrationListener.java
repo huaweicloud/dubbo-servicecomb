@@ -174,6 +174,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   @Override
   public void setEnvironment(Environment environment) {
     serviceCenterConfiguration = new ServiceCenterConfiguration(environment);
+    serviceCenterConfigurationComb = new org.apache.servicecomb.service.center.client.model.ServiceCenterConfiguration()
+        .setIgnoreSwaggerDifferent(
+            Boolean.valueOf(environment.getProperty(CommonConfiguration.KEY_SERVICE_IGNORESWAGGERDIFFERENT, "false")));
     commonConfiguration = new CommonConfiguration(environment);
   }
 
@@ -204,7 +207,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         instance.setHostName(InetAddress.getLocalHost().getHostName());
 
         EventManager.register(this);
-        serviceCenterRegistration = new ServiceCenterRegistration(client,serviceCenterConfigurationComb,EventManager.getEventBus());
+        serviceCenterRegistration = new ServiceCenterRegistration(client, serviceCenterConfigurationComb,
+            EventManager.getEventBus());
         serviceCenterRegistration.setMicroservice(microservice);
         serviceCenterRegistration.setMicroserviceInstance(instance);
         serviceCenterRegistration.startRegistration();
