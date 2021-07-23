@@ -44,6 +44,7 @@ import org.apache.servicecomb.service.center.client.model.Microservice;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstancesResponse;
 import org.apache.servicecomb.service.center.client.model.MicroservicesResponse;
+import org.apache.servicecomb.service.center.client.model.ServiceCenterConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEvent;
@@ -141,6 +142,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private List<NewSubscriberEvent> pendingSubscribeEvent = new ArrayList<>();
 
+  private ServiceCenterConfigurationManager serviceCenterConfigurationManager;
+
   private ServiceCenterConfiguration serviceCenterConfiguration;
 
   private CommonConfiguration commonConfiguration;
@@ -171,7 +174,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   @Override
   public void setEnvironment(Environment environment) {
-    serviceCenterConfiguration = new ServiceCenterConfiguration(environment);
+    serviceCenterConfigurationManager = new ServiceCenterConfigurationManager(environment);
+    serviceCenterConfiguration = new ServiceCenterConfiguration().setIgnoreSwaggerDifferent(
+            Boolean.valueOf(environment.getProperty(CommonConfiguration.KEY_SERVICE_IGNORESWAGGERDIFFERENT, "false")));
     commonConfiguration = new CommonConfiguration(environment);
   }
 
@@ -179,19 +184,19 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   public void onApplicationEvent(ApplicationEvent applicationEvent) {
     if (applicationEvent instanceof ContextStartedEvent) {
       try {
-        AddressManager addressManager = serviceCenterConfiguration.createAddressManager();
+        AddressManager addressManager = serviceCenterConfigurationManager.createAddressManager();
         SSLProperties sslProperties = commonConfiguration.createSSLProperties();
         RequestAuthHeaderProvider requestAuthHeaderProvider = commonConfiguration.createRequestAuthHeaderProvider();
         client = new ServiceCenterClient(addressManager, sslProperties, requestAuthHeaderProvider,
             "default", null);
-        microservice = serviceCenterConfiguration.createMicroservice();
+        microservice = serviceCenterConfigurationManager.createMicroservice();
         if (registry != null) {
           // consumer: 如果没有 provider 接口， dubbo 启动的时候， 不会初始化 Registry。 调用接口的时候，才会初始化。
           microservice
               .setSchemas(registry.getRegisters().stream().map(URL::getPath).collect(Collectors.toList()));
         }
 
-        instance = serviceCenterConfiguration.createMicroserviceInstance();
+        instance = serviceCenterConfigurationManager.createMicroserviceInstance();
         List<String> endpoints = new ArrayList<>();
         if (registry != null) {
           endpoints.addAll(registry.getRegisters().stream()
@@ -202,7 +207,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         instance.setHostName(InetAddress.getLocalHost().getHostName());
 
         EventManager.register(this);
-        serviceCenterRegistration = new ServiceCenterRegistration(client, EventManager.getEventBus());
+        serviceCenterRegistration = new ServiceCenterRegistration(client, serviceCenterConfiguration,
+            EventManager.getEventBus());
         serviceCenterRegistration.setMicroservice(microservice);
         serviceCenterRegistration.setMicroserviceInstance(instance);
         serviceCenterRegistration.startRegistration();

@@ -35,10 +35,10 @@ import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstanceStatus;
 import org.springframework.core.env.Environment;
 
-public class ServiceCenterConfiguration {
+public class ServiceCenterConfigurationManager {
   private Environment environment;
 
-  public ServiceCenterConfiguration(Environment environment) {
+  public ServiceCenterConfigurationManager(Environment environment) {
     this.environment = environment;
   }
 
@@ -52,7 +52,7 @@ public class ServiceCenterConfiguration {
     framework.setName("DUBBO-SERVICECOMB");
     StringBuilder version = new StringBuilder();
     version.append("dubbo-servicecomb:");
-    version.append(ServiceCenterConfiguration.class.getPackage().getImplementationVersion());
+    version.append(ServiceCenterConfigurationManager.class.getPackage().getImplementationVersion());
     version.append(";");
     version.append("dubbo=");
     version.append(AbstractRegistryFactory.class.getPackage().getImplementationVersion());

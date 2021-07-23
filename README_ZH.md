@@ -72,7 +72,7 @@ MicroserviceInstance:
 为了实现 dubbo 的原生治理， dubbo-servicecomb 增加了一个配置项:
 
 ```yaml
-dubbo.servicecomb.governance: {"providerInfos":[{"serviceName":"price-provider","schemaInfos":[{"schemaId":"PriceService","parameters":{"timeout":5000}}]}]}
+dubbo.servicecomb.governance: {"providerInfos":[{"serviceName":"price-provider","schemaInfos":[{"schemaId":"com.huaweicloud.it.price.PriceService","parameters":{"timeout":5000}}]}]}
 ```
 
 服务订阅者监听这个配置项的变更，模拟 dubbo 原生监听注册信息的变更。 当配置项变更后，会调用 dubbo 的 NotifyListener , 将变更的属性，和

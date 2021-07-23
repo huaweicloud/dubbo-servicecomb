@@ -48,8 +48,12 @@ public class CommonConfiguration {
   // ###### service center configuration ############### //
   public static final String KEY_REGISTRY_ADDRESS = "dubbo.servicecomb.registry.address";
 
+  public static final String KEY_SERVICE_IGNORESWAGGERDIFFERENT = "dubbo.servicecomb.registry.ignoreSwaggerDifferent";
+
   // ###### config center configuration ############### //
   public static final String KEY_CONFIG_ADDRESSTYPE = "dubbo.servicecomb.config.type";
+
+  public static final String KEY_CONFIG_FILESOURCE = "dubbo.servicecomb.config.fileSource";
 
   public static final String KEY_CONFIG_ADDRESS = "dubbo.servicecomb.config.address";
 
@@ -57,6 +61,20 @@ public class CommonConfiguration {
   public static final String KEY_SERVICE_ENABLELONGPOLLING = "dubbo.servicecomb.config.enableLongPolling";
 
   public static final String KEY_SERVICE_POLLINGWAITSEC = "dubbo.servicecomb.config.pollingWaitInSeconds";
+
+  // ###### kie configuration############### //
+
+  public static final String KEY_SERVICE_KIE_CUSTOMLABEL = "dubbo.servicecomb.config.customLabel";
+
+  public static final String KEY_SERVICE_KIE_CUSTOMLABELVALUE = "dubbo.servicecomb.config.customLabelValue";
+
+  public static final String KEY_SERVICE_KIE_FRISTPULLREQUIRED = "dubbo.servicecomb.config.firstPullRequired";
+
+  public static final String KEY_SERVICE_KIE_ENABLEAPPCONFIG= "dubbo.servicecomb.config.enableAppConfig";
+
+  public static final String KEY_SERVICE_KIE_ENABLECUSTOMCONFIG = "dubbo.servicecomb.config.enableCustomConfig";
+
+  public static final String KEY_SERVICE_KIE_ENABLESERVICECONFIG  = "dubbo.servicecomb.config.enableServiceConfig";
 
   // ###### ssl configuration ############### //
   public static final String KEY_SSL_ENABLED = "dubbo.servicecomb.ssl.enabled";

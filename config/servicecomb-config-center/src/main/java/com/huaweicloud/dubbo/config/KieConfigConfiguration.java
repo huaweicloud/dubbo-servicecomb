@@ -18,24 +18,24 @@
 package com.huaweicloud.dubbo.config;
 
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_CONFIG_ADDRESS;
-import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_CONFIG_ADDRESSTYPE;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_APPLICATION;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_ENABLELONGPOLLING;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_ENVIRONMENT;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_CUSTOMLABEL;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_CUSTOMLABELVALUE;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_ENABLEAPPCONFIG;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_ENABLECUSTOMCONFIG;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_ENABLESERVICECONFIG;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_KIE_FRISTPULLREQUIRED;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_NAME;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_POLLINGWAITSEC;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_PROJECT;
-import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_VERSION;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 
 import org.apache.dubbo.common.utils.StringUtils;
-import org.apache.servicecomb.config.kie.client.model.ConfigConstants;
-import org.apache.servicecomb.config.kie.client.model.ConfigurationsRequest;
 import org.apache.servicecomb.config.kie.client.model.KieAddressManager;
+import org.apache.servicecomb.config.kie.client.model.KieConfiguration;
 import org.springframework.core.env.Environment;
 
 
@@ -52,29 +52,31 @@ public class KieConfigConfiguration {
     if (StringUtils.isEmpty(address)) {
       return null;
     }
-    Properties properties = new Properties();
-    Map<String, String> configKey = new HashMap<>();
-    properties.setProperty(KEY_SERVICE_PROJECT, environment.getProperty(KEY_SERVICE_PROJECT, "default"));
-    properties.setProperty(KEY_CONFIG_ADDRESSTYPE, environment.getProperty(KEY_CONFIG_ADDRESSTYPE, ""));
-    properties
-        .setProperty(KEY_SERVICE_ENABLELONGPOLLING, environment.getProperty(KEY_SERVICE_ENABLELONGPOLLING, "true"));
-    properties.setProperty(KEY_SERVICE_POLLINGWAITSEC, environment.getProperty(KEY_SERVICE_POLLINGWAITSEC, "30"));
-
-    configKey.put(ConfigConstants.KEY_PROJECT, KEY_SERVICE_PROJECT);
-    configKey.put(ConfigConstants.KEY_ENABLELONGPOLLING, KEY_SERVICE_ENABLELONGPOLLING);
-    configKey.put(ConfigConstants.KEY_POLLINGWAITSEC, KEY_SERVICE_POLLINGWAITSEC);
-
-    return new KieAddressManager(properties, Arrays.asList(address.split(",")), configKey);
+    KieAddressManager kieAddressManager = new KieAddressManager(Arrays.asList(address.split(",")));
+    return kieAddressManager;
   }
 
-  public ConfigurationsRequest createConfigurationsRequest() {
-    ConfigurationsRequest request = new ConfigurationsRequest();
-    request.setApplication(environment.getProperty(KEY_SERVICE_APPLICATION, "default"));
-    request.setServiceName(environment.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
-    request.setVersion(environment.getProperty(KEY_SERVICE_VERSION, "1.0.0.0"));
-    request.setEnvironment(environment.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
-    // 需要设置为 null， 并且 query 参数为 revision=null 才会返回 revision 信息。 revision = 是不行的。
-    request.setRevision(null);
-    return request;
+
+  public KieConfiguration createKieConfiguration() {
+    KieConfiguration kieConfiguration = new KieConfiguration();
+    kieConfiguration.setAppName(environment.getProperty(KEY_SERVICE_APPLICATION, "default"));
+    kieConfiguration.setServiceName(environment.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
+    kieConfiguration.setEnvironment(environment.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
+    kieConfiguration.setProject(environment.getProperty(KEY_SERVICE_PROJECT, "default"));
+    kieConfiguration.setCustomLabel(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABEL, "public"));
+    kieConfiguration.setCustomLabelValue(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABELVALUE, ""));
+    kieConfiguration
+        .setEnableCustomConfig(Boolean.valueOf(environment.getProperty(KEY_SERVICE_KIE_ENABLECUSTOMCONFIG, "true")));
+    kieConfiguration
+        .setEnableServiceConfig(Boolean.valueOf(environment.getProperty(KEY_SERVICE_KIE_ENABLESERVICECONFIG, "true")));
+    kieConfiguration
+        .setEnableAppConfig(Boolean.valueOf(environment.getProperty(KEY_SERVICE_KIE_ENABLEAPPCONFIG, "true")));
+    kieConfiguration
+        .setFirstPullRequired(Boolean.valueOf(environment.getProperty(KEY_SERVICE_KIE_FRISTPULLREQUIRED, "true")));
+    kieConfiguration
+        .setEnableLongPolling(Boolean.valueOf(environment.getProperty(KEY_SERVICE_ENABLELONGPOLLING, "false")));
+    kieConfiguration
+        .setPollingWaitInSeconds(Integer.parseInt(environment.getProperty(KEY_SERVICE_POLLINGWAITSEC, "10")));
+    return kieConfiguration;
   }
 }
