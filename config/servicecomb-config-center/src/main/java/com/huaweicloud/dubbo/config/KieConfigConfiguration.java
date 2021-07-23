@@ -64,7 +64,7 @@ public class KieConfigConfiguration {
     kieConfiguration.setEnvironment(environment.getProperty(KEY_SERVICE_ENVIRONMENT, ""));
     kieConfiguration.setProject(environment.getProperty(KEY_SERVICE_PROJECT, "default"));
     kieConfiguration.setCustomLabel(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABEL, "public"));
-    kieConfiguration.setCustomLabelValue(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABELVALUE, "default"));
+    kieConfiguration.setCustomLabelValue(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABELVALUE, ""));
     kieConfiguration
         .setEnableCustomConfig(Boolean.valueOf(environment.getProperty(KEY_SERVICE_KIE_ENABLECUSTOMCONFIG, "true")));
     kieConfiguration

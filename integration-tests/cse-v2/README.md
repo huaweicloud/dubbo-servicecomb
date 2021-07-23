@@ -18,7 +18,7 @@ cse:
       foo: foo
 ```
 
-  * 自定义配置：priority1.yaml。label信息： public=default 。类型为 yaml。 
+  * 自定义配置：priority1.yaml。label信息： public="" 。类型为 yaml。 
 ```yaml
 cse:
   v2:
@@ -47,7 +47,7 @@ cse:
 * 执行 tests-client 里面的集成测试用例 （成功）
 
 * 修改
-  * priority1.yaml。label信息： public=default 。类型为 yaml。 
+  * priority1.yaml。label信息： public="" 。类型为 yaml。 
 ```yaml
 cse:
   v2:
