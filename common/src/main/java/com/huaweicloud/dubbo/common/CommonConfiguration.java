@@ -48,6 +48,8 @@ public class CommonConfiguration {
   // ###### service center configuration ############### //
   public static final String KEY_REGISTRY_ADDRESS = "dubbo.servicecomb.registry.address";
 
+  public static final String KEY_SERVICE_IGNORESWAGGERDIFFERENT = "dubbo.servicecomb.registry.ignoreSwaggerDifferent";
+
   // ###### config center configuration ############### //
   public static final String KEY_CONFIG_ADDRESSTYPE = "dubbo.servicecomb.config.type";
 
@@ -59,8 +61,6 @@ public class CommonConfiguration {
   public static final String KEY_SERVICE_ENABLELONGPOLLING = "dubbo.servicecomb.config.enableLongPolling";
 
   public static final String KEY_SERVICE_POLLINGWAITSEC = "dubbo.servicecomb.config.pollingWaitInSeconds";
-
-  public static final String KEY_SERVICE_IGNORESWAGGERDIFFERENT = "dubbo.servicecomb.config.ignoreSwaggerDifferent";
 
   // ###### kie configuration############### //
 
