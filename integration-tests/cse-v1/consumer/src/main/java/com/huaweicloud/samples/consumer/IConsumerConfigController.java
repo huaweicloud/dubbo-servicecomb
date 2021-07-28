@@ -15,23 +15,18 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.samples;
+package com.huaweicloud.samples.consumer;
 
-import org.springframework.boot.WebApplicationType;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.context.annotation.ImportResource;
+import java.util.List;
 
-@SpringBootApplication
-@ImportResource({"classpath*:spring/dubbo-provider.xml", "classpath*:spring/dubbo-servicecomb.xml"})
-public class ProviderApplication {
+public interface IConsumerConfigController {
+  String config(String key);
 
-  public static void main(String[] args) {
-    try {
-      new SpringApplicationBuilder(ProviderApplication.class).web(WebApplicationType.NONE)
-          .run(args);
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
-  }
+  String foo();
+
+  String bar();
+
+  List<String> sequences();
+
+  List<ConfigModel> models();
 }

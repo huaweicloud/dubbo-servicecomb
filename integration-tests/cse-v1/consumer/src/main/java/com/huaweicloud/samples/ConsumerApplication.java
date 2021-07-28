@@ -17,8 +17,9 @@
 
 package com.huaweicloud.samples;
 
-import org.springframework.boot.SpringApplication;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ImportResource;
 
 @SpringBootApplication
@@ -27,7 +28,8 @@ public class ConsumerApplication {
 
   public static void main(String[] args) {
     try {
-      SpringApplication.run(ConsumerApplication.class);
+      new SpringApplicationBuilder(ConsumerApplication.class).web(WebApplicationType.NONE)
+          .run(args);
     } catch (Throwable e) {
       e.printStackTrace();
     }

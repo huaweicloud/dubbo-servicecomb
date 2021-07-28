@@ -24,7 +24,7 @@ spring:
     gateway:
       routes:
         - id: cse-v1-test-consumer
-          uri: http://localhost:8808/
+          uri: lb://cse-v1-test-consumer
           predicates:
             - Path=/**
       discovery:
@@ -36,7 +36,7 @@ spring:
       discovery:
         enabled: true
         address: https://cse.cn-south-1.myhuaweicloud.com
-        appName: cse-v1
+        appName: dubbo-cse-v1
         serviceName: spring-cloud-gateway-service
         version: 0.0.1
         watch: false
