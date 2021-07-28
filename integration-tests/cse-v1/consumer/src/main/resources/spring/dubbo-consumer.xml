@@ -25,8 +25,15 @@
 
   <dubbo:application name="cse-v1-consumer"/>
 
+  <dubbo:protocol name="rest" port="8083"/>
+
   <dubbo:registry address="sc://127.0.0.1:30100"/>
 
-  <dubbo:reference interface="com.huaweicloud.api.ProviderService" id="providerService"/>
+  <dubbo:reference  check="false" interface="com.huaweicloud.api.ProviderService" id="providerService"/>
 
+  <bean id="consumerConfigController" class="com.huaweicloud.samples.consumer.ConsumerConfigController"/>
+  <dubbo:service interface="com.huaweicloud.samples.consumer.IConsumerConfigController" ref="consumerConfigController"/>
+
+  <bean id="consumerController" class="com.huaweicloud.samples.consumer.ConsumerController"/>
+  <dubbo:service interface="com.huaweicloud.samples.consumer.IConsumerController" ref="consumerController"/>
 </beans>
