@@ -18,6 +18,7 @@
 package com.huaweicloud.dubbo.discovery;
 
 import static com.huaweicloud.dubbo.common.CommonConfiguration.DEFAULT_PROJECT;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_CONFIG_ADDRESSTYPE;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_REGISTRY_WATCH;
 
 import java.io.IOException;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.utils.ConfigUtils;
+import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.dubbo.registry.NotifyListener;
 import org.apache.servicecomb.foundation.auth.AuthHeaderLoader;
 import org.apache.servicecomb.foundation.auth.AuthHeaderProvider;
@@ -203,11 +205,16 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       try {
         AddressManager addressManager = serviceCenterConfigurationManager.createAddressManager();
         SSLProperties sslProperties = commonConfiguration.createSSLProperties();
-        List<AuthHeaderProvider> authHeaderProviders = new ArrayList<>();
-        authHeaderProviders.add(commonConfiguration.createRequestAuthHeaderProvider());
-        authHeaderProviders.add(new RBACRequestAuthHeaderProvider(commonConfiguration,environment));
-        RequestAuthHeaderProvider requestAuthHeaderProvider = RBACRequestAuthHeaderProvider
-            .getRequestAuthHeaderProvider(authHeaderProviders);
+        RequestAuthHeaderProvider requestAuthHeaderProvider;
+        if (!StringUtils.isEmpty(environment.getProperty(KEY_CONFIG_ADDRESSTYPE))){
+          List<AuthHeaderProvider> authHeaderProviders = new ArrayList<>();
+          authHeaderProviders.add(commonConfiguration.createRequestAuthHeaderProvider());
+          authHeaderProviders.add(new RBACRequestAuthHeaderProvider(commonConfiguration,environment));
+          requestAuthHeaderProvider = RBACRequestAuthHeaderProvider
+              .getRequestAuthHeaderProvider(authHeaderProviders);
+        } else {
+          requestAuthHeaderProvider = commonConfiguration.createRequestAuthHeaderProvider();
+        }
         client = new ServiceCenterClient(addressManager, sslProperties, requestAuthHeaderProvider,
             "default", null);
         microservice = serviceCenterConfigurationManager.createMicroservice();
