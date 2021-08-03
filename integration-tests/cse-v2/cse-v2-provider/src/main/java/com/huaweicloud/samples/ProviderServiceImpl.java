@@ -17,11 +17,9 @@
 
 package com.huaweicloud.samples;
 
+import com.huaweicloud.api.ProviderService;
 
-import com.huaweicloud.api.Provider;
-
-public class ProviderServiceImpl implements Provider {
-
+public class ProviderServiceImpl implements ProviderService {
   @Override
   public String sayHello(String name) {
     return "Hello " + name;

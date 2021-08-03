@@ -18,7 +18,9 @@
 package com.huaweicloud.dubbo.config;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
@@ -36,6 +38,7 @@ import org.apache.servicecomb.config.kie.client.KieClient;
 import org.apache.servicecomb.config.kie.client.KieConfigManager;
 import org.apache.servicecomb.config.kie.client.model.KieAddressManager;
 import org.apache.servicecomb.config.kie.client.model.KieConfiguration;
+import org.apache.servicecomb.foundation.auth.AuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpTransport;
 import org.apache.servicecomb.http.client.common.HttpTransportFactory;
 import org.apache.servicecomb.http.client.common.HttpUtils;
@@ -57,6 +60,7 @@ import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
 import com.huaweicloud.dubbo.common.GovernanceData;
 import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
+import com.huaweicloud.dubbo.common.RBACRequestAuthHeaderProvider;
 import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
 
 import org.springframework.util.StringUtils;
@@ -93,6 +97,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   private ConfigConverter configConverter;
 
+  private Environment environment;
+
   public ConfigurationSpringInitializer() {
     configConverter = initConfigConverter();
     setOrder(Ordered.LOWEST_PRECEDENCE / 2);
@@ -104,6 +110,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     configCenterConfiguration = new ConfigCenterConfiguration(environment);
     kieConfigConfiguration = new KieConfigConfiguration(environment);
     commonConfiguration = new CommonConfiguration(environment);
+    this.environment = environment;
 
     if (!(environment instanceof ConfigurableEnvironment)) {
       return;
@@ -135,13 +142,17 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
     this.setTimeOut(config);
 
-    httpTransport = HttpTransportFactory
-        .createHttpTransport(commonConfiguration.createSSLProperties(),
-            commonConfiguration.createRequestAuthHeaderProvider(), config.build());
     //判断是否使用KIE作为配置中心
     if (isKie) {
+      List<AuthHeaderProvider> authHeaderProviders = new ArrayList<>();
+      httpTransport = HttpTransportFactory
+          .createHttpTransport(commonConfiguration.createSSLProperties(),
+              RBACRequestAuthHeaderProvider.getRequestAuthHeaderProvider(authHeaderProviders), config.build());
       configKieClient(ce);
     } else {
+      httpTransport = HttpTransportFactory
+          .createHttpTransport(commonConfiguration.createSSLProperties(),
+              commonConfiguration.createRequestAuthHeaderProvider(), config.build());
       configCenterClient(ce);
     }
   }

@@ -26,10 +26,11 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
+import org.apache.servicecomb.foundation.auth.AuthHeaderProvider;
 import org.apache.servicecomb.foundation.auth.SignRequest;
 import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 
-public class DubboRequestAuthHeaderProvider implements RequestAuthHeaderProvider {
+public class AkSkRequestAuthHeaderProvider implements AuthHeaderProvider, RequestAuthHeaderProvider {
 
   private boolean enabled;
 
@@ -47,14 +48,6 @@ public class DubboRequestAuthHeaderProvider implements RequestAuthHeaderProvider
 
   public static final String X_SERVICE_PROJECT = "X-Service-Project";
 
-  public DubboRequestAuthHeaderProvider() {
-  }
-
-  @Override
-  public Map<String, String> loadAuthHeader(SignRequest signRequest) {
-    return this.getHeaders();
-  }
-
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
@@ -69,7 +62,6 @@ public class DubboRequestAuthHeaderProvider implements RequestAuthHeaderProvider
 
   public String getSecretKey() {
     String decodedSecretKey = new String(findCipher().decrypt(this.secretKey.toCharArray()));
-
     // ShaAKSKCipher 不解密, 认证的时候不处理；其他算法解密为 plain，需要 encode 为 ShaAKSKCipher 去认证。
     if (ShaAKSKCipher.CIPHER_NAME.equalsIgnoreCase(getCipher())) {
       return decodedSecretKey;
@@ -128,5 +120,10 @@ public class DubboRequestAuthHeaderProvider implements RequestAuthHeaderProvider
     } catch (Exception e) {
       throw new IllegalArgumentException("Can not encode ak sk. Please check the value is correct.", e);
     }
+  }
+
+  @Override
+  public Map<String, String> loadAuthHeader(SignRequest signRequest) {
+    return this.getHeaders();
   }
 }

@@ -17,6 +17,7 @@
 
 package com.huaweicloud.dubbo.discovery;
 
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_CONFIG_ADDRESSTYPE;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_INSTANCE_ENVIRONMENT;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_REGISTRY_ADDRESS;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_APPLICATION;
@@ -33,9 +34,14 @@ import org.apache.servicecomb.service.center.client.model.Framework;
 import org.apache.servicecomb.service.center.client.model.Microservice;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstanceStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
 public class ServiceCenterConfigurationManager {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(ServiceCenterConfigurationManager.class);
+
   private Environment environment;
 
   public ServiceCenterConfigurationManager(Environment environment) {
@@ -70,6 +76,8 @@ public class ServiceCenterConfigurationManager {
   public AddressManager createAddressManager() {
     String address = environment.getProperty(KEY_REGISTRY_ADDRESS, "http://127.0.0.1:30100");
     String project = environment.getProperty(KEY_SERVICE_PROJECT, "default");
+    String type = environment.getProperty(KEY_CONFIG_ADDRESSTYPE,"");
+    LOGGER.info("initialize config server type={}, address={}.",type,address);
     return new AddressManager(project, Arrays.asList(address.split(",")));
   }
 }

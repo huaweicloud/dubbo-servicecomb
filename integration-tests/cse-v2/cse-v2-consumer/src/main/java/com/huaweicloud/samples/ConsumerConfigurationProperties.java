@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.hauweicloud.samples;
+package com.huaweicloud.samples;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

@@ -31,6 +31,8 @@ public class CommonConfiguration {
   public static final String DEFAULT_CIPHERS = "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,"
       + "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256";
 
+  public static final String DEFAULT_PROJECT = "default";
+
   // ###### service configuration ############### //
   public static final String KEY_SERVICE_PROJECT = "dubbo.servicecomb.service.project";
 
@@ -47,6 +49,8 @@ public class CommonConfiguration {
 
   // ###### service center configuration ############### //
   public static final String KEY_REGISTRY_ADDRESS = "dubbo.servicecomb.registry.address";
+
+  public static final String KEY_REGISTRY_WATCH = "dubbo.servicecomb.registry.watch";
 
   public static final String KEY_SERVICE_IGNORESWAGGERDIFFERENT = "dubbo.servicecomb.registry.ignoreSwaggerDifferent";
 
@@ -77,41 +81,41 @@ public class CommonConfiguration {
   public static final String KEY_SERVICE_KIE_ENABLESERVICECONFIG  = "dubbo.servicecomb.config.enableServiceConfig";
 
   // ###### ssl configuration ############### //
-  public static final String KEY_SSL_ENABLED = "dubbo.servicecomb.ssl.enabled";
+  private static final String KEY_SSL_ENABLED = "dubbo.servicecomb.ssl.enabled";
 
-  public static final String KEY_SSL_ENGINE = "dubbo.servicecomb.ssl.engine";
+  private static final String KEY_SSL_ENGINE = "dubbo.servicecomb.ssl.engine";
 
-  public static final String KEY_SSL_PROTOCOLS = "dubbo.servicecomb.ssl.protocols";
+  private static final String KEY_SSL_PROTOCOLS = "dubbo.servicecomb.ssl.protocols";
 
-  public static final String KEY_SSL_CIPHERS = "dubbo.servicecomb.ssl.ciphers";
+  private static final String KEY_SSL_CIPHERS = "dubbo.servicecomb.ssl.ciphers";
 
-  public static final String KEY_SSL_AUTH_PEER = "dubbo.servicecomb.ssl.authPeer";
+  private static final String KEY_SSL_AUTH_PEER = "dubbo.servicecomb.ssl.authPeer";
 
-  public static final String KEY_SSL_CHECKCN_HOST = "dubbo.servicecomb.ssl.checkCNHost";
+  private static final String KEY_SSL_CHECKCN_HOST = "dubbo.servicecomb.ssl.checkCNHost";
 
-  public static final String KEY_SSL_CHECKCN_WHITE = "dubbo.servicecomb.ssl.checkCNWhite";
+  private static final String KEY_SSL_CHECKCN_WHITE = "dubbo.servicecomb.ssl.checkCNWhite";
 
-  public static final String KEY_SSL_CHECKCN_WHITE_FILE = "dubbo.servicecomb.ssl.checkCNWhiteFile";
+  private static final String KEY_SSL_CHECKCN_WHITE_FILE = "dubbo.servicecomb.ssl.checkCNWhiteFile";
 
-  public static final String KEY_SSL_ALLOW_RENEGOTIATE = "dubbo.servicecomb.ssl.allowRenegotiate";
+  private static final String KEY_SSL_ALLOW_RENEGOTIATE = "dubbo.servicecomb.ssl.allowRenegotiate";
 
-  public static final String KEY_SSL_STORE_PATH = "dubbo.servicecomb.ssl.storePath";
+  private static final String KEY_SSL_STORE_PATH = "dubbo.servicecomb.ssl.storePath";
 
-  public static final String KEY_SSL_TRUST_STORE = "dubbo.servicecomb.ssl.trustStore";
+  private static final String KEY_SSL_TRUST_STORE = "dubbo.servicecomb.ssl.trustStore";
 
-  public static final String KEY_SSL_TRUST_STORE_TYPE = "dubbo.servicecomb.ssl.trustStoreType";
+  private static final String KEY_SSL_TRUST_STORE_TYPE = "dubbo.servicecomb.ssl.trustStoreType";
 
-  public static final String KEY_SSL_TRUST_STORE_VALUE = "dubbo.servicecomb.ssl.trustStoreValue";
+  private static final String KEY_SSL_TRUST_STORE_VALUE = "dubbo.servicecomb.ssl.trustStoreValue";
 
-  public static final String KEY_SSL_KEYSTORE = "dubbo.servicecomb.ssl.keyStore";
+  private static final String KEY_SSL_KEYSTORE = "dubbo.servicecomb.ssl.keyStore";
 
-  public static final String KEY_SSL_KEYSTORE_TYPE = "dubbo.servicecomb.ssl.keyStoreType";
+  private static final String KEY_SSL_KEYSTORE_TYPE = "dubbo.servicecomb.ssl.keyStoreType";
 
-  public static final String KEY_SSL_KEYSTORE_VALUE = "dubbo.servicecomb.ssl.keyStoreValue";
+  private static final String KEY_SSL_KEYSTORE_VALUE = "dubbo.servicecomb.ssl.keyStoreValue";
 
-  public static final String KEY_SSL_CRL = "dubbo.servicecomb.ssl.crl";
+  private static final String KEY_SSL_CRL = "dubbo.servicecomb.ssl.crl";
 
-  public static final String KEY_SSL_SSL_CUSTOM_CLASS = "dubbo.servicecomb.ssl.sslCustomClass";
+  private static final String KEY_SSL_SSL_CUSTOM_CLASS = "dubbo.servicecomb.ssl.sslCustomClass";
 
   // ###### ak / ak configuration ############### //
   public static final String KEY_AK_SK_ENABLED = "dubbo.servicecomb.credentials.enabled";
@@ -124,6 +128,12 @@ public class CommonConfiguration {
 
   public static final String KEY_AK_SK_PROJECT = "dubbo.servicecomb.credentials.project";
 
+  // ###### RBAC configuration ############### //
+
+  public static final String KEY_RBAC_NAME = "dubbo.servicecomb.credentials.account.name";
+
+  public static final String KEY_RBAC_PASSWORD = "dubbo.servicecomb.credentials.account.password";
+
   private Environment environment;
 
   public CommonConfiguration(Environment environment) {
@@ -132,17 +142,17 @@ public class CommonConfiguration {
 
   public SSLProperties createSSLProperties() {
     SSLProperties sslProperties = new SSLProperties();
-    sslProperties.setEnabled(Boolean.valueOf(environment.getProperty(KEY_SSL_ENABLED, "false")));
+    sslProperties.setEnabled(Boolean.parseBoolean(environment.getProperty(KEY_SSL_ENABLED, "false")));
     if (sslProperties.isEnabled()) {
       SSLOption option = new SSLOption();
       option.setEngine(environment.getProperty(KEY_SSL_ENGINE, "jdk"));
       option.setProtocols(environment.getProperty(KEY_SSL_PROTOCOLS, "TLSv1.2"));
       option.setCiphers(environment.getProperty(KEY_SSL_CIPHERS, DEFAULT_CIPHERS));
-      option.setAuthPeer(Boolean.valueOf(environment.getProperty(KEY_SSL_AUTH_PEER, "false")));
-      option.setCheckCNHost(Boolean.valueOf(environment.getProperty(KEY_SSL_CHECKCN_HOST, "false")));
-      option.setCheckCNWhite(Boolean.valueOf(environment.getProperty(KEY_SSL_CHECKCN_WHITE, "false")));
+      option.setAuthPeer(Boolean.parseBoolean(environment.getProperty(KEY_SSL_AUTH_PEER, "false")));
+      option.setCheckCNHost(Boolean.parseBoolean(environment.getProperty(KEY_SSL_CHECKCN_HOST, "false")));
+      option.setCheckCNWhite(Boolean.parseBoolean(environment.getProperty(KEY_SSL_CHECKCN_WHITE, "false")));
       option.setCheckCNWhiteFile(environment.getProperty(KEY_SSL_CHECKCN_WHITE_FILE, "white.list"));
-      option.setAllowRenegociate(Boolean.valueOf(environment.getProperty(KEY_SSL_ALLOW_RENEGOTIATE, "false")));
+      option.setAllowRenegociate(Boolean.parseBoolean(environment.getProperty(KEY_SSL_ALLOW_RENEGOTIATE, "false")));
       option.setStorePath(environment.getProperty(KEY_SSL_STORE_PATH, "internal"));
       option.setKeyStore(environment.getProperty(KEY_SSL_KEYSTORE, "server.p12"));
       option.setKeyStoreType(environment.getProperty(KEY_SSL_KEYSTORE_TYPE, "PKCS12"));
@@ -159,9 +169,9 @@ public class CommonConfiguration {
     return sslProperties;
   }
 
-  public RequestAuthHeaderProvider createRequestAuthHeaderProvider() {
-    DubboRequestAuthHeaderProvider requestAuthHeaderProvider = new DubboRequestAuthHeaderProvider();
-    requestAuthHeaderProvider.setEnabled(Boolean.valueOf(environment.getProperty(KEY_AK_SK_ENABLED, "false")));
+  public AkSkRequestAuthHeaderProvider createRequestAuthHeaderProvider() {
+    AkSkRequestAuthHeaderProvider requestAuthHeaderProvider = new AkSkRequestAuthHeaderProvider();
+    requestAuthHeaderProvider.setEnabled(Boolean.parseBoolean(environment.getProperty(KEY_AK_SK_ENABLED, "false")));
     requestAuthHeaderProvider.setAccessKey(environment.getProperty(KEY_AK_SK_ACCESS_KEY, ""));
     requestAuthHeaderProvider.setSecretKey(environment.getProperty(KEY_AK_SK_SECRET_KEY, ""));
     requestAuthHeaderProvider.setCipher(environment.getProperty(KEY_AK_SK_CIPHER, ""));
