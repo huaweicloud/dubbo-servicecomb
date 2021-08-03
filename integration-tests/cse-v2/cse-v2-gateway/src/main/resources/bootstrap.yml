@@ -34,8 +34,8 @@ spring:
 
     servicecomb:
       credentials:
-        account: root
-        password: Huawei!123
+        account: 用户名
+        password: 密码
       discovery:
         enabled: true
         appName: cse-v2-test-application
