@@ -187,7 +187,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     this.environment = environment;
     watch = new ServiceCenterWatch(serviceCenterConfigurationManager.createAddressManager(),
         commonConfiguration.createSSLProperties(),
-        AuthHeaderProviders.getAuthHeaderProviders(commonConfiguration, environment),
+        AuthHeaderProviders.getRequestAuthHeaderProvider(commonConfiguration, environment),
         "default", new HashMap<>(), EventManager.getEventBus());
   }
 
@@ -198,7 +198,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         AddressManager addressManager = serviceCenterConfigurationManager.createAddressManager();
         SSLProperties sslProperties = commonConfiguration.createSSLProperties();
         client = new ServiceCenterClient(addressManager, sslProperties,
-            AuthHeaderProviders.getAuthHeaderProviders(commonConfiguration, environment),
+            AuthHeaderProviders.getRequestAuthHeaderProvider(commonConfiguration, environment),
             "default", null);
         microservice = serviceCenterConfigurationManager.createMicroservice();
         if (registry != null) {

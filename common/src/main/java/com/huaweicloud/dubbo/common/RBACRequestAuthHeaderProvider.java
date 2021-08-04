@@ -24,11 +24,9 @@ import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_REGISTRY_ADDR
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_NAME;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_PROJECT;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -133,15 +131,14 @@ public class RBACRequestAuthHeaderProvider implements AuthHeaderProvider {
   }
 
   protected RbacTokenResponse callCreateHeaders() {
-    List<AuthHeaderProvider> authHeaderProviders = new ArrayList<>();
-    ServiceCenterClient serviceCenterClient = serviceCenterClient(authHeaderProviders);
+    ServiceCenterClient serviceCenterClient = serviceCenterClient();
     RbacTokenRequest request = new RbacTokenRequest();
     request.setName(ConfigUtils.getProperty(KEY_RBAC_NAME));
     request.setPassword(ConfigUtils.getProperty(KEY_RBAC_PASSWORD));
     return serviceCenterClient.queryToken(request);
   }
 
-  public ServiceCenterClient serviceCenterClient(List<AuthHeaderProvider> authHeaderProviders) {
+  public ServiceCenterClient serviceCenterClient() {
     SSLProperties sslProperties = commonConfiguration.createSSLProperties();
     AddressManager addressManager = createAddressManager();
     return new ServiceCenterClient(addressManager, sslProperties,

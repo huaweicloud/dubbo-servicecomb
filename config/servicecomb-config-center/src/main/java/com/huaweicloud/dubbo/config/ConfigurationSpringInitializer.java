@@ -142,7 +142,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
     httpTransport = HttpTransportFactory
         .createHttpTransport(commonConfiguration.createSSLProperties(),
-            AuthHeaderProviders.getAuthHeaderProviders(commonConfiguration, environment), config.build());
+            AuthHeaderProviders.getRequestAuthHeaderProvider(commonConfiguration, environment), config.build());
 
     //判断是否使用KIE作为配置中心
     if (isKie) {

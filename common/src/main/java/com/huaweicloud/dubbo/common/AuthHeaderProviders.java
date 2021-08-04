@@ -28,7 +28,7 @@ import org.springframework.core.env.Environment;
 
 public class AuthHeaderProviders {
 
-  public static RequestAuthHeaderProvider getAuthHeaderProviders(CommonConfiguration commonConfiguration,
+  public static RequestAuthHeaderProvider getRequestAuthHeaderProvider(CommonConfiguration commonConfiguration,
       Environment environment) {
     List<AuthHeaderProvider> authHeaderProviders = new ArrayList<>();
     authHeaderProviders.add(commonConfiguration.createAkSkRequestAuthHeaderProvider());
@@ -43,5 +43,4 @@ public class AuthHeaderProviders {
       return headers;
     };
   }
-
 }
