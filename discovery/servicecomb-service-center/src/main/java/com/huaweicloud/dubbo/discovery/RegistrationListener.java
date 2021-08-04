@@ -334,9 +334,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   @Subscribe
   public void onMicroserviceInstanceRegistrationEvent(MicroserviceInstanceRegistrationEvent event) {
     registrationInProgress = true;
-    boolean watchFlag = Boolean.parseBoolean(ConfigUtils.getProperty(KEY_REGISTRY_WATCH, ""));
     if (event.isSuccess()) {
-      if (watchFlag) {
+      if (Boolean.parseBoolean(ConfigUtils.getProperty(KEY_REGISTRY_WATCH, ""))) {
         watch.startWatch(ConfigUtils.getProperty(DEFAULT_PROJECT, "default"), microservice.getServiceId());
       }
       updateInterfaceMap();

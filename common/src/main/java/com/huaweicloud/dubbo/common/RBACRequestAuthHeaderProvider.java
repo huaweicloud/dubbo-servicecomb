@@ -138,7 +138,7 @@ public class RBACRequestAuthHeaderProvider implements AuthHeaderProvider {
     return serviceCenterClient.queryToken(request);
   }
 
-  public ServiceCenterClient serviceCenterClient() {
+  private ServiceCenterClient serviceCenterClient() {
     SSLProperties sslProperties = commonConfiguration.createSSLProperties();
     AddressManager addressManager = createAddressManager();
     return new ServiceCenterClient(addressManager, sslProperties,
