@@ -27,10 +27,8 @@ import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.servicecomb.foundation.auth.AuthHeaderProvider;
-import org.apache.servicecomb.foundation.auth.SignRequest;
-import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 
-public class AkSkRequestAuthHeaderProvider implements AuthHeaderProvider, RequestAuthHeaderProvider {
+public class AkSkRequestAuthHeaderProvider implements AuthHeaderProvider {
 
   private boolean enabled;
 
@@ -90,7 +88,8 @@ public class AkSkRequestAuthHeaderProvider implements AuthHeaderProvider, Reques
     this.project = project;
   }
 
-  public Map<String, String> getHeaders() {
+  @Override
+  public Map<String, String> authHeaders() {
     Map<String, String> headers = new HashMap<>();
     if (enabled) {
       headers.put(X_SERVICE_AK, this.getAccessKey());
@@ -122,8 +121,4 @@ public class AkSkRequestAuthHeaderProvider implements AuthHeaderProvider, Reques
     }
   }
 
-  @Override
-  public Map<String, String> loadAuthHeader(SignRequest signRequest) {
-    return this.getHeaders();
-  }
 }

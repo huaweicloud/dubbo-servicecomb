@@ -76,8 +76,8 @@ public class ServiceCenterConfigurationManager {
   public AddressManager createAddressManager() {
     String address = environment.getProperty(KEY_REGISTRY_ADDRESS, "http://127.0.0.1:30100");
     String project = environment.getProperty(KEY_SERVICE_PROJECT, "default");
-    String type = environment.getProperty(KEY_CONFIG_ADDRESSTYPE,"");
-    LOGGER.info("initialize config server type={}, address={}.",type,address);
+    String type = environment.getProperty(KEY_CONFIG_ADDRESSTYPE, "");
+    LOGGER.info("initialize config server type={}, address={}.", type, address);
     return new AddressManager(project, Arrays.asList(address.split(",")));
   }
 }

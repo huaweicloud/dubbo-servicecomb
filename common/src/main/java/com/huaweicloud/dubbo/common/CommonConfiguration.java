@@ -17,6 +17,7 @@
 
 package com.huaweicloud.dubbo.common;
 
+import org.apache.servicecomb.foundation.auth.AuthHeaderProvider;
 import org.apache.servicecomb.foundation.ssl.SSLCustom;
 import org.apache.servicecomb.foundation.ssl.SSLOption;
 import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
@@ -26,6 +27,9 @@ import org.springframework.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CommonConfiguration {
   public static final String DEFAULT_CIPHERS = "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,"
@@ -169,7 +173,7 @@ public class CommonConfiguration {
     return sslProperties;
   }
 
-  public AkSkRequestAuthHeaderProvider createRequestAuthHeaderProvider() {
+  public AkSkRequestAuthHeaderProvider createAkSkRequestAuthHeaderProvider() {
     AkSkRequestAuthHeaderProvider requestAuthHeaderProvider = new AkSkRequestAuthHeaderProvider();
     requestAuthHeaderProvider.setEnabled(Boolean.parseBoolean(environment.getProperty(KEY_AK_SK_ENABLED, "false")));
     requestAuthHeaderProvider.setAccessKey(environment.getProperty(KEY_AK_SK_ACCESS_KEY, ""));
@@ -177,6 +181,14 @@ public class CommonConfiguration {
     requestAuthHeaderProvider.setCipher(environment.getProperty(KEY_AK_SK_CIPHER, ""));
     requestAuthHeaderProvider.setProject(safeGetProject(environment.getProperty(KEY_AK_SK_PROJECT, "")));
     return requestAuthHeaderProvider;
+  }
+
+  public static RequestAuthHeaderProvider getRequestAuthHeaderProvider(List<AuthHeaderProvider> authHeaderProviders) {
+    return signRequest -> {
+      Map<String, String> headers = new HashMap<>();
+      authHeaderProviders.forEach(authHeaderProvider -> headers.putAll(authHeaderProvider.authHeaders()));
+      return headers;
+    };
   }
 
   private String safeGetProject(String project) {

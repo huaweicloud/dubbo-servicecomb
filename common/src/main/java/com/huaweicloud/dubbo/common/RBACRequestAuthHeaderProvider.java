@@ -21,7 +21,9 @@ import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_CONFIG_ADDRES
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_RBAC_NAME;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_RBAC_PASSWORD;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_REGISTRY_ADDRESS;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_NAME;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_PROJECT;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.getRequestAuthHeaderProvider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,14 +36,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
-import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.servicecomb.foundation.auth.AuthHeaderProvider;
-import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
 import org.apache.servicecomb.service.center.client.AddressManager;
+import org.apache.servicecomb.service.center.client.OperationEvents;
 import org.apache.servicecomb.service.center.client.ServiceCenterClient;
 import org.apache.servicecomb.service.center.client.model.RbacTokenRequest;
 import org.apache.servicecomb.service.center.client.model.RbacTokenResponse;
@@ -52,6 +54,7 @@ import org.springframework.core.env.Environment;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -67,6 +70,12 @@ public class RBACRequestAuthHeaderProvider implements AuthHeaderProvider {
 
   private static final long TOKEN_REFRESH_TIME_IN_SECONDS = 20 * 60 * 1000;
 
+  private static final String UN_AUTHORIZED_CODE_HALF_OPEN = "40132";
+
+  private String lastErrorCode = "40132";
+
+  private int lastStatusCode = 401;
+
   private ExecutorService executorService;
 
   private LoadingCache<String, String> cache;
@@ -78,6 +87,7 @@ public class RBACRequestAuthHeaderProvider implements AuthHeaderProvider {
   public RBACRequestAuthHeaderProvider(CommonConfiguration commonConfiguration, Environment environment) {
     this.commonConfiguration = commonConfiguration;
     this.environment = environment;
+    EventManager.getEventBus().register(this);
     if (enabled()) {
       executorService = Executors.newFixedThreadPool(1, t -> new Thread(t, "rbac-executor"));
       cache = CacheBuilder.newBuilder().maximumSize(1).refreshAfterWrite(refreshTime(), TimeUnit.MILLISECONDS)
@@ -107,18 +117,19 @@ public class RBACRequestAuthHeaderProvider implements AuthHeaderProvider {
   protected String createHeaders() {
     LOGGER.info("start to create RBAC headers");
     RbacTokenResponse rbacTokenResponse = callCreateHeaders();
-    int statusCode = rbacTokenResponse.getStatusCode();
-    if (Response.Status.UNAUTHORIZED.getStatusCode() == statusCode
-        || Response.Status.FORBIDDEN.getStatusCode() == statusCode) {
+    lastErrorCode = rbacTokenResponse.getErrorCode();
+    lastStatusCode = rbacTokenResponse.getStatusCode();
+    if (Status.UNAUTHORIZED.getStatusCode() == lastStatusCode
+        || Status.FORBIDDEN.getStatusCode() == lastStatusCode) {
       // password wrong, do not try anymore
       LOGGER.warn("username or password may be wrong, stop trying to query tokens.");
       return INVALID_TOKEN;
-    } else if (Response.Status.NOT_FOUND.getStatusCode() == statusCode) {
+    } else if (Status.NOT_FOUND.getStatusCode() == lastStatusCode) {
       // service center not support, do not try
       LOGGER.warn("service center do not support RBAC token, you should not config account info");
       return INVALID_TOKEN;
     }
-    LOGGER.info("refresh token successfully {}", statusCode);
+    LOGGER.info("refresh token successfully {}", lastStatusCode);
     return rbacTokenResponse.getToken();
   }
 
@@ -129,14 +140,6 @@ public class RBACRequestAuthHeaderProvider implements AuthHeaderProvider {
     request.setName(ConfigUtils.getProperty(KEY_RBAC_NAME));
     request.setPassword(ConfigUtils.getProperty(KEY_RBAC_PASSWORD));
     return serviceCenterClient.queryToken(request);
-  }
-
-  public static RequestAuthHeaderProvider getRequestAuthHeaderProvider(List<AuthHeaderProvider> authHeaderProviders) {
-    return signRequest -> {
-      Map<String, String> headers = new HashMap<>();
-      authHeaderProviders.forEach(authHeaderProvider -> headers.putAll(authHeaderProvider.authHeaders()));
-      return headers;
-    };
   }
 
   public ServiceCenterClient serviceCenterClient(List<AuthHeaderProvider> authHeaderProviders) {
@@ -172,4 +175,14 @@ public class RBACRequestAuthHeaderProvider implements AuthHeaderProvider {
     return new AddressManager(project, Arrays.asList(address.split(",")));
   }
 
+  @Subscribe
+  public void onNotPermittedEvent(OperationEvents.UnAuthorizedOperationEvent event) {
+    this.executorService.submit(this::retryRefresh);
+  }
+
+  private void retryRefresh() {
+    if (Status.UNAUTHORIZED.getStatusCode() == lastStatusCode && UN_AUTHORIZED_CODE_HALF_OPEN.equals(lastErrorCode)) {
+      cache.refresh(ConfigUtils.getProperty(KEY_SERVICE_NAME, "defaultMicroserviceName"));
+    }
+  }
 }

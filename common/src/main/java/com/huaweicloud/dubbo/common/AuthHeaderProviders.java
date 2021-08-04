@@ -15,26 +15,28 @@
  * limitations under the License.
  */
 
-package com.huaweicloud.dubbo.governance;
+package com.huaweicloud.dubbo.common;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.dubbo.rpc.RpcException;
-import org.apache.servicecomb.governance.handler.ext.RetryExtension;
-import org.springframework.stereotype.Component;
+import org.apache.servicecomb.foundation.auth.AuthHeaderProvider;
+import org.springframework.core.env.Environment;
 
-@Component
-public class DubboServicecombRetryExtension implements RetryExtension {
-  @Override
-  public boolean isRetry(List<String> statusList, Object result) {
-    return false;
-  }
+public class AuthHeaderProviders implements HeaderProvider {
+
+  private CommonConfiguration commonConfiguration;
+
+  private Environment environment;
 
   @Override
-  @SuppressWarnings({"unchecked", "rawtypes"})
-  public Class<? extends Throwable>[] retryExceptions() {
-    return new Class[] {
-        RpcException.class
-    };
+  public List<AuthHeaderProvider> getAuthHeaderProviders(CommonConfiguration commonConfiguration,
+      Environment environment) {
+    this.commonConfiguration = commonConfiguration;
+    this.environment = environment;
+    List<AuthHeaderProvider> authHeaderProviders = new ArrayList<>();
+    authHeaderProviders.add(commonConfiguration.createAkSkRequestAuthHeaderProvider());
+    authHeaderProviders.add(new RBACRequestAuthHeaderProvider(commonConfiguration, environment));
+    return authHeaderProviders;
   }
 }

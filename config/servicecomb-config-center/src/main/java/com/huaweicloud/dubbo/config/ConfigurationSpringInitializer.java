@@ -17,6 +17,8 @@
 
 package com.huaweicloud.dubbo.config;
 
+import static com.huaweicloud.dubbo.common.CommonConfiguration.getRequestAuthHeaderProvider;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,8 +62,10 @@ import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
 import com.huaweicloud.dubbo.common.GovernanceData;
 import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
+import com.huaweicloud.dubbo.common.HeaderProvider;
 import com.huaweicloud.dubbo.common.RBACRequestAuthHeaderProvider;
 import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
+import com.huaweicloud.dubbo.common.SPIServiceUtils;
 
 import org.springframework.util.StringUtils;
 
@@ -142,17 +146,17 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
     this.setTimeOut(config);
 
+    List<AuthHeaderProvider> authHeaderProviders = SPIServiceUtils.getOrLoadSortedService(HeaderProvider.class).stream()
+        .findFirst().get().getAuthHeaderProviders(commonConfiguration, environment);
+
+    httpTransport = HttpTransportFactory
+        .createHttpTransport(commonConfiguration.createSSLProperties(),
+            getRequestAuthHeaderProvider(authHeaderProviders), config.build());
+
     //判断是否使用KIE作为配置中心
     if (isKie) {
-      List<AuthHeaderProvider> authHeaderProviders = new ArrayList<>();
-      httpTransport = HttpTransportFactory
-          .createHttpTransport(commonConfiguration.createSSLProperties(),
-              RBACRequestAuthHeaderProvider.getRequestAuthHeaderProvider(authHeaderProviders), config.build());
       configKieClient(ce);
     } else {
-      httpTransport = HttpTransportFactory
-          .createHttpTransport(commonConfiguration.createSSLProperties(),
-              commonConfiguration.createRequestAuthHeaderProvider(), config.build());
       configCenterClient(ce);
     }
   }

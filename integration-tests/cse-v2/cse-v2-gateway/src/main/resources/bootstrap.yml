@@ -24,29 +24,29 @@ spring:
     gateway:
       routes:
         - id: cse-v2-test-consumer
-          uri: http://localhost:8082/
+          uri: lb://cse-v2-test-consumer
           predicates:
             - Path=/**
-          discovery:
-            locator:
-              enabled: true
-              lowerCaseServiceId: true
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
 
     servicecomb:
-      credentials:
-        account: 用户名
-        password: 密码
       discovery:
         enabled: true
-        appName: cse-v2-test-application
+        appName: cse-v2
         serviceName: ${spring.application.name}
         watch: false
         address: ${CSE_V2_SC}
         version: 0.0.1
-        healthCheckInterval: 30
-        config:
-          serverAddr: ${CSE_V2_CC}
-          serverType: kie
-          watch:
-            delay: 10000
+      config:
+        serverAddr: ${CSE_V2_CC}
+        serverType: kie
+        watch:
+          delay: 10000
+#      credentials:
+#        account:
+#          name: 用户名
+#          password: 密码
 
