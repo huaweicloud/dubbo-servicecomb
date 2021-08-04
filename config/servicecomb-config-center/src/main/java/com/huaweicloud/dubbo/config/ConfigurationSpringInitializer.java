@@ -17,12 +17,9 @@
 
 package com.huaweicloud.dubbo.config;
 
-import static com.huaweicloud.dubbo.common.CommonConfiguration.getRequestAuthHeaderProvider;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Properties;
@@ -40,7 +37,6 @@ import org.apache.servicecomb.config.kie.client.KieClient;
 import org.apache.servicecomb.config.kie.client.KieConfigManager;
 import org.apache.servicecomb.config.kie.client.model.KieAddressManager;
 import org.apache.servicecomb.config.kie.client.model.KieConfiguration;
-import org.apache.servicecomb.foundation.auth.AuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpTransport;
 import org.apache.servicecomb.http.client.common.HttpTransportFactory;
 import org.apache.servicecomb.http.client.common.HttpUtils;
@@ -58,14 +54,12 @@ import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.stereotype.Component;
 
 import com.google.common.eventbus.Subscribe;
+import com.huaweicloud.dubbo.common.AuthHeaderProviders;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
 import com.huaweicloud.dubbo.common.GovernanceData;
 import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
-import com.huaweicloud.dubbo.common.HeaderProvider;
-import com.huaweicloud.dubbo.common.RBACRequestAuthHeaderProvider;
 import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
-import com.huaweicloud.dubbo.common.SPIServiceUtils;
 
 import org.springframework.util.StringUtils;
 
@@ -146,12 +140,9 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
     this.setTimeOut(config);
 
-    List<AuthHeaderProvider> authHeaderProviders = SPIServiceUtils.getOrLoadSortedService(HeaderProvider.class).stream()
-        .findFirst().get().getAuthHeaderProviders(commonConfiguration, environment);
-
     httpTransport = HttpTransportFactory
         .createHttpTransport(commonConfiguration.createSSLProperties(),
-            getRequestAuthHeaderProvider(authHeaderProviders), config.build());
+            AuthHeaderProviders.getAuthHeaderProviders(commonConfiguration, environment), config.build());
 
     //判断是否使用KIE作为配置中心
     if (isKie) {

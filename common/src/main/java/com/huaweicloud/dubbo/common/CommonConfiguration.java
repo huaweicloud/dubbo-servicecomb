@@ -17,19 +17,15 @@
 
 package com.huaweicloud.dubbo.common;
 
-import org.apache.servicecomb.foundation.auth.AuthHeaderProvider;
 import org.apache.servicecomb.foundation.ssl.SSLCustom;
 import org.apache.servicecomb.foundation.ssl.SSLOption;
-import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
 
 public class CommonConfiguration {
   public static final String DEFAULT_CIPHERS = "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,"
@@ -78,11 +74,11 @@ public class CommonConfiguration {
 
   public static final String KEY_SERVICE_KIE_FRISTPULLREQUIRED = "dubbo.servicecomb.config.firstPullRequired";
 
-  public static final String KEY_SERVICE_KIE_ENABLEAPPCONFIG= "dubbo.servicecomb.config.enableAppConfig";
+  public static final String KEY_SERVICE_KIE_ENABLEAPPCONFIG = "dubbo.servicecomb.config.enableAppConfig";
 
   public static final String KEY_SERVICE_KIE_ENABLECUSTOMCONFIG = "dubbo.servicecomb.config.enableCustomConfig";
 
-  public static final String KEY_SERVICE_KIE_ENABLESERVICECONFIG  = "dubbo.servicecomb.config.enableServiceConfig";
+  public static final String KEY_SERVICE_KIE_ENABLESERVICECONFIG = "dubbo.servicecomb.config.enableServiceConfig";
 
   // ###### ssl configuration ############### //
   private static final String KEY_SSL_ENABLED = "dubbo.servicecomb.ssl.enabled";
@@ -181,14 +177,6 @@ public class CommonConfiguration {
     requestAuthHeaderProvider.setCipher(environment.getProperty(KEY_AK_SK_CIPHER, ""));
     requestAuthHeaderProvider.setProject(safeGetProject(environment.getProperty(KEY_AK_SK_PROJECT, "")));
     return requestAuthHeaderProvider;
-  }
-
-  public static RequestAuthHeaderProvider getRequestAuthHeaderProvider(List<AuthHeaderProvider> authHeaderProviders) {
-    return signRequest -> {
-      Map<String, String> headers = new HashMap<>();
-      authHeaderProviders.forEach(authHeaderProvider -> headers.putAll(authHeaderProvider.authHeaders()));
-      return headers;
-    };
   }
 
   private String safeGetProject(String project) {

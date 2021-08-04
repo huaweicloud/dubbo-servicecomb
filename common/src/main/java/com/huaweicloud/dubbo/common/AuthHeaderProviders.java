@@ -18,25 +18,30 @@
 package com.huaweicloud.dubbo.common;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.servicecomb.foundation.auth.AuthHeaderProvider;
+import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.springframework.core.env.Environment;
 
-public class AuthHeaderProviders implements HeaderProvider {
+public class AuthHeaderProviders {
 
-  private CommonConfiguration commonConfiguration;
-
-  private Environment environment;
-
-  @Override
-  public List<AuthHeaderProvider> getAuthHeaderProviders(CommonConfiguration commonConfiguration,
+  public static RequestAuthHeaderProvider getAuthHeaderProviders(CommonConfiguration commonConfiguration,
       Environment environment) {
-    this.commonConfiguration = commonConfiguration;
-    this.environment = environment;
     List<AuthHeaderProvider> authHeaderProviders = new ArrayList<>();
     authHeaderProviders.add(commonConfiguration.createAkSkRequestAuthHeaderProvider());
     authHeaderProviders.add(new RBACRequestAuthHeaderProvider(commonConfiguration, environment));
-    return authHeaderProviders;
+    return getRequestAuthHeaderProvider(authHeaderProviders);
   }
+
+  private static RequestAuthHeaderProvider getRequestAuthHeaderProvider(List<AuthHeaderProvider> authHeaderProviders) {
+    return signRequest -> {
+      Map<String, String> headers = new HashMap<>();
+      authHeaderProviders.forEach(authHeaderProvider -> headers.putAll(authHeaderProvider.authHeaders()));
+      return headers;
+    };
+  }
+
 }

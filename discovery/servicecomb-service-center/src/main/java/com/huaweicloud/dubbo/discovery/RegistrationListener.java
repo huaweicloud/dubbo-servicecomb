@@ -19,7 +19,6 @@ package com.huaweicloud.dubbo.discovery;
 
 import static com.huaweicloud.dubbo.common.CommonConfiguration.DEFAULT_PROJECT;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_REGISTRY_WATCH;
-import static com.huaweicloud.dubbo.common.CommonConfiguration.getRequestAuthHeaderProvider;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -35,8 +34,6 @@ import java.util.stream.Collectors;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.dubbo.registry.NotifyListener;
-import org.apache.servicecomb.foundation.auth.AuthHeaderProvider;
-import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
 import org.apache.servicecomb.service.center.client.AddressManager;
 import org.apache.servicecomb.service.center.client.DiscoveryEvents.InstanceChangedEvent;
@@ -64,14 +61,13 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import com.google.common.eventbus.Subscribe;
+import com.huaweicloud.dubbo.common.AuthHeaderProviders;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
 import com.huaweicloud.dubbo.common.GovernanceData;
 import com.huaweicloud.dubbo.common.GovernanceDataChangeEvent;
-import com.huaweicloud.dubbo.common.HeaderProvider;
 import com.huaweicloud.dubbo.common.ProviderInfo;
 import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
-import com.huaweicloud.dubbo.common.SPIServiceUtils;
 import com.huaweicloud.dubbo.common.SchemaInfo;
 
 @Component
@@ -161,8 +157,6 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private Environment environment;
 
-  private List<AuthHeaderProvider> authHeaderProviders;
-
   public void setServiceCenterRegistry(ServiceCenterRegistry registry) {
     this.registry = registry;
   }
@@ -188,15 +182,13 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   public void setEnvironment(Environment environment) {
     serviceCenterConfigurationManager = new ServiceCenterConfigurationManager(environment);
     serviceCenterConfiguration = new ServiceCenterConfiguration().setIgnoreSwaggerDifferent(
-            Boolean.valueOf(environment.getProperty(CommonConfiguration.KEY_SERVICE_IGNORESWAGGERDIFFERENT, "false")));
+        Boolean.valueOf(environment.getProperty(CommonConfiguration.KEY_SERVICE_IGNORESWAGGERDIFFERENT, "false")));
     commonConfiguration = new CommonConfiguration(environment);
     this.environment = environment;
-    authHeaderProviders = SPIServiceUtils.getOrLoadSortedService(HeaderProvider.class).stream()
-        .findFirst().get().getAuthHeaderProviders(commonConfiguration, environment);
     watch = new ServiceCenterWatch(serviceCenterConfigurationManager.createAddressManager(),
         commonConfiguration.createSSLProperties(),
-        getRequestAuthHeaderProvider(authHeaderProviders),
-        "default",new HashMap<>(),EventManager.getEventBus());
+        AuthHeaderProviders.getAuthHeaderProviders(commonConfiguration, environment),
+        "default", new HashMap<>(), EventManager.getEventBus());
   }
 
   @Override
@@ -205,10 +197,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       try {
         AddressManager addressManager = serviceCenterConfigurationManager.createAddressManager();
         SSLProperties sslProperties = commonConfiguration.createSSLProperties();
-        authHeaderProviders = SPIServiceUtils.getOrLoadSortedService(HeaderProvider.class).stream()
-            .findFirst().get().getAuthHeaderProviders(commonConfiguration, environment);
-        RequestAuthHeaderProvider requestAuthHeaderProvider = getRequestAuthHeaderProvider(authHeaderProviders);
-        client = new ServiceCenterClient(addressManager, sslProperties, requestAuthHeaderProvider,
+        client = new ServiceCenterClient(addressManager, sslProperties,
+            AuthHeaderProviders.getAuthHeaderProviders(commonConfiguration, environment),
             "default", null);
         microservice = serviceCenterConfigurationManager.createMicroservice();
         if (registry != null) {
@@ -344,10 +334,10 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   @Subscribe
   public void onMicroserviceInstanceRegistrationEvent(MicroserviceInstanceRegistrationEvent event) {
     registrationInProgress = true;
-    boolean watchFlag = Boolean.parseBoolean(ConfigUtils.getProperty(KEY_REGISTRY_WATCH,""));
-    if (event.isSuccess()){
-      if (watchFlag){
-        watch.startWatch(ConfigUtils.getProperty(DEFAULT_PROJECT,"default"),microservice.getServiceId());
+    boolean watchFlag = Boolean.parseBoolean(ConfigUtils.getProperty(KEY_REGISTRY_WATCH, ""));
+    if (event.isSuccess()) {
+      if (watchFlag) {
+        watch.startWatch(ConfigUtils.getProperty(DEFAULT_PROJECT, "default"), microservice.getServiceId());
       }
       updateInterfaceMap();
       firstRegistrationWaiter.countDown();
@@ -360,7 +350,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   // --- 实例发现事件处理 ---- //
   @Subscribe
   public void onInstanceChangedEvent(InstanceChangedEvent event) {
-    boolean watchFlag = Boolean.parseBoolean(ConfigUtils.getProperty(KEY_REGISTRY_WATCH,""));
+    boolean watchFlag = Boolean.parseBoolean(ConfigUtils.getProperty(KEY_REGISTRY_WATCH, ""));
     applicationEventPublisher.publishEvent(new HeartBeatEvent(watchFlag));
   }
 

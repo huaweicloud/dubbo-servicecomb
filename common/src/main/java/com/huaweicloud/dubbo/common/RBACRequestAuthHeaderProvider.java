@@ -23,7 +23,6 @@ import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_RBAC_PASSWORD
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_REGISTRY_ADDRESS;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_NAME;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_SERVICE_PROJECT;
-import static com.huaweicloud.dubbo.common.CommonConfiguration.getRequestAuthHeaderProvider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -145,7 +144,8 @@ public class RBACRequestAuthHeaderProvider implements AuthHeaderProvider {
   public ServiceCenterClient serviceCenterClient(List<AuthHeaderProvider> authHeaderProviders) {
     SSLProperties sslProperties = commonConfiguration.createSSLProperties();
     AddressManager addressManager = createAddressManager();
-    return new ServiceCenterClient(addressManager, sslProperties, getRequestAuthHeaderProvider(authHeaderProviders),
+    return new ServiceCenterClient(addressManager, sslProperties,
+        signRequest -> Collections.emptyMap(),
         "default", new HashMap<>());
   }
 
