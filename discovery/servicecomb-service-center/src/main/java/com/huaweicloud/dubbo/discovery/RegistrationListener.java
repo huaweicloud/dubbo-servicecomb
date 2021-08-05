@@ -17,6 +17,9 @@
 
 package com.huaweicloud.dubbo.discovery;
 
+import static com.huaweicloud.dubbo.common.CommonConfiguration.DEFAULT_PROJECT;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_REGISTRY_WATCH;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -29,8 +32,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.dubbo.registry.NotifyListener;
-import org.apache.servicecomb.http.client.auth.RequestAuthHeaderProvider;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
 import org.apache.servicecomb.service.center.client.AddressManager;
 import org.apache.servicecomb.service.center.client.DiscoveryEvents.InstanceChangedEvent;
@@ -40,6 +43,7 @@ import org.apache.servicecomb.service.center.client.RegistrationEvents.Microserv
 import org.apache.servicecomb.service.center.client.ServiceCenterClient;
 import org.apache.servicecomb.service.center.client.ServiceCenterDiscovery;
 import org.apache.servicecomb.service.center.client.ServiceCenterRegistration;
+import org.apache.servicecomb.service.center.client.ServiceCenterWatch;
 import org.apache.servicecomb.service.center.client.model.Microservice;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstancesResponse;
@@ -57,6 +61,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import com.google.common.eventbus.Subscribe;
+import com.huaweicloud.dubbo.common.AuthHeaderProviders;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
 import com.huaweicloud.dubbo.common.GovernanceData;
@@ -132,6 +137,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private ServiceCenterDiscovery serviceCenterDiscovery;
 
+  private ServiceCenterWatch watch;
+
   private final CountDownLatch firstRegistrationWaiter = new CountDownLatch(1);
 
   private boolean registrationInProgress = true;
@@ -148,8 +155,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private CommonConfiguration commonConfiguration;
 
-  public RegistrationListener() {
-  }
+  private Environment environment;
 
   public void setServiceCenterRegistry(ServiceCenterRegistry registry) {
     this.registry = registry;
@@ -176,8 +182,13 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   public void setEnvironment(Environment environment) {
     serviceCenterConfigurationManager = new ServiceCenterConfigurationManager(environment);
     serviceCenterConfiguration = new ServiceCenterConfiguration().setIgnoreSwaggerDifferent(
-            Boolean.valueOf(environment.getProperty(CommonConfiguration.KEY_SERVICE_IGNORESWAGGERDIFFERENT, "false")));
+        Boolean.valueOf(environment.getProperty(CommonConfiguration.KEY_SERVICE_IGNORESWAGGERDIFFERENT, "false")));
     commonConfiguration = new CommonConfiguration(environment);
+    this.environment = environment;
+    watch = new ServiceCenterWatch(serviceCenterConfigurationManager.createAddressManager(),
+        commonConfiguration.createSSLProperties(),
+        AuthHeaderProviders.getRequestAuthHeaderProvider(commonConfiguration, environment),
+        "default", new HashMap<>(), EventManager.getEventBus());
   }
 
   @Override
@@ -186,8 +197,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       try {
         AddressManager addressManager = serviceCenterConfigurationManager.createAddressManager();
         SSLProperties sslProperties = commonConfiguration.createSSLProperties();
-        RequestAuthHeaderProvider requestAuthHeaderProvider = commonConfiguration.createRequestAuthHeaderProvider();
-        client = new ServiceCenterClient(addressManager, sslProperties, requestAuthHeaderProvider,
+        client = new ServiceCenterClient(addressManager, sslProperties,
+            AuthHeaderProviders.getRequestAuthHeaderProvider(commonConfiguration, environment),
             "default", null);
         microservice = serviceCenterConfigurationManager.createMicroservice();
         if (registry != null) {
@@ -324,6 +335,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   public void onMicroserviceInstanceRegistrationEvent(MicroserviceInstanceRegistrationEvent event) {
     registrationInProgress = true;
     if (event.isSuccess()) {
+      if (Boolean.parseBoolean(ConfigUtils.getProperty(KEY_REGISTRY_WATCH, ""))) {
+        watch.startWatch(ConfigUtils.getProperty(DEFAULT_PROJECT, "default"), microservice.getServiceId());
+      }
       updateInterfaceMap();
       firstRegistrationWaiter.countDown();
       LOGGER.info("register microservice successfully, serviceId={}, instanceId={}.", microservice.getServiceId(),
@@ -335,7 +349,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   // --- 实例发现事件处理 ---- //
   @Subscribe
   public void onInstanceChangedEvent(InstanceChangedEvent event) {
-    notify(event.getAppName(), event.getServiceName(), event.getInstances());
+    boolean watchFlag = Boolean.parseBoolean(ConfigUtils.getProperty(KEY_REGISTRY_WATCH, ""));
+    applicationEventPublisher.publishEvent(new HeartBeatEvent(watchFlag));
   }
 
   // --- END ---- //

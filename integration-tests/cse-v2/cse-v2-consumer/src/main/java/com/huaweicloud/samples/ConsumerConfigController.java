@@ -15,16 +15,19 @@
  * limitations under the License.
  */
 
-package com.hauweicloud.samples;
+package com.huaweicloud.samples;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-public class ConsumerConfigController {
+@Path("/")
+public class ConsumerConfigController implements IConsumerConfigController{
 
   @Autowired
   private Environment environment;
@@ -32,28 +35,44 @@ public class ConsumerConfigController {
   @Autowired
   private ConsumerConfigurationProperties consumerConfigurationProperties;
 
-  @GetMapping("/config")
-  public String config(@RequestParam("key") String key) {
+  @GET
+  @Path("/config")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Override
+  public String config(@QueryParam("key") String key) {
     return environment.getProperty(key);
   }
 
-  @GetMapping("/foo")
+  @GET
+  @Path("/foo")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Override
   public String foo() {
     return consumerConfigurationProperties.getFoo();
   }
 
-  @GetMapping("/bar")
+  @GET
+  @Path("/bar")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Override
   public String bar() {
     return consumerConfigurationProperties.getBar();
   }
 
-  @GetMapping("/priority")
+  @GET
+  @Path("/priority")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Override
   public String priority() {
     return consumerConfigurationProperties.getPriority();
   }
 
-  @GetMapping("/common")
+  @GET
+  @Path("/common")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Override
   public String common() {
     return consumerConfigurationProperties.getCommon();
   }
+
 }

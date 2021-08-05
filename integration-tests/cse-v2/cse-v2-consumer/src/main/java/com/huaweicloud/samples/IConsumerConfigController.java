@@ -17,11 +17,15 @@
 
 package com.huaweicloud.samples;
 
-import com.huaweicloud.api.ProviderService;
+public interface IConsumerConfigController {
 
-public class ProviderServiceImpl implements ProviderService {
-  @Override
-  public String sayHello(String name) {
-    return "Hello " + name;
-  }
+  String config(String key);
+
+  String foo();
+
+  String bar();
+
+  String priority();
+
+  String common();
 }

@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class DubboServicecombRetryExtension implements RetryExtension {
   @Override
-  public boolean isRetry(List<Integer> statusList, Object result) {
+  public boolean isRetry(List<String> statusList, Object result) {
     return false;
   }
 

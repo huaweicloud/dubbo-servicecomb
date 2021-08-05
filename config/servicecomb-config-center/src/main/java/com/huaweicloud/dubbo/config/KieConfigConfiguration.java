@@ -66,15 +66,15 @@ public class KieConfigConfiguration {
     kieConfiguration.setCustomLabel(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABEL, "public"));
     kieConfiguration.setCustomLabelValue(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABELVALUE, ""));
     kieConfiguration
-        .setEnableCustomConfig(Boolean.valueOf(environment.getProperty(KEY_SERVICE_KIE_ENABLECUSTOMCONFIG, "true")));
+        .setEnableCustomConfig(Boolean.parseBoolean(environment.getProperty(KEY_SERVICE_KIE_ENABLECUSTOMCONFIG, "true")));
     kieConfiguration
-        .setEnableServiceConfig(Boolean.valueOf(environment.getProperty(KEY_SERVICE_KIE_ENABLESERVICECONFIG, "true")));
+        .setEnableServiceConfig(Boolean.parseBoolean(environment.getProperty(KEY_SERVICE_KIE_ENABLESERVICECONFIG, "true")));
     kieConfiguration
-        .setEnableAppConfig(Boolean.valueOf(environment.getProperty(KEY_SERVICE_KIE_ENABLEAPPCONFIG, "true")));
+        .setEnableAppConfig(Boolean.parseBoolean(environment.getProperty(KEY_SERVICE_KIE_ENABLEAPPCONFIG, "true")));
     kieConfiguration
-        .setFirstPullRequired(Boolean.valueOf(environment.getProperty(KEY_SERVICE_KIE_FRISTPULLREQUIRED, "true")));
+        .setFirstPullRequired(Boolean.parseBoolean(environment.getProperty(KEY_SERVICE_KIE_FRISTPULLREQUIRED, "true")));
     kieConfiguration
-        .setEnableLongPolling(Boolean.valueOf(environment.getProperty(KEY_SERVICE_ENABLELONGPOLLING, "false")));
+        .setEnableLongPolling(Boolean.parseBoolean(environment.getProperty(KEY_SERVICE_ENABLELONGPOLLING, "false")));
     kieConfiguration
         .setPollingWaitInSeconds(Integer.parseInt(environment.getProperty(KEY_SERVICE_POLLINGWAITSEC, "10")));
     return kieConfiguration;

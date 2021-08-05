@@ -14,8 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.huaweicloud.api;
 
-public interface Provider {
-  String sayHello(String name);
+package com.huaweicloud;
+
+import org.springframework.boot.WebApplicationType;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.annotation.ImportResource;
+
+@SpringBootApplication
+@ImportResource({"classpath*:spring/dubbo-consumer.xml", "classpath*:spring/dubbo-servicecomb.xml"})
+public class ConsumerApplication {
+
+  public static void main(String[] args) {
+    try {
+        new SpringApplicationBuilder(ConsumerApplication.class).web(WebApplicationType.NONE).run(args);
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
+  }
 }

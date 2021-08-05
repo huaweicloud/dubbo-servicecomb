@@ -17,6 +17,7 @@
 
 package com.huaweicloud.dubbo.config;
 
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
@@ -53,6 +54,7 @@ import org.springframework.core.io.support.ResourcePropertySource;
 import org.springframework.stereotype.Component;
 
 import com.google.common.eventbus.Subscribe;
+import com.huaweicloud.dubbo.common.AuthHeaderProviders;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
 import com.huaweicloud.dubbo.common.GovernanceData;
@@ -93,6 +95,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
   private ConfigConverter configConverter;
 
+  private Environment environment;
+
   public ConfigurationSpringInitializer() {
     configConverter = initConfigConverter();
     setOrder(Ordered.LOWEST_PRECEDENCE / 2);
@@ -104,6 +108,7 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
     configCenterConfiguration = new ConfigCenterConfiguration(environment);
     kieConfigConfiguration = new KieConfigConfiguration(environment);
     commonConfiguration = new CommonConfiguration(environment);
+    this.environment = environment;
 
     if (!(environment instanceof ConfigurableEnvironment)) {
       return;
@@ -137,7 +142,8 @@ public class ConfigurationSpringInitializer extends PropertyPlaceholderConfigure
 
     httpTransport = HttpTransportFactory
         .createHttpTransport(commonConfiguration.createSSLProperties(),
-            commonConfiguration.createRequestAuthHeaderProvider(), config.build());
+            AuthHeaderProviders.getRequestAuthHeaderProvider(commonConfiguration, environment), config.build());
+
     //判断是否使用KIE作为配置中心
     if (isKie) {
       configKieClient(ce);

@@ -15,24 +15,33 @@
  * limitations under the License.
  */
 
-package com.hauweicloud.samples;
+package com.huaweicloud.samples;
 
-import com.huaweicloud.api.Provider;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
-import org.apache.dubbo.config.annotation.DubboReference;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import com.huaweicloud.api.ProviderService;
 
 
-@RestController
-public class ConsumerController {
+@Path("/")
+public class ConsumerController implements IConsumerController{
 
-  @DubboReference(url = "dubbo://localhost:20880")
-  Provider provider;
+  @Autowired
+  @Qualifier("providerService")
+  ProviderService providerService;
 
-  @GetMapping("/sayHello")
-  public String sayHello(@RequestParam("name") String name) {
-    return provider.sayHello(name);
+  @GET
+  @Path("/sayHello")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Override
+  public String sayHello(@QueryParam("name") String name) {
+    return providerService.sayHello(name);
   }
 }

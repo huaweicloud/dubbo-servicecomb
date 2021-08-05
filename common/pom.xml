@@ -36,6 +36,11 @@
       <version>${servicecomb.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.servicecomb</groupId>
+      <artifactId>service-center-client</artifactId>
+      <version>${servicecomb.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.dubbo</groupId>
       <artifactId>dubbo-registry-api</artifactId>
     </dependency>
@@ -49,7 +54,11 @@
       <groupId>org.apache.dubbo</groupId>
       <artifactId>dubbo-config-spring</artifactId>
     </dependency>
-
+    <dependency>
+      <groupId>org.apache.servicecomb</groupId>
+      <artifactId>foundation-common</artifactId>
+      <version>${servicecomb.version}</version>
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
