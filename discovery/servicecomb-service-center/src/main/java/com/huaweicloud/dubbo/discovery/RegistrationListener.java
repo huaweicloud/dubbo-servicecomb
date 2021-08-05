@@ -24,9 +24,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -60,7 +62,9 @@ import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Charsets;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.hash.Hashing;
 import com.huaweicloud.dubbo.common.AuthHeaderProviders;
 import com.huaweicloud.dubbo.common.CommonConfiguration;
 import com.huaweicloud.dubbo.common.EventManager;
@@ -147,7 +151,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   private GovernanceData governanceData;
 
-  private List<NewSubscriberEvent> pendingSubscribeEvent = new ArrayList<>();
+  private final List<NewSubscriberEvent> pendingSubscribeEvent = new ArrayList<>();
 
   private ServiceCenterConfigurationManager serviceCenterConfigurationManager;
 
@@ -208,13 +212,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         }
 
         instance = serviceCenterConfigurationManager.createMicroserviceInstance();
-        List<String> endpoints = new ArrayList<>();
-        if (registry != null) {
-          endpoints.addAll(registry.getRegisters().stream()
-              .map(URL::toString)
-              .collect(Collectors.toList()));
-        }
-        instance.setEndpoints(endpoints);
+        addEndpoints();
         instance.setHostName(InetAddress.getLocalHost().getHostName());
 
         EventManager.register(this);
@@ -222,6 +220,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
             EventManager.getEventBus());
         serviceCenterRegistration.setMicroservice(microservice);
         serviceCenterRegistration.setMicroserviceInstance(instance);
+        addSchemaInfo(serviceCenterRegistration);
         serviceCenterRegistration.startRegistration();
 
         EventManager.post(new RegistrationReadyEvent());
@@ -239,6 +238,41 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
       processNewSubscriberEvent(newSubscriberEvent);
     }
+  }
+
+  private void addEndpoints() {
+    Set<String> endpoints = new HashSet<>();
+    if (registry != null) {
+      for (URL url : registry.getRegisters()) {
+        URL newUrl = new URL(url.getProtocol(), url.getHost(), url.getPort());
+        endpoints.add(newUrl.toString());
+      }
+    }
+    instance.setEndpoints(new ArrayList<>(endpoints));
+  }
+
+
+  private void addSchemaInfo(ServiceCenterRegistration registration) {
+    if (registry != null) {
+      // consumer: 如果没有 provider 接口， dubbo 启动的时候， 不会初始化 Registry。 调用接口的时候，才会初始化。
+      microservice.setSchemas(registry.getRegisters().stream().map(URL::getPath).collect(Collectors.toList()));
+      registration.setSchemaInfos(
+          registry.getRegisters().stream().map(this::createSchemaInfo).collect(Collectors.toList()));
+    }
+  }
+
+  private org.apache.servicecomb.service.center.client.model.SchemaInfo createSchemaInfo(URL url) {
+    URL newUrl = url.setHost(microservice.getServiceName());
+    org.apache.servicecomb.service.center.client.model.SchemaInfo info
+        = new org.apache.servicecomb.service.center.client.model.SchemaInfo();
+    info.setSchemaId(newUrl.getPath());
+    info.setSchema(newUrl.toString());
+    info.setSummary(calcSchemaSummary(info.getSchema()));
+    return info;
+  }
+
+  private static String calcSchemaSummary(String schemaContent) {
+    return Hashing.sha256().newHasher().putString(schemaContent, Charsets.UTF_8).hash().toString();
   }
 
   private void processNewSubscriberEvent(NewSubscriberEvent newSubscriberEvent) {
@@ -314,7 +348,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     List<NewSubscriberEvent> events = new ArrayList<>(pendingSubscribeEvent.size());
     events.addAll(pendingSubscribeEvent);
     pendingSubscribeEvent.clear();
-    events.forEach(item -> processNewSubscriberEvent(item));
+    events.forEach(this::processNewSubscriberEvent);
   }
 
   @Subscribe
@@ -340,8 +374,6 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       }
       updateInterfaceMap();
       firstRegistrationWaiter.countDown();
-      LOGGER.info("register microservice successfully, serviceId={}, instanceId={}.", microservice.getServiceId(),
-          instance.getInstanceId());
     }
   }
   // --- END ---- //
@@ -349,8 +381,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   // --- 实例发现事件处理 ---- //
   @Subscribe
   public void onInstanceChangedEvent(InstanceChangedEvent event) {
-    boolean watchFlag = Boolean.parseBoolean(ConfigUtils.getProperty(KEY_REGISTRY_WATCH, ""));
-    applicationEventPublisher.publishEvent(new HeartBeatEvent(watchFlag));
+    notify(event.getAppName(), event.getServiceName(), event.getInstances());
   }
 
   // --- END ---- //
@@ -383,11 +414,28 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   private Map<String, List<URL>> instancesToURLs(List<MicroserviceInstance> instances) {
     Map<String, List<URL>> notifyUrls = new HashMap<>();
 
-    instances.forEach(instance -> instance.getEndpoints().forEach(e -> {
-      URL url = URL.valueOf(e);
-      notifyUrls.putIfAbsent(url.getPath(), new ArrayList<>());
-      notifyUrls.get(url.getPath()).add(url);
-    }));
+    instances.forEach(instance -> {
+      List<org.apache.servicecomb.service.center.client.model.SchemaInfo> schemaInfos = client
+          .getServiceSchemasList(instance.getServiceId(), true);
+      instance.getEndpoints().forEach(e -> {
+        URL url = URL.valueOf(e);
+        if (schemaInfos.isEmpty()) {
+          // old version new schema info
+          notifyUrls.putIfAbsent(url.getPath(), new ArrayList<>());
+          notifyUrls.get(url.getPath()).add(url);
+          return;
+        }
+        // parameters are in schema info
+        schemaInfos.forEach(schema -> {
+          URL newUrl = URL.valueOf(schema.getSchema());
+          if (!newUrl.getProtocol().equals(url.getProtocol())) {
+            return;
+          }
+          notifyUrls.putIfAbsent(newUrl.getPath(), new ArrayList<>());
+          notifyUrls.get(newUrl.getPath()).add(newUrl.setHost(url.getHost()).setPort(url.getPort()));
+        });
+      });
+    });
 
     return notifyUrls;
   }
