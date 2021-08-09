@@ -21,7 +21,7 @@
   <parent>
     <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
     <artifactId>dubbo-servicecomb-integration-tests</artifactId>
-    <version>1.3.7-SNAPSHOT</version>
+    <version>1.3.8-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
