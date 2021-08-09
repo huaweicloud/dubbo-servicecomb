@@ -19,9 +19,7 @@ Before reading the next contents, check the supported versions in different bran
 | Branch | Latest Version | Dubbo Base Version | Supported Dubbo Suggestions |
 | ---  | ------- | ------------ | ----------- |
 | 2.6.x | 1.1.3 | 2.6.9 | 2.6.x，Suggested upgrade to 2.6.9 or later |
-| 2.6.x | 1.1.5-SNAPSHOT | 2.6.9 | 2.6.x，Suggested upgrade to 2.6.9 or later |
-| master | 1.3.6 | 2.7.8 | 2.7.x，Suggested upgrade to 2.7.8 or later |
-| master | 1.3.7-SNAPSHOT | 2.7.8 | 2.7.x，Suggested upgrade to 2.7.8 or later |
+| master | 1.3.7 | 2.7.8 | 2.7.x，Suggested upgrade to 2.7.8 or later |
 
 ## Dubbo Microservice Concepts vs Dubbo-ServiceComb Concepts
 
