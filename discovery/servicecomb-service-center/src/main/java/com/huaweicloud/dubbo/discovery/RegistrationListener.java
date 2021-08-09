@@ -18,6 +18,7 @@
 package com.huaweicloud.dubbo.discovery;
 
 import static com.huaweicloud.dubbo.common.CommonConfiguration.DEFAULT_PROJECT;
+import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_INSTANCE_PULL_INTERVAL;
 import static com.huaweicloud.dubbo.common.CommonConfiguration.KEY_REGISTRY_WATCH;
 
 import java.io.IOException;
@@ -220,6 +221,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
             EventManager.getEventBus());
         serviceCenterRegistration.setMicroservice(microservice);
         serviceCenterRegistration.setMicroserviceInstance(instance);
+        serviceCenterRegistration.setHeartBeatInterval(instance.getHealthCheck().getInterval());
         addSchemaInfo(serviceCenterRegistration);
         serviceCenterRegistration.startRegistration();
 
@@ -358,6 +360,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       if (serviceCenterDiscovery == null) {
         serviceCenterDiscovery = new ServiceCenterDiscovery(client, EventManager.getEventBus());
         serviceCenterDiscovery.updateMyselfServiceId(microservice.getServiceId());
+        serviceCenterDiscovery
+            .setPollInterval(Integer.parseInt(environment.getProperty(KEY_INSTANCE_PULL_INTERVAL, "15")));
         serviceCenterDiscovery.startDiscovery();
       } else {
         serviceCenterDiscovery.updateMyselfServiceId(microservice.getServiceId());

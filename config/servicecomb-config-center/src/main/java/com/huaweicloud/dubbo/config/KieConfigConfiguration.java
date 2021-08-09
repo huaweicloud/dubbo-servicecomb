@@ -36,10 +36,14 @@ import java.util.Arrays;
 import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.servicecomb.config.kie.client.model.KieAddressManager;
 import org.apache.servicecomb.config.kie.client.model.KieConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
 
 public class KieConfigConfiguration {
+  private static final Logger LOGGER = LoggerFactory.getLogger(KieConfigConfiguration.class);
+
   private Environment environment;
 
   public KieConfigConfiguration(Environment environment) {
@@ -53,6 +57,7 @@ public class KieConfigConfiguration {
       return null;
     }
     KieAddressManager kieAddressManager = new KieAddressManager(Arrays.asList(address.split(",")));
+    LOGGER.info("Using kie, address={}", address);
     return kieAddressManager;
   }
 
@@ -66,9 +71,11 @@ public class KieConfigConfiguration {
     kieConfiguration.setCustomLabel(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABEL, "public"));
     kieConfiguration.setCustomLabelValue(environment.getProperty(KEY_SERVICE_KIE_CUSTOMLABELVALUE, ""));
     kieConfiguration
-        .setEnableCustomConfig(Boolean.parseBoolean(environment.getProperty(KEY_SERVICE_KIE_ENABLECUSTOMCONFIG, "true")));
+        .setEnableCustomConfig(
+            Boolean.parseBoolean(environment.getProperty(KEY_SERVICE_KIE_ENABLECUSTOMCONFIG, "true")));
     kieConfiguration
-        .setEnableServiceConfig(Boolean.parseBoolean(environment.getProperty(KEY_SERVICE_KIE_ENABLESERVICECONFIG, "true")));
+        .setEnableServiceConfig(
+            Boolean.parseBoolean(environment.getProperty(KEY_SERVICE_KIE_ENABLESERVICECONFIG, "true")));
     kieConfiguration
         .setEnableAppConfig(Boolean.parseBoolean(environment.getProperty(KEY_SERVICE_KIE_ENABLEAPPCONFIG, "true")));
     kieConfiguration

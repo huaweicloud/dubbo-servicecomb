@@ -29,10 +29,14 @@ import java.util.Arrays;
 import org.apache.dubbo.common.utils.StringUtils;
 import org.apache.servicecomb.config.center.client.AddressManager;
 import org.apache.servicecomb.config.center.client.model.QueryConfigurationsRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
 
 public class ConfigCenterConfiguration {
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConfigCenterConfiguration.class);
+
   private Environment environment;
 
   public ConfigCenterConfiguration(Environment environment) {
@@ -45,6 +49,7 @@ public class ConfigCenterConfiguration {
       return null;
     }
     String project = environment.getProperty(KEY_SERVICE_PROJECT, "default");
+    LOGGER.info("Using config center, address={}", address);
     return new AddressManager(project, Arrays.asList(address.split(",")));
   }
 

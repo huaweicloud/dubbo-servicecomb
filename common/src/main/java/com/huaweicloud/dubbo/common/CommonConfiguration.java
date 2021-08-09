@@ -47,6 +47,12 @@ public class CommonConfiguration {
   // ###### service instance configuration ############### //
   public static final String KEY_INSTANCE_ENVIRONMENT = "dubbo.servicecomb.instance.initialStatus";
 
+  public static final String KEY_INSTANCE_PULL_INTERVAL = "dubbo.servicecomb.instance.pull.interval";
+
+  public static final String KEY_INSTANCE_HEALTH_CHECK_INTERVAL = "dubbo.servicecomb.instance.healthCheck.interval";
+
+  public static final String KEY_INSTANCE_HEALTH_CHECK_TIMES = "dubbo.servicecomb.instance.healthCheck.times";
+
   // ###### service center configuration ############### //
   public static final String KEY_REGISTRY_ADDRESS = "dubbo.servicecomb.registry.address";
 

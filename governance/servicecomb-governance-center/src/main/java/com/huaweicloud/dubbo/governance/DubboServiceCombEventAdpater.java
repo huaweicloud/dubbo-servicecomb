@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.servicecomb.config.common.ConfigurationChangedEvent;
+import org.apache.servicecomb.governance.event.GovernanceConfigurationChangedEvent;
+import org.apache.servicecomb.governance.event.GovernanceEventManager;
 import org.springframework.stereotype.Component;
 
 import com.google.common.eventbus.Subscribe;
@@ -39,9 +41,9 @@ public class DubboServiceCombEventAdpater {
     addMap(changedKeys, event.getAdded());
     addMap(changedKeys, event.getUpdated());
     addMap(changedKeys, event.getDeleted());
-    org.apache.servicecomb.governance.event.ConfigurationChangedEvent newEvent =
-        new org.apache.servicecomb.governance.event.ConfigurationChangedEvent(changedKeys);
-    org.apache.servicecomb.governance.event.EventManager.post(newEvent);
+    GovernanceConfigurationChangedEvent newEvent =
+        new GovernanceConfigurationChangedEvent(changedKeys);
+    GovernanceEventManager.post(newEvent);
   }
 
   private void addMap(Set<String> keys, Map<String, Object> changed) {
