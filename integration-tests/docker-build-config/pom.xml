@@ -49,7 +49,7 @@
                   </ports>
                   <assembly>
                     <mode>tar</mode>
-                    <descriptor>${root.basedir}/integration-tests/assembly/assembly.xml</descriptor>
+                    <descriptor>${root.basedir}/assembly/assembly.xml</descriptor>
                   </assembly>
                   <entryPoint>
                     <shell>java -Xmx128m $JAVA_OPTS -jar $JAR_PATH</shell>
@@ -80,6 +80,10 @@
               <phase>initialize</phase>
               <configuration>
                 <property>root.basedir</property>
+                <project>
+                  <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+                  <artifactId>dubbo-servicecomb-integration-tests</artifactId>
+                </project>
               </configuration>
             </execution>
           </executions>
