@@ -32,8 +32,20 @@
   <properties>
   </properties>
 
+
+    <modules>
+        <module>jetty</module>
+    </modules>
+    
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
+        <artifactId>dubbo-servicecomb-jetty</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>jakarta.validation</groupId>
         <artifactId>jakarta.validation-api</artifactId>
