@@ -32,20 +32,8 @@
   <properties>
   </properties>
 
-
-    <modules>
-        <module>jetty</module>
-    </modules>
-    
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>com.huaweicloud.dubbo-servicecomb</groupId>
-        <artifactId>dubbo-servicecomb-jetty</artifactId>
-        <version>${project.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
       <dependency>
         <groupId>jakarta.validation</groupId>
         <artifactId>jakarta.validation-api</artifactId>
@@ -72,6 +60,13 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
         <version>${spring.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-bom</artifactId>
+        <version>${jetty.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
