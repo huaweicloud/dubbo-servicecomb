@@ -64,6 +64,13 @@
         <scope>import</scope>
       </dependency>
       <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-bom</artifactId>
+        <version>${jetty.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>org.apache.dubbo</groupId>
         <artifactId>dubbo-bom</artifactId>
         <version>${dubbo.version}</version>
