@@ -40,14 +40,14 @@ public class ConsumerController implements IConsumerController{
 
   @Autowired
   @Qualifier("providerServiceGeneric")
-  GenericService providerService2;
+  GenericService providerServiceGeneric;
 
   @GET
   @Path("/sayHello")
   @Produces({MediaType.APPLICATION_JSON})
   @Override
   public String sayHello(@QueryParam("name") String name) {
-    return providerService2.$invoke("sayHello", new String[] { "java.lang.String" }, new Object[]{ name }).toString();
+    return providerServiceGeneric.$invoke("sayHello", new String[] { "java.lang.String" }, new Object[]{ name }).toString();
   }
 
   @GET
