@@ -47,7 +47,7 @@ public class ConsumerController implements IConsumerController{
   @Produces({MediaType.APPLICATION_JSON})
   @Override
   public String sayHello(@QueryParam("name") String name) {
-    return providerServiceGeneric.$invoke("sayHello", new String[] { "java.lang.String" }, new Object[]{ name }).toString();
+    return providerService.sayHello(name);
   }
 
   @GET
