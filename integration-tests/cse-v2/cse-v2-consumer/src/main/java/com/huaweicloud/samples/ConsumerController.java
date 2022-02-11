@@ -24,6 +24,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 
+import org.apache.dubbo.rpc.service.GenericService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -37,11 +38,23 @@ public class ConsumerController implements IConsumerController{
   @Qualifier("providerService")
   ProviderService providerService;
 
+  @Autowired
+  @Qualifier("providerServiceGeneric")
+  GenericService providerService2;
+
   @GET
   @Path("/sayHello")
   @Produces({MediaType.APPLICATION_JSON})
   @Override
   public String sayHello(@QueryParam("name") String name) {
-    return providerService.sayHello(name);
+    return providerService2.$invoke("sayHello", new String[] { "java.lang.String" }, new Object[]{ name }).toString();
+  }
+
+  @GET
+  @Path("/sayHelloGeneric")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Override
+  public String sayHelloGeneric(@QueryParam("name") String name) {
+    return providerService2.$invoke("sayHello", new String[] { "java.lang.String" }, new Object[]{ name }).toString();
   }
 }

@@ -32,5 +32,8 @@ public class HelloWorldIT {
   public void testHelloWorld() {
     String result = template.getForObject(Config.GATEWAY_URL + "/sayHello?name=World", String.class);
     assertThat(result).isEqualTo("Hello World");
+
+    result = template.getForObject(Config.GATEWAY_URL + "/sayHelloGeneric?name=Generic", String.class);
+    assertThat(result).isEqualTo("Hello Generic");
   }
 }

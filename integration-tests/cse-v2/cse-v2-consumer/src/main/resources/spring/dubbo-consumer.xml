@@ -30,6 +30,7 @@
   <dubbo:registry address="sc://127.0.0.1:30100"/>
 
   <dubbo:reference interface="com.huaweicloud.api.ProviderService" id="providerService" check="false"/>
+  <dubbo:reference interface="com.huaweicloud.api.ProviderService" id="providerServiceGeneric" check="false" generic="true"/>
 
   <bean id="consumerConfigController" class="com.huaweicloud.samples.ConsumerConfigController"/>
   <dubbo:service interface="com.huaweicloud.samples.IConsumerConfigController" ref="consumerConfigController"/>
