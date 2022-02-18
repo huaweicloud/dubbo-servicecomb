@@ -80,6 +80,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     EnvironmentAware {
 
   public static final String GENERIC_SERVICE = "org.apache.dubbo.rpc.service.GenericService";
+
   public static final String INTERFACE = "interface";
 
   static class SubscriptionKey {
