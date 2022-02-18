@@ -286,9 +286,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     if (microservice == null) {
       // provider 后于 consumer 启动的场景， 再查询一次。
       updateInterfaceMap();
-      if(newSubscriberEvent.getUrl().getPath().equals(GENERIC_SERVICE)){
+      if (newSubscriberEvent.getUrl().getPath().equals(GENERIC_SERVICE)) {
         microservice = interfaceMap.get(newSubscriberEvent.getUrl().getParameter(INTERFACE));
-      }else{
+      } else {
         microservice = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
       }
     }
