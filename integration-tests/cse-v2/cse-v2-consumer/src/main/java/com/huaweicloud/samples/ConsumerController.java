@@ -23,7 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-
+import org.apache.dubbo.rpc.service.GenericService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -31,11 +31,15 @@ import com.huaweicloud.api.ProviderService;
 
 
 @Path("/")
-public class ConsumerController implements IConsumerController{
+public class ConsumerController implements IConsumerController {
 
   @Autowired
   @Qualifier("providerService")
   ProviderService providerService;
+
+  @Autowired
+  @Qualifier("providerServiceGeneric")
+  GenericService providerServiceGeneric;
 
   @GET
   @Path("/sayHello")
@@ -43,5 +47,14 @@ public class ConsumerController implements IConsumerController{
   @Override
   public String sayHello(@QueryParam("name") String name) {
     return providerService.sayHello(name);
+  }
+
+  @GET
+  @Path("/sayHelloGeneric")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Override
+  public String sayHelloGeneric(@QueryParam("name") String name) {
+    return providerServiceGeneric.$invoke("sayHello", new String[] {"java.lang.String"}, new Object[] {name})
+        .toString();
   }
 }

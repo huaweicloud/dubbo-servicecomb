@@ -78,6 +78,11 @@ import com.huaweicloud.dubbo.common.SchemaInfo;
 @Component
 public class RegistrationListener implements ApplicationListener<ApplicationEvent>, ApplicationEventPublisherAware,
     EnvironmentAware {
+
+  public static final String GENERIC_SERVICE = "org.apache.dubbo.rpc.service.GenericService";
+
+  public static final String INTERFACE = "interface";
+
   static class SubscriptionKey {
     final String appId;
 
@@ -282,7 +287,11 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     if (microservice == null) {
       // provider 后于 consumer 启动的场景， 再查询一次。
       updateInterfaceMap();
-      microservice = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
+      if (newSubscriberEvent.getUrl().getPath().equals(GENERIC_SERVICE)) {
+        microservice = interfaceMap.get(newSubscriberEvent.getUrl().getParameter(INTERFACE));
+      } else {
+        microservice = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
+      }
     }
     if (microservice == null) {
       LOGGER.error("the subscribe url [{}] is not registered.", newSubscriberEvent.getUrl().getPath());
@@ -437,6 +446,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
           }
           notifyUrls.putIfAbsent(newUrl.getPath(), new ArrayList<>());
           notifyUrls.get(newUrl.getPath()).add(newUrl.setHost(url.getHost()).setPort(url.getPort()));
+
+          notifyUrls.putIfAbsent(GENERIC_SERVICE, new ArrayList<>());
+          notifyUrls.get(GENERIC_SERVICE).add(newUrl.setHost(url.getHost()).setPort(url.getPort()));
         });
       });
     });
