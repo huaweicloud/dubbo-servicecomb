@@ -22,6 +22,8 @@ import java.util.concurrent.CompletableFuture;
 public interface PriceServiceRest {
   String sayHello(String name);
 
+  String sayHelloGeneric(String name);
+
   CompletableFuture<String> sayHelloAsync(String name);
 
   String testConfiguration(String value);

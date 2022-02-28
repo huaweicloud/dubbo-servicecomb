@@ -62,6 +62,11 @@ import com.huaweicloud.dubbo.common.RegistrationReadyEvent;
 import com.huaweicloud.dubbo.common.SchemaInfo;
 
 public class RegistrationListener implements ApplicationListener<ApplicationEvent>, ApplicationEventPublisherAware {
+
+  public static final String GENERIC_SERVICE = "com.alibaba.dubbo.rpc.service.GenericService";
+
+  public static final String INTERFACE = "interface";
+
   static class SubscriptionKey {
     final String appId;
 
@@ -211,7 +216,11 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     if (microservice == null) {
       // provider 后于 consumer 启动的场景， 再查询一次。
       updateInterfaceMap();
-      microservice = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
+      if (newSubscriberEvent.getUrl().getPath().equals(GENERIC_SERVICE)) {
+        microservice = interfaceMap.get(newSubscriberEvent.getUrl().getParameter(INTERFACE));
+      } else {
+        microservice = interfaceMap.get(newSubscriberEvent.getUrl().getPath());
+      }
     }
     if (microservice == null) {
       LOGGER.error("the subscribe url [{}] is not registered.", newSubscriberEvent.getUrl().getPath());
@@ -337,6 +346,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       URL url = URL.valueOf(e);
       notifyUrls.putIfAbsent(url.getPath(), new ArrayList<>());
       notifyUrls.get(url.getPath()).add(url);
+      notifyUrls.putIfAbsent(GENERIC_SERVICE, new ArrayList<>());
+      notifyUrls.get(GENERIC_SERVICE).add(url);
     }));
 
     return notifyUrls;
