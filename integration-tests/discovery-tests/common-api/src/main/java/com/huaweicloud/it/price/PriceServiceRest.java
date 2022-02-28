@@ -22,7 +22,9 @@ import java.util.concurrent.CompletableFuture;
 public interface PriceServiceRest {
   String sayHello(String name);
 
-  String sayHelloGeneric(String name);
+  default String sayHelloGeneric(String name) {
+    return null;
+  }
 
   CompletableFuture<String> sayHelloAsync(String name);
 
