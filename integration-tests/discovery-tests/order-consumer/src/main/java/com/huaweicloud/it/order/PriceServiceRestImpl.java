@@ -25,6 +25,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.alibaba.dubbo.rpc.service.GenericService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -41,12 +42,29 @@ public class PriceServiceRestImpl implements PriceServiceRest {
     this.priceService = priceService;
   }
 
+  @Autowired
+  @Qualifier("priceServiceGeneric")
+  private GenericService priceServiceGeneric;
+
+  public void setPriceServiceGeneric(GenericService priceServiceGeneric) {
+    this.priceServiceGeneric = priceServiceGeneric;
+  }
+
   @Override
   @GET
   @Path("/sayHello")
   @Produces({MediaType.APPLICATION_JSON})
   public String sayHello(@QueryParam("name") String name) {
     return priceService.sayHello(name);
+  }
+
+  @Override
+  @GET
+  @Path("/sayHelloGeneric")
+  @Produces({MediaType.APPLICATION_JSON})
+  public String sayHelloGeneric(@QueryParam("name") String name) {
+    return priceServiceGeneric.$invoke("sayHello", new String[] {"java.lang.String"}, new Object[] {name})
+        .toString();
   }
 
   // dubbo do not support CompletableFuture, this example can not work

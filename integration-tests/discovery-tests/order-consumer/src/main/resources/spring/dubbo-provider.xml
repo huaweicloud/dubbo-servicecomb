@@ -30,10 +30,12 @@
 
   <bean id="priceServiceRest" class="com.huaweicloud.it.order.PriceServiceRestImpl">
     <property name="priceService" ref = "priceService"/>
+    <property name="priceServiceGeneric" ref = "priceServiceGeneric"/>
   </bean>
 
   <dubbo:service interface="com.huaweicloud.it.price.PriceServiceRest" ref="priceServiceRest"/>
 
   <dubbo:reference id="priceService" check="false" interface="com.huaweicloud.it.price.PriceService" scope="remote"/>
   <dubbo:reference id="pingService" check="false" interface="com.huaweicloud.it.price.PingService" scope="remote"/>
+  <dubbo:reference id="priceServiceGeneric" check="false" interface="com.huaweicloud.it.price.PriceService" scope="remote" generic="true"/>
 </beans>

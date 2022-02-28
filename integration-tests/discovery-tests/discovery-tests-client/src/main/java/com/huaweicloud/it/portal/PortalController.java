@@ -36,6 +36,9 @@ public class PortalController {
     String result = restTemplate.getForObject("http://order-consumer/price/sayHello?name={name}", String.class, "hello world");
     Assert.assertEquals(result, "hello world");
 
+    result = restTemplate.getForObject("http://order-consumer/price/sayHelloGeneric?name={name}", String.class, "hello world");
+    Assert.assertEquals(result, "hello world");
+
     result = restTemplate.getForObject("http://order-consumer/price/sayHello?name={name}", String.class, "timeout");
     Assert.assertEquals(result, "timeout");
 
