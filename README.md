@@ -17,11 +17,9 @@ by Cloud Service Engine.
 Before reading the next contents, check the supported versions in different branch.
 
 | Branch | Latest Version | Dubbo Base Version | Supported Dubbo Suggestions |
-| ---  | ------- | ------------ | ----------- |
-| 2.6.x | 1.1.3 | 2.6.9 | 2.6.x，Suggested upgrade to 2.6.9 or later |
-| 2.6.x | 1.1.5-SNAPSHOT | 2.6.9 | 2.6.x，Suggested upgrade to 2.6.9 or later |
-| master | 1.3.3 | 2.7.8 | 2.7.x，Suggested upgrade to 2.7.8 or later |
-| master | 1.3.5-SNAPSHOT | 2.7.8 | 2.7.x，Suggested upgrade to 2.7.8 or later |
+| ---  |----------------| ------------ | ----------- |
+| master | 2.0.0-2.7.x    | 2.7.8 | 2.7.x，Suggested upgrade to 2.7.8 or later |
+| 2.6.x | 2.0.0-2.6.x    | 2.6.9 | 2.6.x，Suggested upgrade to 2.6.9 or later |
 
 ## Dubbo Microservice Concepts vs Dubbo-ServiceComb Concepts
 
