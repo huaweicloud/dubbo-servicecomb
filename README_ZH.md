@@ -1,5 +1,7 @@
 # Dubbo-Serivcecomb | [English](README.md)
 
+>>>注意：本项目已经停止维护。在项目中请谨慎选择使用。
+
 Dubbo-Serivcecomb 为 [Apache Dubbo](https://github.com/apache/dubbo) 开发的微服务应用，
 提供注册中心、配置中心、服务治理支持，方便 dubbo 应用使用
 [华为云微服务引擎](https://www.huaweicloud.com/product/cse.html) 。 
