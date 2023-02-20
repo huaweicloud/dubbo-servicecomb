@@ -1,5 +1,7 @@
 # Dubbo-Serivcecomb | [中文](README_ZH.md)
 
+>>>NOTICE: This project is no longer in maintain. Please use it very carefully for your product. 
+
 Dubbo-Serivcecomb provide extensions for [Apache Dubbo](https://github.com/apache/dubbo) to
 using [Cloud Service Engine](https://www.huaweicloud.com/product/cse.html), so that
 Dubbo users can use service center, config center and governance features. 
