@@ -74,7 +74,7 @@ public class ServiceCenterConfigurationManager {
     MicroserviceInstance instance = new MicroserviceInstance();
     instance.setStatus(MicroserviceInstanceStatus.valueOf(environment.getProperty(KEY_INSTANCE_ENVIRONMENT, "UP")));
     HealthCheck healthCheck = new HealthCheck();
-    healthCheck.setMode(HealthCheckMode.pull);
+    healthCheck.setMode(HealthCheckMode.push);
     healthCheck.setInterval(Integer.parseInt(environment.getProperty(KEY_INSTANCE_HEALTH_CHECK_INTERVAL, "15")));
     healthCheck.setTimes(Integer.parseInt(environment.getProperty(KEY_INSTANCE_HEALTH_CHECK_TIMES, "3")));
     instance.setHealthCheck(healthCheck);
