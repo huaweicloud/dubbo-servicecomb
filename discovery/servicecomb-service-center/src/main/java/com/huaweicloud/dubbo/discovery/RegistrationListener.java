@@ -484,4 +484,13 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     }
     return urls;
   }
+
+  public void registerSubscriptionIfAbsent(URL url) {
+    Microservice service = interfaceMap.get(url.getPath());
+    ServiceCenterDiscovery.SubscriptionKey subscriptionKey = new ServiceCenterDiscovery.SubscriptionKey(
+        service.getAppId(), service.getServiceName());
+    if (!serviceCenterDiscovery.isRegistered(subscriptionKey)) {
+      serviceCenterDiscovery.register(subscriptionKey);
+    }
+  }
 }
