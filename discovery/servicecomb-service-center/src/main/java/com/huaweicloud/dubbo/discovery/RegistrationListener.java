@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.dubbo.registry.NotifyListener;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
@@ -489,7 +490,7 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     Microservice service = interfaceMap.get(url.getPath());
     ServiceCenterDiscovery.SubscriptionKey subscriptionKey = new ServiceCenterDiscovery.SubscriptionKey(
         service.getAppId(), service.getServiceName());
-    if (!serviceCenterDiscovery.isRegistered(subscriptionKey)) {
+    if (CollectionUtils.isEmpty(serviceCenterDiscovery.getInstanceCache(subscriptionKey))) {
       serviceCenterDiscovery.register(subscriptionKey);
     }
   }
