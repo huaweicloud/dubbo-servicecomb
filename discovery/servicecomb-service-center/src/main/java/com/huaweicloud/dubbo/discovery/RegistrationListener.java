@@ -84,6 +84,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   public static final String INTERFACE = "interface";
 
+  private static final int SCHEMA_QUERY_MAX_RETRY = 3;
+
   static class SubscriptionKey {
     final String appId;
 
@@ -349,7 +351,6 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
               LOGGER.warn("found duplicate schema {} in microservice {} and {}", schema,
                   service.getServiceName() + ":" + service.getVersion(),
                   result.get(schema).getServiceName() + ":" + result.get(schema).getVersion());
-
             }
             if (LOGGER.isDebugEnabled()) {
               LOGGER.debug("interfaceMap storage microservice [{}]",
@@ -513,8 +514,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     Map<String, List<URL>> notifyUrls = new HashMap<>();
 
     instances.forEach(instance -> {
-      List<org.apache.servicecomb.service.center.client.model.SchemaInfo> schemaInfos = client
-          .getServiceSchemasList(instance.getServiceId(), true);
+      List<org.apache.servicecomb.service.center.client.model.SchemaInfo> schemaInfos = getServiceSchemasList(
+          instance.getServiceId());
       instance.getEndpoints().forEach(e -> {
         URL url = URL.valueOf(e);
         if (schemaInfos.isEmpty()) {
@@ -537,8 +538,21 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         });
       });
     });
-
     return notifyUrls;
+  }
+
+  private List<org.apache.servicecomb.service.center.client.model.SchemaInfo> getServiceSchemasList(String serviceId) {
+    for (int i = 0; true; i++) {
+      try {
+        return client.getServiceSchemasList(serviceId, true);
+      } catch (Exception e) {
+        LOGGER.warn("get service schemas list failed, serviceId={}, retry {}/{}", serviceId, i + 1,
+            SCHEMA_QUERY_MAX_RETRY, e);
+        if (i == SCHEMA_QUERY_MAX_RETRY - 1) {
+          return new ArrayList<>();
+        }
+      }
+    }
   }
 
   private List<URL> wrapGovernanceData(SubscriptionKey subscriptionKey, List<URL> urls) {
