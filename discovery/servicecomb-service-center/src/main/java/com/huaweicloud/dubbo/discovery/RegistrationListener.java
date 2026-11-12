@@ -306,16 +306,18 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("getMicroserviceInstanceList by serviceId [{}]", microservice.getServiceId());
       }
+      subscriptions.put(new SubscriptionKey(microservice.getAppId(), microservice.getServiceName(),
+              newSubscriberEvent.getUrl().getPath()),
+          new SubscriptionData(newSubscriberEvent.getNotifyListener(), new ArrayList<>()));
 
       // 增加try/catch以保证注册中心空保护304、服务无实例400等异常时直接抛异常
       instancesResponse = client.getMicroserviceInstanceList(microservice.getServiceId());
     } catch (Exception e) {
       LOGGER.warn("get microservice [{}] instance list failed.", microservice.getServiceId(), e);
+      serviceCenterDiscovery
+          .register(new ServiceCenterDiscovery.SubscriptionKey(microservice.getAppId(), microservice.getServiceName()));
       return;
     }
-    subscriptions.put(new SubscriptionKey(microservice.getAppId(), microservice.getServiceName(),
-            newSubscriberEvent.getUrl().getPath()),
-        new SubscriptionData(newSubscriberEvent.getNotifyListener(), new ArrayList<>()));
 
     // 第一次订阅， 按照 dubbo 的要求， 需要查询实例列表
     notify(microservice.getAppId(), microservice.getServiceName(), instancesResponse.getInstances());
@@ -505,6 +507,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       if (subscriptionData != null) {
         subscriptionData.urls.clear();
         subscriptionData.urls.addAll(v);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("notify service [{}] dubbo subscriptionData [{}]", appId + ":" + serviceName, v);
+        }
         subscriptionData.notifyListener.notify(wrapGovernanceData(subscriptionKey, v));
       }
     });
