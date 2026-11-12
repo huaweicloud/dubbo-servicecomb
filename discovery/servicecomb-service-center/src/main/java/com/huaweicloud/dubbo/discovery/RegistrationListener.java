@@ -397,9 +397,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       boolean existingHasInstance = hasInstances(existing.getServiceId());
       boolean serviceHasInstance = hasInstances(service.getServiceId());
 
-      // 筛选两个比较的服务下是否有注册实例，避免重复利用历史版本号注册实例信息
+      // 筛选两个版本的服务下是否有实例，避免复用历史版本号注册实例情况下，单单看服务注册时间新老筛选不到注册中心正在运行的版本服务
       // 比如按这个顺序版本部署0.0.1=》0.0.2=》0.0.3=》0.0.4=》0.0.2
-      // 0.0.2版本服务创建时间比0.0.4版本早，但是仅仅0.0.2版本存在实例，这个场景不能单单看看服务注册时间新老筛选
+      // 0.0.2版本服务创建时间比0.0.4版本早，但是仅仅0.0.2版本存在实例，所以需要通过判断服务是否有实例信息来筛选
       if (existingHasInstance != serviceHasInstance) {
         Microservice kept = existingHasInstance ? existing : service;
         Microservice removed = existingHasInstance ? service : existing;
