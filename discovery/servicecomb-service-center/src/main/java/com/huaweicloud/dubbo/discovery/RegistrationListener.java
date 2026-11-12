@@ -314,6 +314,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       instancesResponse = client.getMicroserviceInstanceList(microservice.getServiceId());
     } catch (Exception e) {
       LOGGER.warn("get microservice [{}] instance list failed.", microservice.getServiceId(), e);
+
+      // 异常情况下强制给chassis加缓存key的逻辑，确保本步骤无论失败成功都会启动chassis刷新缓存
       serviceCenterDiscovery
           .register(new ServiceCenterDiscovery.SubscriptionKey(microservice.getAppId(), microservice.getServiceName()));
       return;
@@ -392,10 +394,12 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         latestServices.put(service.getServiceName(), service);
         return;
       }
-
-      // 判断服务是否挂载实例信息，以免重复使用旧版本注册实例
       boolean existingHasInstance = hasInstances(existing.getServiceId());
       boolean serviceHasInstance = hasInstances(service.getServiceId());
+
+      // 筛选两个比较的服务下是否有注册实例，避免重复利用历史版本号注册实例信息
+      // 比如按这个顺序版本部署0.0.1=》0.0.2=》0.0.3=》0.0.4=》0.0.2
+      // 0.0.2版本服务创建时间比0.0.4版本早，但是仅仅0.0.2版本存在实例，这个场景不能单单看看服务注册时间新老筛选
       if (existingHasInstance != serviceHasInstance) {
         Microservice kept = existingHasInstance ? existing : service;
         Microservice removed = existingHasInstance ? service : existing;
