@@ -35,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.dubbo.common.URL;
-import org.apache.dubbo.common.utils.CollectionUtils;
 import org.apache.dubbo.common.utils.ConfigUtils;
 import org.apache.dubbo.registry.NotifyListener;
 import org.apache.servicecomb.http.client.common.HttpConfiguration.SSLProperties;
@@ -63,6 +62,7 @@ import org.springframework.context.EnvironmentAware;
 import org.springframework.context.event.ContextStartedEvent;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import com.google.common.base.Charsets;
 import com.google.common.eventbus.Subscribe;
@@ -83,6 +83,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
   public static final String GENERIC_SERVICE = "org.apache.dubbo.rpc.service.GenericService";
 
   public static final String INTERFACE = "interface";
+
+  private static final int SCHEMA_QUERY_MAX_RETRY = 3;
 
   static class SubscriptionKey {
     final String appId;
@@ -299,11 +301,26 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       pendingSubscribeEvent.add(newSubscriberEvent);
       return;
     }
-    MicroserviceInstancesResponse instancesResponse = client
-        .getMicroserviceInstanceList(microservice.getServiceId());
-    subscriptions.put(new SubscriptionKey(microservice.getAppId(), microservice.getServiceName(),
-            newSubscriberEvent.getUrl().getPath()),
-        new SubscriptionData(newSubscriberEvent.getNotifyListener(), new ArrayList<>()));
+    MicroserviceInstancesResponse instancesResponse;
+    try {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("getMicroserviceInstanceList by serviceId [{}]", microservice.getServiceId());
+      }
+      subscriptions.put(new SubscriptionKey(microservice.getAppId(), microservice.getServiceName(),
+              newSubscriberEvent.getUrl().getPath()),
+          new SubscriptionData(newSubscriberEvent.getNotifyListener(), new ArrayList<>()));
+
+      // 增加try/catch以保证注册中心空保护304、服务无实例400等异常时直接抛异常
+      instancesResponse = client.getMicroserviceInstanceList(microservice.getServiceId());
+    } catch (Exception e) {
+      LOGGER.warn("get microservice [{}] instance list failed.", microservice.getServiceId(), e);
+
+      // 异常情况下强制给chassis加缓存key的逻辑，确保本步骤无论失败成功都会启动chassis刷新缓存
+      serviceCenterDiscovery
+          .register(new ServiceCenterDiscovery.SubscriptionKey(microservice.getAppId(), microservice.getServiceName()));
+      return;
+    }
+
     // 第一次订阅， 按照 dubbo 的要求， 需要查询实例列表
     notify(microservice.getAppId(), microservice.getServiceName(), instancesResponse.getInstances());
     serviceCenterDiscovery
@@ -327,14 +344,21 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     try {
       Map<String, Microservice> result = new HashMap<>();
       MicroservicesResponse microservicesResponse = client.getMicroserviceList();
-      microservicesResponse.getServices().forEach(service -> {
+
+      // 同一个应用，同一个服务多个版本服务ID时，根据服务注册时间保留最新一个服务返回
+      List<Microservice> services = filterLatestServices(microservicesResponse.getServices());
+      services.forEach(service -> {
         // 先不考虑运行 crossAPP 的场景， 只允许同应用发现
         if (service.getAppId().equals(this.microservice.getAppId())) {
           service.getSchemas().forEach(schema -> {
             if (result.containsKey(schema)) {
-              LOGGER.warn("found duplicate schema {} in microservice {} and {}", schema, service.getServiceName()
-                      + ":" + service.getVersion(),
+              LOGGER.warn("found duplicate schema {} in microservice {} and {}", schema,
+                  service.getServiceName() + ":" + service.getVersion(),
                   result.get(schema).getServiceName() + ":" + result.get(schema).getVersion());
+            }
+            if (LOGGER.isDebugEnabled()) {
+              LOGGER.debug("interfaceMap storage microservice [{}]",
+                  service.getServiceName() + ":" + service.getServiceId());
             }
             result.put(schema, service);
           });
@@ -344,6 +368,73 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       interfaceMap.putAll(result);
     } catch (Exception e) {
       LOGGER.error("update interface - service name map failed.", e);
+    }
+  }
+
+  /**
+   * 筛选服务：
+   * 1、首先筛选同应用服务
+   * 2、其次判断服务是否注册实例
+   * 3、再根据服务注册时间保留最新时间服务
+   *
+   * @param services 注册中心服务集合
+   * @return 服务集合
+   */
+  private List<Microservice> filterLatestServices(List<Microservice> services) {
+    Map<String, Microservice> latestServices = new HashMap<>();
+    services.forEach(service -> {
+      if (!service.getAppId().equals(this.microservice.getAppId())) {
+        return;
+      }
+      Microservice existing = latestServices.get(service.getServiceName());
+      if (existing == null) {
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("storage microservice [{}]", service.getServiceName() + ":" + service.getVersion());
+        }
+        latestServices.put(service.getServiceName(), service);
+        return;
+      }
+      boolean existingHasInstance = hasInstances(existing.getServiceId());
+      boolean serviceHasInstance = hasInstances(service.getServiceId());
+
+      // 筛选两个版本的服务下是否有实例，避免复用历史版本号注册实例情况下，单单看服务注册时间新老筛选不到注册中心正在运行的版本服务
+      // 比如按这个顺序版本部署0.0.1=》0.0.2=》0.0.3=》0.0.4=》0.0.2
+      // 0.0.2版本服务创建时间比0.0.4版本早，但是仅仅0.0.2版本存在实例，所以需要通过判断服务是否有实例信息来筛选
+      if (existingHasInstance != serviceHasInstance) {
+        Microservice kept = existingHasInstance ? existing : service;
+        Microservice removed = existingHasInstance ? service : existing;
+        LOGGER.warn("found duplicate microservice [{}], keep the one [{}] with instances",
+            removed.getServiceName() + ":" + removed.getVersion(),
+            kept.getServiceName() + ":" + kept.getVersion());
+        if (serviceHasInstance) {
+          if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("storage microservice [{}]", service.getServiceName() + ":" + service.getVersion());
+          }
+          latestServices.put(service.getServiceName(), service);
+        }
+        return;
+      }
+      if (service.getTimestamp().compareTo(existing.getTimestamp()) > 0) {
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("storage microservice [{}]", service.getServiceName() + ":" + service.getVersion());
+        }
+        latestServices.put(service.getServiceName(), service);
+      } else {
+        LOGGER.warn("found duplicate microservice [{}], keep the latest one [{}]",
+            service.getServiceName() + ":" + service.getVersion(),
+            existing.getServiceName() + ":" + existing.getVersion());
+      }
+    });
+    return new ArrayList<>(latestServices.values());
+  }
+
+  private boolean hasInstances(String serviceId) {
+    try {
+      MicroserviceInstancesResponse response = client.getMicroserviceInstanceList(serviceId);
+      return !CollectionUtils.isEmpty(response.getInstances());
+    } catch (Exception e) {
+      LOGGER.warn("query instances for service {} failed.", serviceId, e);
+      return false;
     }
   }
 
@@ -420,6 +511,9 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
       if (subscriptionData != null) {
         subscriptionData.urls.clear();
         subscriptionData.urls.addAll(v);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("notify service [{}] dubbo subscriptionData [{}]", appId + ":" + serviceName, v);
+        }
         subscriptionData.notifyListener.notify(wrapGovernanceData(subscriptionKey, v));
       }
     });
@@ -429,8 +523,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     Map<String, List<URL>> notifyUrls = new HashMap<>();
 
     instances.forEach(instance -> {
-      List<org.apache.servicecomb.service.center.client.model.SchemaInfo> schemaInfos = client
-          .getServiceSchemasList(instance.getServiceId(), true);
+      List<org.apache.servicecomb.service.center.client.model.SchemaInfo> schemaInfos = getServiceSchemasList(
+          instance.getServiceId());
       instance.getEndpoints().forEach(e -> {
         URL url = URL.valueOf(e);
         if (schemaInfos.isEmpty()) {
@@ -453,8 +547,21 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
         });
       });
     });
-
     return notifyUrls;
+  }
+
+  private List<org.apache.servicecomb.service.center.client.model.SchemaInfo> getServiceSchemasList(String serviceId) {
+    for (int i = 0; true; i++) {
+      try {
+        return client.getServiceSchemasList(serviceId, true);
+      } catch (Exception e) {
+        LOGGER.warn("get service schemas list failed, serviceId={}, retry {}/{}", serviceId, i + 1,
+            SCHEMA_QUERY_MAX_RETRY, e);
+        if (i == SCHEMA_QUERY_MAX_RETRY - 1) {
+          return new ArrayList<>();
+        }
+      }
+    }
   }
 
   private List<URL> wrapGovernanceData(SubscriptionKey subscriptionKey, List<URL> urls) {
