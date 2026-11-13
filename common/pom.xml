@@ -28,6 +28,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>dubbo-servicecomb-common</artifactId>
+  <name>Dubbo ServiceComb::Common</name>
 
   <dependencies>
     <dependency>
