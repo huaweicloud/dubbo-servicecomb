@@ -27,6 +27,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>dubbo-servicecomb-service-center</artifactId>
+  <name>Dubbo ServiceComb::Service Center</name>
 
   <dependencies>
     <dependency>

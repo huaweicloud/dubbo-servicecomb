@@ -28,6 +28,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>dubbo-servicecomb-governance-parent</artifactId>
+    <name>Dubbo ServiceComb::Governance Parent</name>
     <packaging>pom</packaging>
 
     <modules>
