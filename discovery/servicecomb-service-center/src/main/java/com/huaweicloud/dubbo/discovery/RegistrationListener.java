@@ -597,7 +597,8 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
     Microservice service = interfaceMap.get(url.getPath());
     ServiceCenterDiscovery.SubscriptionKey subscriptionKey = new ServiceCenterDiscovery.SubscriptionKey(
         service.getAppId(), service.getServiceName());
-    if (CollectionUtils.isEmpty(serviceCenterDiscovery.getInstanceCache(subscriptionKey))) {
+    if (!serviceCenterDiscovery.isRegistered(subscriptionKey)
+        || CollectionUtils.isEmpty(serviceCenterDiscovery.getInstanceCache(subscriptionKey))) {
       serviceCenterDiscovery.register(subscriptionKey);
     }
   }
