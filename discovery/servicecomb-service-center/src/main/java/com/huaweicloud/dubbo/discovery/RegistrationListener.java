@@ -595,6 +595,10 @@ public class RegistrationListener implements ApplicationListener<ApplicationEven
 
   public void registerSubscriptionIfAbsent(URL url) {
     Microservice service = interfaceMap.get(url.getPath());
+    if (service == null) {
+      LOGGER.warn("interfaceMap have no [{}] service!", url.getPath());
+      return;
+    }
     ServiceCenterDiscovery.SubscriptionKey subscriptionKey = new ServiceCenterDiscovery.SubscriptionKey(
         service.getAppId(), service.getServiceName());
     if (!serviceCenterDiscovery.isRegistered(subscriptionKey)
