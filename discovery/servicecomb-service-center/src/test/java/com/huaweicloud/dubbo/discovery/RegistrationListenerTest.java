@@ -18,9 +18,12 @@
 package com.huaweicloud.dubbo.discovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,9 +32,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.dubbo.common.URL;
 import org.apache.servicecomb.service.center.client.ServiceCenterClient;
+import org.apache.servicecomb.service.center.client.ServiceCenterDiscovery;
 import org.apache.servicecomb.service.center.client.model.Microservice;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstance;
 import org.apache.servicecomb.service.center.client.model.MicroserviceInstancesResponse;
@@ -259,6 +266,99 @@ public class RegistrationListenerTest {
     Method method = RegistrationListener.class.getDeclaredMethod("getServiceSchemasList", String.class);
     method.setAccessible(true);
     return (List<SchemaInfo>) method.invoke(listener, serviceId);
+  }
+
+  /**
+   * 用例描述：订阅键未注册且实例缓存为空时，执行 register 注册订阅
+   * 预制条件：interfaceMap 中存在目标 path 的 service（appId=default, serviceName=order-provider）；
+   * serviceCenterDiscovery.isRegistered 返回 false，getInstanceCache 返回空列表
+   * 输入参数：url path = "org.apache.dubbo.rpc.service.OrderService"
+   * 预期结果：serviceCenterDiscovery.register 被调用一次，参数为新建的 (default, order-provider) 订阅键
+   *
+   * @throws Exception 反射注入异常
+   */
+  @Test
+  public void registerSubscriptionIfAbsentShouldRegisterWhenInstanceCacheIsEmpty() throws Exception {
+    ServiceCenterDiscovery serviceCenterDiscovery = mock(ServiceCenterDiscovery.class);
+    setField("serviceCenterDiscovery", serviceCenterDiscovery);
+    mapPathToMicroservice("org.apache.dubbo.rpc.service.OrderService", "default", "order-provider");
+    URL url = URL.valueOf("consumer://10.0.0.1:8080/org.apache.dubbo.rpc.service.OrderService");
+
+    listener.registerSubscriptionIfAbsent(url);
+
+    verify(serviceCenterDiscovery, times(1))
+        .register(new ServiceCenterDiscovery.SubscriptionKey("default", "order-provider"));
+  }
+
+  /**
+   * 用例描述：订阅键已注册且实例缓存非空时，跳过 register 注册
+   * 预制条件：interfaceMap 中存在目标 path 的 service；
+   * serviceCenterDiscovery.isRegistered 返回 true，getInstanceCache 返回非空实例列表
+   * 输入参数：url path = "org.apache.dubbo.rpc.service.OrderService"
+   * 预期结果：serviceCenterDiscovery.register 从未被调用
+   *
+   * @throws Exception 反射注入异常
+   */
+  @Test
+  public void registerSubscriptionIfAbsentShouldNotRegisterWhenCacheIsNotEmpty() throws Exception {
+    ServiceCenterDiscovery serviceCenterDiscovery = mock(ServiceCenterDiscovery.class);
+    setField("serviceCenterDiscovery", serviceCenterDiscovery);
+    mapPathToMicroservice("org.apache.dubbo.rpc.service.OrderService", "default", "order-provider");
+    MicroserviceInstance instance = new MicroserviceInstance();
+    instance.setServiceId("sid-instance");
+    when(serviceCenterDiscovery.isRegistered(any(ServiceCenterDiscovery.SubscriptionKey.class))).thenReturn(true);
+    when(serviceCenterDiscovery.getInstanceCache(any(ServiceCenterDiscovery.SubscriptionKey.class)))
+        .thenReturn(Collections.singletonList(instance));
+    URL url = URL.valueOf("consumer://10.0.0.1:8080/org.apache.dubbo.rpc.service.OrderService");
+
+    listener.registerSubscriptionIfAbsent(url);
+
+    verify(serviceCenterDiscovery, never()).register(any(ServiceCenterDiscovery.SubscriptionKey.class));
+  }
+
+  /**
+   * 用例描述：订阅键未注册（isRegistered=false）但实例缓存非空时，执行 register 注册订阅
+   * 预制条件：interfaceMap 中存在目标 path 的 service；
+   * serviceCenterDiscovery.isRegistered 返回 false（mock 默认值），getInstanceCache 返回非空实例列表
+   * 输入参数：url path = "org.apache.dubbo.rpc.service.OrderService"
+   * 预期结果：短路或运算的第二分支触发，serviceCenterDiscovery.register 被调用一次
+   *
+   * @throws Exception 反射注入异常
+   */
+  @Test
+  public void registerSubscriptionIfAbsentShouldRegisterWhenNotRegisteredButCacheIsNotEmpty() throws Exception {
+    ServiceCenterDiscovery serviceCenterDiscovery = mock(ServiceCenterDiscovery.class);
+    setField("serviceCenterDiscovery", serviceCenterDiscovery);
+    mapPathToMicroservice("org.apache.dubbo.rpc.service.OrderService", "default", "order-provider");
+    MicroserviceInstance instance = new MicroserviceInstance();
+    instance.setServiceId("sid-instance");
+    when(serviceCenterDiscovery.getInstanceCache(any(ServiceCenterDiscovery.SubscriptionKey.class)))
+        .thenReturn(Collections.singletonList(instance));
+    URL url = URL.valueOf("consumer://10.0.0.1:8080/org.apache.dubbo.rpc.service.OrderService");
+
+    listener.registerSubscriptionIfAbsent(url);
+
+    verify(serviceCenterDiscovery, times(1))
+        .register(new ServiceCenterDiscovery.SubscriptionKey("default", "order-provider"));
+  }
+
+  private void mapPathToMicroservice(String path, String appId, String serviceName) {
+    mapPathToMicroservice(path, createMicroservice(appId, serviceName, "1.0.0", "sid-" + serviceName,
+        "2023-01-01T00:00:00.000Z"));
+  }
+
+  @SuppressWarnings("unchecked")
+  private void mapPathToMicroservice(String path, Microservice microservice) {
+    try {
+      Field field = RegistrationListener.class.getDeclaredField("interfaceMap");
+      field.setAccessible(true);
+      Object object = field.get(listener);
+      if (object instanceof Map) {
+        ((Map<String, Microservice>) object).put(path, microservice);
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("failed to inject interfaceMap", e);
+    }
   }
 
   private void setField(String fieldName, Object value) throws Exception {
